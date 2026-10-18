@@ -1,0 +1,10 @@
+{
+  "baselineVersion": "0.3.0",
+  "sourceFiles": 30,
+  "sourceChanged": [],
+  "factoryWavFiles": 24,
+  "factoryWavChanged": [],
+  "pcmScenarios": 12,
+  "stereoFramesCompared": 1228800,
+  "engineAudioUnchanged": true
+}

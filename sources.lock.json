@@ -1,0 +1,128 @@
+{
+  "openifw": {
+    "url": "https://github.com/rcell233/OpenIFW",
+    "commit": "a478abd0645225add3f2a7751522da1bced7a2e6",
+    "license": "MIT",
+    "selection": "web/src/dsp/*.js, LICENSE, six unmodified factory JSON programs and index"
+  },
+  "dinghy": {
+    "url": "https://github.com/zvenson/dinghy",
+    "commit": "d44df7db09b98ccad2f1233b8f83f5f09c04829e",
+    "license": "GPL-3.0-only",
+    "selection": "source snapshot; no .git, build, logo artwork or logo screenshot",
+    "omitted_assets": [
+      "vendor/dinghy/assets/logo.png",
+      "vendor/dinghy/assets/logo.svg",
+      "vendor/dinghy/docs/screen.png"
+    ]
+  },
+  "sha256": {
+    "vendor/dinghy/.gitignore": "5428809a7af879ad0b6085b60c7b93293419bb3f0b3b4a050a119cb2a63a175b",
+    "vendor/dinghy/LICENSE": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+    "vendor/dinghy/LICENSING.md": "be2790d446a0bfad83d4a6c14765fceca84d15dd18484224089f6a1117c5ffca",
+    "vendor/dinghy/README.md": "952d485a86bdb6b1ca33b368a70ee9d948a4741d4d5c43aa47b07d5bd589f1e0",
+    "vendor/dinghy/assets/fonts/Terminus-LICENSE.txt": "0a18785a674c0061da0fa1eb1bbdfe2d7db383b3f2e64c73454540e9cc3ae33d",
+    "vendor/dinghy/build.sh": "f0d2d744ef60acbee1119df483ea14734c1878ca63c69cb8795f8697526c95d7",
+    "vendor/dinghy/docs/API.md": "4144a4c073baaee77d6b2f2fcd4b257b42865947246b98bb904ff1272c7dd586",
+    "vendor/dinghy/docs/MAKE-IT-YOURS.md": "357e7f9d0d81c822dfe540d3c8fcf77f92dff825dcf5852e2fe5420476e1a2bd",
+    "vendor/dinghy/docs/RULES.md": "33ad8f09d11c3d01a16fd0ef3d0ab6577f57d4c1d2dee7e44c18f047d5f78472",
+    "vendor/dinghy/firmware/app.ld": "6a9f41205e482fbdf2d24dc418416e45a3a8e1781d3e594279d751335af8942a",
+    "vendor/dinghy/firmware/crt0.S": "2212471c4a70e94022ba24ef65a4b208fadd5f7e33f80745c5f5e8b9f4aa840c",
+    "vendor/dinghy/firmware/gen/felucca_font.h": "ce47ea8e3c8bd7dd40aa5862918c98436201ef4cd29b6f82399c45ff7fdc5119",
+    "vendor/dinghy/firmware/hal/fm1_adc.h": "1917870bd802de9134d33335efbcf886b296705dff06688925fd7325589c0c1a",
+    "vendor/dinghy/firmware/hal/fm1_audio.h": "22351440699748546e932098e3016c618d6137dd0ae34557e08a107641d4e62e",
+    "vendor/dinghy/firmware/hal/fm1_cc.h": "46c533a0926ba9298ae36705f857ed609a61b95511ba7f0d1800857b4760dd73",
+    "vendor/dinghy/firmware/hal/fm1_flash.h": "ee9700389d8bf842606b7210e52e125c085a44fbb5d30301cf189d823c4d5e90",
+    "vendor/dinghy/firmware/hal/fm1_gpio.h": "5e3937e32a3b4b9b9ae622c5b42c8819ec8a16f2d76dbddec91654703c77a216",
+    "vendor/dinghy/firmware/hal/fm1_guard.h": "dda2ebdd3024aab7700f8ef00cc55de23c0b369be1d889741d2058eb5c33ce74",
+    "vendor/dinghy/firmware/hal/fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
+    "vendor/dinghy/firmware/hal/fm1_irq.h": "b54beeaf8bceab5a4e0bcd6d9fee1280fcba1a072f73c94160488d1b6ebcbc58",
+    "vendor/dinghy/firmware/hal/fm1_isr.S": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5",
+    "vendor/dinghy/firmware/hal/fm1_lcd_hw.h": "4fc3318a703fd55200153442acac4eb33ef56ff8e2eb82ba18ed0a3b9e655c1e",
+    "vendor/dinghy/firmware/hal/fm1_sys.h": "5d56781274406b0a1bf816c66d86c0b0b23b49757cc6f5644df566127827a9a7",
+    "vendor/dinghy/firmware/hal/fm1_time.h": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
+    "vendor/dinghy/firmware/hal/fm1_timer.h": "1ec236ce4a75a5b94b9c16999dcdf7d71e4e0c5e0d2f14dbfb87bbaf025e1004",
+    "vendor/dinghy/firmware/hal/fm1_uart.h": "482da9e67231a7b42bff63362dec60aa8f43ca6e8d4962df57f8be6f9ea5d8c9",
+    "vendor/dinghy/firmware/hal/fm1_usb.h": "667289a678a027221343b6496b61870222eb80394a696d7dd896dbc2ffe303d4",
+    "vendor/dinghy/firmware/hal/fm1_vec.S": "8f9e787871332f522157d561dc3cfe8906ed0abf160139ed5819cfdeab66f01a",
+    "vendor/dinghy/firmware/hal/fm1_xip.h": "dcba6ddb9cd2403e1d97c4db49d836110ef2805d2369db7ed323e3fbe26c56ed",
+    "vendor/dinghy/firmware/loader/crt0_ldr.S": "bd4149b97520d1dcc271f730c5a046b0dbf97909e48e968e0ba18304ffc37841",
+    "vendor/dinghy/firmware/loader/ldr_core.c": "389aa2e09e74fdac184221edd9b8b7d76eb59ec3dabd11008cbb06081f9fe1de",
+    "vendor/dinghy/firmware/loader/loader.c": "d1a68016bde7c5f1ecdd2613f1f9ef55cd5822e65a0c6e3394fb9249f1d0fdea",
+    "vendor/dinghy/firmware/loader/loader.ld": "4acae8c9a16cf9a70f53a546f9175b5a86d2bc5cb6bce39513a2ff3c4fdba4ae",
+    "vendor/dinghy/firmware/src/bootguard.h": "bf19ef423356552105115a3ec3dde3beddb0369670f4b4317520ebfd8f032afb",
+    "vendor/dinghy/firmware/src/dinghy.c": "c27e4be6f6eb9d56d0d1b9f857ceed97a80e476a23a2553fa2fe52b1841cb383",
+    "vendor/dinghy/firmware/src/gfx.c": "ae52d4e854c2c81a2ea7892807c771fc228103391a186ceb1201e2faf1efa74e",
+    "vendor/dinghy/firmware/src/lcd.c": "b69f0c3d6a5b61c883a35b50ddd6582811bd620a45268543e923fb8849caaac4",
+    "vendor/dinghy/firmware/src/libc.c": "344b09afe33da826feefeb1ea2a1a7c50732f91c133fee30174819645edc131a",
+    "vendor/dinghy/firmware/src/ota.c": "ffc981586704b41f62c763248037d1fe373c84c3566c0486de795296f9841855",
+    "vendor/dinghy/firmware/src/platform.c": "6cfb23b317af3d95da4d6eeeb8a34de59ee77a626d7d17484398feeb2535bfd7",
+    "vendor/dinghy/firmware/src/recovery.c": "f2c7c0c0fd1592f8390ee0066f96033843a3e2eaabbf995013ee9b0735429929",
+    "vendor/dinghy/firmware/src/uac_fir.h": "b4393a8efc4ce5427334692b9857d31446a36416dc6ca7941aea5bd4add4ca56",
+    "vendor/dinghy/firmware/src/usb.c": "68cbe458df1119a4517a384840f22f6359107453e571b3612672e01d52325857",
+    "vendor/dinghy/tests/host.c": "9699dc22e0d100b315731061f8187f477ce128dcc5f421142425a785f484d17c",
+    "vendor/dinghy/tests/run_host.sh": "a6f523fe2604718de3bc6b92cbedbd0f0eb02e921909fb74d59080ff516b7d4a",
+    "vendor/dinghy/tools/build.py": "0b91f74c77d4b747675bd99a2475d56adbacc3e30295c57a6e311ed83123cadd",
+    "vendor/dinghy/tools/fm1_install.py": "d7b115a592b536128b5e8ae3b94b178bf4be0e3f9ff0948b5e0fc04113bbd44c",
+    "vendor/dinghy/tools/fm1pkg_make.py": "284fa4553d3194d6c374b7cb3ff169ac11a5d3f496861ed17f7bae28e79d7ea3",
+    "vendor/dinghy/tools/get_toolchain.sh": "01c997cf377aa964eceaaaa05f6e75c0df92a863297ca7d3cc4a71472764f5f3",
+    "vendor/dinghy/tools/lz4blk.py": "bede501ca8774ba6942b35ad2c43823e9f48f13d0fb001ef9b73cdaf41460e16",
+    "vendor/openifw/LICENSE": "31b62e1aa86684d40a9276b3c409d7df65203c19ceceef9513462c04b4f3bbc4",
+    "vendor/openifw/dsp/core.js": "fbd19d973d2c395ae24c83fdb2ffbe98d76a6dfcc3305e186562b39f41f681a6",
+    "vendor/openifw/dsp/envelope.js": "0c4df2b9190ffc3e49a48fb1ebd4e513c975a399d9cbbe7fc8e31bb12c6fccca",
+    "vendor/openifw/dsp/modulation.js": "5c365571e485beafc9dcda02a3a250be01b4a801c3419dbd912c5ed5ef117b98",
+    "vendor/openifw/dsp/native-controls.js": "7e51e1c4b1160f4066456bd3b2ff9ca4831380eb328ff8e45a3a9de53790d1b9",
+    "vendor/openifw/dsp/worklet.js": "c2b9989c79cf9885f58378e95a248f304a471691b0a717a850f7e6a6fffa93e6",
+    "vendor/openifw/presets/wanna-go-to-hawaii.json": "63e1bc3cb53feb39d85484a8cb3bc0af78eda5bb6ad760ef077fb79b4b26e5ab",
+    "vendor/openifw/presets/index.json": "3154bebe55a67649958b1483e9ffba25b1a1f192a6329d0d1dadcb2c611378a8",
+    "vendor/openifw/presets/daisy-area-2.json": "4913b2a6ae5b4fd3b5ff3d809e7b97ae4e060da346c0b39756f7fbc030c96349",
+    "vendor/openifw/presets/judd-ish-2000.json": "394b8e2f60791fa3ca0a87e9d0018ab0fb4f3690d29e0bda034965e1b35935bb",
+    "vendor/openifw/presets/primer.json": "c13ebf5fb2386305a12ff19094e604a8f18459798ab11ba6be27d0b1507dad63",
+    "vendor/openifw/presets/tresure-island.json": "4baa48db5036d25019534c88464c216e40a9b4d21f2d987be1b3e61c06ca5362",
+    "vendor/openifw/presets/ai-no-labyrinth.json": "14ccced6bcd030874fbb8b6a6e8245151e26cfd9cfac38aeacfdce53d442923f",
+    "web/fonts/DotGothic16-subset.woff": "64f5bf21134bb81ed79b6ab1f65e0a8c75d55cfd68b08a2501e21e571a3cc61f",
+    "web/fonts/OFL.txt": "5e59cab6d61d59a5b3110ed900dce715383cb2626a473dcf77c13c116aa839eb"
+  },
+  "jieli_sdk": {
+    "url": "https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK",
+    "tag": "AC79NN_SDK_V1.2.1_2023-12-13",
+    "commit": "d179b4484759423312073f5fbb232501aa491047",
+    "license": "Apache-2.0",
+    "sha256": {
+      "uboot.boot": "4e3b4c220dc96641cb5a723f41e68ce41d5261ae9434bb33fbd7f2c59976ded4",
+      "cfg_tool.bin": "276579954f076886a6a7694f65dc71c034a63a2c204b76749065c0ac7b010d1b",
+      "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d"
+    }
+  },
+  "toolchain": {
+    "archive": "jieli-linux-toolchains-20260730.1.tar.xz",
+    "sha256": "a1545cddbc451a06bac43eb5cd96d831470c42a97c5c0b1f98879a20fc7647bd",
+    "bundled": false
+  },
+  "factory_presets": {
+    "credit": "STUDIO-R",
+    "notice": "vendor/openifw/presets/NOTICE.md",
+    "relicensed": false
+  },
+  "felucca_web": {
+    "url": "https://github.com/hugelton/Felucca",
+    "commit": "5738617968a22b5d4c0d3470cfcc95559052f446",
+    "license": "GPL-3.0-only",
+    "selection": "Adapted physical panel and AudioWorklet from web/emu/index.html and web/emu/worklet.js; DotGothic16 font under SIL OFL 1.1",
+    "originalBlobHashes": {
+      "web/emu/index.html": "30be6ef3d8162ad6e6cbdab95dc6d832a11fdfef",
+      "web/emu/worklet.js": "204cb85ebad1108798bf4660f7fb675cb643edd9"
+    }
+  },
+  "ghoulbox_ui": {
+    "url": "https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth",
+    "commit": "f23fbc593f8af29dfa01174278f08ee79155ed27",
+    "license": "GPL-3.0-only",
+    "selection": "UI patterns, stone windows, palette, sword cursor and four-knob page operation only; no DSP or presets imported"
+  },
+  "vt323": {
+    "source": "https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth/blob/f23fbc593f8af29dfa01174278f08ee79155ed27/assets/fonts/VT323-Regular.ttf",
+    "license": "SIL-OFL-1.1",
+    "sha256": "cf4de751ada78ceac033dbe16a687742939995b77bc2a052ae17a4957958594d"
+  }
+}

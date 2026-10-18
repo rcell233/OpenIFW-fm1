@@ -1,0 +1,2212 @@
+{
+  "controls": [
+    {
+      "label": "OSC1 SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC1 SEMI",
+      "lo": -2359296,
+      "hi": 2359296,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 TUNE",
+      "lo": -3276800,
+      "hi": 3276800,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 SAW LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 TRI LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 PWM LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 PWM WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 NOISE LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 NOISE LO FI",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC1 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "OSC1 OUTPUT1",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC1 OUTPUT2",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC2 SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC2 SEMI",
+      "lo": -2359296,
+      "hi": 2359296,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 TUNE",
+      "lo": -3276800,
+      "hi": 3276800,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 SAW LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 TRI LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 PWM LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 PWM WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 NOISE LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 NOISE LO FI",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC2 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "OSC2 OUTPUT1",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC2 OUTPUT2",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC3 SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC3 SEMI",
+      "lo": -2359296,
+      "hi": 2359296,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 TUNE",
+      "lo": -3276800,
+      "hi": 3276800,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 SAW LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 TRI LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 PWM LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 PWM WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 NOISE LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 NOISE LO FI",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC3 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "OSC3 OUTPUT1",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC3 OUTPUT2",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC4 SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC4 SEMI",
+      "lo": -2359296,
+      "hi": 2359296,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 TUNE",
+      "lo": -3276800,
+      "hi": 3276800,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 SAW LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 TRI LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 PWM LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 PWM WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 NOISE LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 NOISE LO FI",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "OSC4 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "OSC4 OUTPUT1",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "OSC4 OUTPUT2",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "FILTER1 TYPE",
+      "lo": 0,
+      "hi": 3,
+      "step": 1,
+      "choice": 3
+    },
+    {
+      "label": "FILTER1 FREQ",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER1 RES",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER1 BREATH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER1 KEY TRACK",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER1 BR SOURCE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 5
+    },
+    {
+      "label": "FILTER2 TYPE",
+      "lo": 0,
+      "hi": 3,
+      "step": 1,
+      "choice": 3
+    },
+    {
+      "label": "FILTER2 FREQ",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER2 RES",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER2 BREATH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER2 KEY TRACK",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER2 BR SOURCE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 5
+    },
+    {
+      "label": "EG1 ATTACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG1 DECAY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG1 SUSTAIN",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG1 RELEASE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG1 RETRIGGER",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "EG2 ATTACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG2 DECAY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG2 SUSTAIN",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG2 RELEASE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG2 RETRIGGER",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "EG3 ATTACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG3 DECAY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG3 SUSTAIN",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG3 RELEASE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG3 RETRIGGER",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "EG4 ATTACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG4 DECAY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG4 SUSTAIN",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG4 RELEASE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EG4 RETRIGGER",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO1 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "LFO1 SPEED",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "LFO1 KEY SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO1 BPMSYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO1 BPM SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO1 BEAT",
+      "lo": 0,
+      "hi": 7,
+      "step": 1,
+      "choice": 7
+    },
+    {
+      "label": "LFO2 WAVE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 2
+    },
+    {
+      "label": "LFO2 SPEED",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "LFO2 KEY SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO2 BPMSYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO2 BPM SYNC",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "LFO2 BEAT",
+      "lo": 0,
+      "hi": 7,
+      "step": 1,
+      "choice": 7
+    },
+    {
+      "label": "MOD1 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD1 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD1 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD1 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD2 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD2 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD2 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD2 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD3 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD3 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD3 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD3 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD4 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD4 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD4 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD4 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD5 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD5 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD5 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD5 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD6 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD6 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD6 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD6 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD7 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD7 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD7 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD7 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MOD8 SOURCE1",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD8 SOURCE2",
+      "lo": 0,
+      "hi": 49,
+      "step": 1,
+      "choice": 8
+    },
+    {
+      "label": "MOD8 DEST",
+      "lo": 0,
+      "hi": 52,
+      "step": 1,
+      "choice": 9
+    },
+    {
+      "label": "MOD8 DEPTH",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER3 ENABLED",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "FILTER3 STAGE",
+      "lo": 131072,
+      "hi": 1572864,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "FILTER3 FREQ",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER3 RES",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FILTER3 MIX",
+      "lo": -655360,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "AMP1 LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "AMP1 BREATH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "AMP1 BR SOURCE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 5
+    },
+    {
+      "label": "AMP2 LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "AMP2 BREATH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "AMP2 BR SOURCE",
+      "lo": 0,
+      "hi": 4,
+      "step": 1,
+      "choice": 5
+    },
+    {
+      "label": "FILTER ROUTE",
+      "lo": 0,
+      "hi": 2,
+      "step": 1,
+      "choice": 4
+    },
+    {
+      "label": "TRANSPOSE",
+      "lo": -1572864,
+      "hi": 1572864,
+      "step": 65536,
+      "choice": 0
+    },
+    {
+      "label": "PITCH BEND RANGE",
+      "lo": 0,
+      "hi": 1572864,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MASTER TUNE",
+      "lo": -3276800,
+      "hi": 3276800,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "MASTER LEVEL",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GATE OPEN SMOOTH",
+      "lo": 0,
+      "hi": 65536000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GATE CLOSE SMOOTH",
+      "lo": 0,
+      "hi": 65536000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "BREATH SMOOTH",
+      "lo": 0,
+      "hi": 65536000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PITCH BEND SMOOTH",
+      "lo": 0,
+      "hi": 65536000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GLIDE SMOOTH",
+      "lo": 0,
+      "hi": 65536000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GLIDE MIN SPEED",
+      "lo": 0,
+      "hi": 65536,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GLIDE SPEED",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "GLIDE MIDI ENABLED",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "GLIDE MODE",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 6
+    },
+    {
+      "label": "EXCITER FREQ",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EXCITER MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "ENHANCER MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "ENHANCER DELAY L",
+      "lo": 0,
+      "hi": 6553600,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "ENHANCER DELAY R",
+      "lo": 0,
+      "hi": 6553600,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EQ LOW GAIN",
+      "lo": -786432,
+      "hi": 786432,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "EQ HIGH GAIN",
+      "lo": -786432,
+      "hi": 786432,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER BYPASS",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "PHASER STEREO",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER SPEED",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER FEEDBACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER LOWPASS",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER WETDRY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER RATE",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER DEPTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER TIME",
+      "lo": 66,
+      "hi": 65536,
+      "step": 655,
+      "choice": 0
+    },
+    {
+      "label": "PHASER HIGHPASS",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER SIZE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER HIGHDAMP",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "PHASER WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS BYPASS",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "CHORUS STEREO",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS SPEED",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS FEEDBACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS LOWPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS WETDRY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS RATE",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS DEPTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS TIME",
+      "lo": 66,
+      "hi": 65536,
+      "step": 655,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS HIGHPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS SIZE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS HIGHDAMP",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 BYPASS",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "DELAY 1 STEREO",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 SPEED",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 FEEDBACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 LOWPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 WETDRY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 RATE",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 DEPTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 TIME",
+      "lo": 66,
+      "hi": 65536,
+      "step": 655,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 HIGHPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 SIZE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 HIGHDAMP",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 1 WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 BYPASS",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "DELAY 2 STEREO",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 SPEED",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 FEEDBACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 LOWPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 WETDRY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 RATE",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 DEPTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 TIME",
+      "lo": 66,
+      "hi": 65536,
+      "step": 655,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 HIGHPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 SIZE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 HIGHDAMP",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "DELAY 2 WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB BYPASS",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "REVERB STEREO",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB SPEED",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB FEEDBACK",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB LOWPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "REVERB WETDRY",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB RATE",
+      "lo": 655,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB DEPTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB MIX",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB TIME",
+      "lo": 66,
+      "hi": 65536,
+      "step": 655,
+      "choice": 0
+    },
+    {
+      "label": "REVERB HIGHPASS",
+      "lo": 655360,
+      "hi": 1310720000,
+      "step": 6553600,
+      "choice": 0
+    },
+    {
+      "label": "REVERB SIZE",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB HIGHDAMP",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "REVERB WIDTH",
+      "lo": 0,
+      "hi": 655360,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "TUNING HZ",
+      "lo": 19660800,
+      "hi": 32768000,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "CHORUS PHASE",
+      "lo": 0,
+      "hi": 411775,
+      "step": 6554,
+      "choice": 0
+    },
+    {
+      "label": "FX BYPASS MASK",
+      "lo": 0,
+      "hi": 31,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "WIND / CC7",
+      "lo": 0,
+      "hi": 1,
+      "step": 1,
+      "choice": 1
+    },
+    {
+      "label": "MIDI CHANNEL",
+      "lo": 0,
+      "hi": 16,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "KEY OCTAVE",
+      "lo": 0,
+      "hi": 6,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "SAVE SLOT",
+      "lo": 0,
+      "hi": 2,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "RENDER MAX US",
+      "lo": 0,
+      "hi": 10000,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "XRUN BLOCKS",
+      "lo": 0,
+      "hi": 2147483647,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "SAMPLE RATE",
+      "lo": 44100,
+      "hi": 44100,
+      "step": 1,
+      "choice": 0
+    },
+    {
+      "label": "BUILD X1000",
+      "lo": 300,
+      "hi": 300,
+      "step": 1,
+      "choice": 0
+    }
+  ],
+  "choices": [
+    [],
+    [
+      {
+        "label": "OFF",
+        "value": 0
+      },
+      {
+        "label": "ON",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "label": "SIN",
+        "value": 0
+      },
+      {
+        "label": "TRI",
+        "value": 1
+      },
+      {
+        "label": "SAW",
+        "value": 2
+      },
+      {
+        "label": "SQU",
+        "value": 3
+      },
+      {
+        "label": "Ext In",
+        "value": 4
+      }
+    ],
+    [
+      {
+        "label": "LPF24",
+        "value": 0
+      },
+      {
+        "label": "LPF12",
+        "value": 1
+      },
+      {
+        "label": "HPF12",
+        "value": 2
+      },
+      {
+        "label": "BPF12",
+        "value": 3
+      }
+    ],
+    [
+      {
+        "label": "PARALLEL 2",
+        "value": 0
+      },
+      {
+        "label": "SERIAL",
+        "value": 1
+      },
+      {
+        "label": "PARALLEL 1",
+        "value": 2
+      }
+    ],
+    [
+      {
+        "label": "BREATH",
+        "value": 0
+      },
+      {
+        "label": "BR x EG1",
+        "value": 1
+      },
+      {
+        "label": "BR x EG2",
+        "value": 2
+      },
+      {
+        "label": "BR x EG3",
+        "value": 3
+      },
+      {
+        "label": "BR x EG4",
+        "value": 4
+      }
+    ],
+    [
+      {
+        "label": "TIME",
+        "value": 0
+      },
+      {
+        "label": "RATE",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "label": "1/1",
+        "value": 65536
+      },
+      {
+        "label": "1/2",
+        "value": 32768
+      },
+      {
+        "label": "1/4",
+        "value": 16384
+      },
+      {
+        "label": "1/8",
+        "value": 8192
+      },
+      {
+        "label": "1/16",
+        "value": 4096
+      },
+      {
+        "label": "1/32",
+        "value": 2048
+      },
+      {
+        "label": "3/16",
+        "value": 12288
+      },
+      {
+        "label": "3/8",
+        "value": 24576
+      }
+    ],
+    [
+      {
+        "label": "None",
+        "value": 0
+      },
+      {
+        "label": "BREATH",
+        "value": 1
+      },
+      {
+        "label": "BREATH +/-",
+        "value": 129
+      },
+      {
+        "label": "VELOCITY",
+        "value": 2
+      },
+      {
+        "label": "VELOCITY +/-",
+        "value": 130
+      },
+      {
+        "label": "NOTE",
+        "value": 3
+      },
+      {
+        "label": "NOTE +/-",
+        "value": 131
+      },
+      {
+        "label": "PITCH BEND",
+        "value": 4
+      },
+      {
+        "label": "PITCH BEND +/-",
+        "value": 132
+      },
+      {
+        "label": "VIBRATO",
+        "value": 5
+      },
+      {
+        "label": "GLIDE",
+        "value": 6
+      },
+      {
+        "label": "GATE",
+        "value": 7
+      },
+      {
+        "label": "EG 1",
+        "value": 8
+      },
+      {
+        "label": "EG 1 +/-",
+        "value": 136
+      },
+      {
+        "label": "EG 2",
+        "value": 9
+      },
+      {
+        "label": "EG 2 +/-",
+        "value": 137
+      },
+      {
+        "label": "EG 3",
+        "value": 10
+      },
+      {
+        "label": "EG 3 +/-",
+        "value": 138
+      },
+      {
+        "label": "EG 4",
+        "value": 11
+      },
+      {
+        "label": "EG 4 +/-",
+        "value": 139
+      },
+      {
+        "label": "LFO 1",
+        "value": 12
+      },
+      {
+        "label": "LFO 1 +/-",
+        "value": 140
+      },
+      {
+        "label": "LFO 2",
+        "value": 13
+      },
+      {
+        "label": "LFO 2 +/-",
+        "value": 141
+      },
+      {
+        "label": "OSC 1 SAW",
+        "value": 14
+      },
+      {
+        "label": "OSC 1 SAW +/-",
+        "value": 142
+      },
+      {
+        "label": "OSC 1 TRI",
+        "value": 18
+      },
+      {
+        "label": "OSC 1 TRI +/-",
+        "value": 146
+      },
+      {
+        "label": "OSC 1 PWM",
+        "value": 22
+      },
+      {
+        "label": "OSC 1 PWM +/-",
+        "value": 150
+      },
+      {
+        "label": "OSC 2 SAW",
+        "value": 15
+      },
+      {
+        "label": "OSC 2 SAW +/-",
+        "value": 143
+      },
+      {
+        "label": "OSC 2 TRI",
+        "value": 19
+      },
+      {
+        "label": "OSC 2 TRI +/-",
+        "value": 147
+      },
+      {
+        "label": "OSC 2 PWM",
+        "value": 23
+      },
+      {
+        "label": "OSC 2 PWM +/-",
+        "value": 151
+      },
+      {
+        "label": "OSC 3 SAW",
+        "value": 16
+      },
+      {
+        "label": "OSC 3 SAW +/-",
+        "value": 144
+      },
+      {
+        "label": "OSC 3 TRI",
+        "value": 20
+      },
+      {
+        "label": "OSC 3 TRI +/-",
+        "value": 148
+      },
+      {
+        "label": "OSC 3 PWM",
+        "value": 24
+      },
+      {
+        "label": "OSC 3 PWM +/-",
+        "value": 152
+      },
+      {
+        "label": "OSC 4 SAW",
+        "value": 17
+      },
+      {
+        "label": "OSC 4 SAW +/-",
+        "value": 145
+      },
+      {
+        "label": "OSC 4 TRI",
+        "value": 21
+      },
+      {
+        "label": "OSC 4 TRI +/-",
+        "value": 149
+      },
+      {
+        "label": "OSC 4 PWM",
+        "value": 25
+      },
+      {
+        "label": "OSC 4 PWM +/-",
+        "value": 153
+      },
+      {
+        "label": "OSC 4 NOISE",
+        "value": 26
+      },
+      {
+        "label": "OSC 4 NOISE +/-",
+        "value": 154
+      }
+    ],
+    [
+      {
+        "label": "NONE",
+        "value": -1
+      },
+      {
+        "label": "OSC 1 PITCH",
+        "value": 166
+      },
+      {
+        "label": "OSC 1 FM",
+        "value": 162
+      },
+      {
+        "label": "OSC 1 SAW LEVEL",
+        "value": 3
+      },
+      {
+        "label": "OSC 1 TRI LEVEL",
+        "value": 4
+      },
+      {
+        "label": "OSC 1 WAVE LEVEL",
+        "value": 4
+      },
+      {
+        "label": "OSC 1 PWM LEVEL",
+        "value": 5
+      },
+      {
+        "label": "OSC 1 PWM WIDTH",
+        "value": 6
+      },
+      {
+        "label": "OSC 1 PWM PHASE",
+        "value": 6
+      },
+      {
+        "label": "OSC 2 PITCH",
+        "value": 167
+      },
+      {
+        "label": "OSC 2 FM",
+        "value": 163
+      },
+      {
+        "label": "OSC 2 SAW LEVEL",
+        "value": 15
+      },
+      {
+        "label": "OSC 2 TRI LEVEL",
+        "value": 16
+      },
+      {
+        "label": "OSC 2 WAVE LEVEL",
+        "value": 16
+      },
+      {
+        "label": "OSC 2 PWM LEVEL",
+        "value": 17
+      },
+      {
+        "label": "OSC 2 PWM WIDTH",
+        "value": 18
+      },
+      {
+        "label": "OSC 2 PWM PHASE",
+        "value": 18
+      },
+      {
+        "label": "OSC 3 PITCH",
+        "value": 168
+      },
+      {
+        "label": "OSC 3 FM",
+        "value": 164
+      },
+      {
+        "label": "OSC 3 SAW LEVEL",
+        "value": 27
+      },
+      {
+        "label": "OSC 3 TRI LEVEL",
+        "value": 28
+      },
+      {
+        "label": "OSC 3 WAVE LEVEL",
+        "value": 28
+      },
+      {
+        "label": "OSC 3 PWM LEVEL",
+        "value": 29
+      },
+      {
+        "label": "OSC 3 PWM WIDTH",
+        "value": 30
+      },
+      {
+        "label": "OSC 3 PWM PHASE",
+        "value": 30
+      },
+      {
+        "label": "OSC 4 PITCH",
+        "value": 169
+      },
+      {
+        "label": "OSC 4 FM",
+        "value": 165
+      },
+      {
+        "label": "OSC 4 SAW LEVEL",
+        "value": 39
+      },
+      {
+        "label": "OSC 4 TRI LEVEL",
+        "value": 40
+      },
+      {
+        "label": "OSC 4 WAVE LEVEL",
+        "value": 40
+      },
+      {
+        "label": "OSC 4 PWM LEVEL",
+        "value": 41
+      },
+      {
+        "label": "OSC 4 PWM WIDTH",
+        "value": 42
+      },
+      {
+        "label": "OSC 4 PWM PHASE",
+        "value": 42
+      },
+      {
+        "label": "OSC 4 NOISE LEVEL",
+        "value": 43
+      },
+      {
+        "label": "OSC 4 NOISE LO-FI",
+        "value": 44
+      },
+      {
+        "label": "FILTER 1 FREQUENCY",
+        "value": 49
+      },
+      {
+        "label": "FILTER 1 RESONANCE",
+        "value": 50
+      },
+      {
+        "label": "FILTER 2 FREQUENCY",
+        "value": 55
+      },
+      {
+        "label": "FILTER 2 RESONANCE",
+        "value": 56
+      },
+      {
+        "label": "FILTER 3 FREQUENCY",
+        "value": 126
+      },
+      {
+        "label": "FILTER 3 RESONANCE",
+        "value": 127
+      },
+      {
+        "label": "FILTER 3 MIX",
+        "value": 128
+      },
+      {
+        "label": "AMP 1 LEVEL",
+        "value": 129
+      },
+      {
+        "label": "AMP 2 LEVEL",
+        "value": 132
+      },
+      {
+        "label": "EG 1 RATE",
+        "value": 156
+      },
+      {
+        "label": "EG 2 RATE",
+        "value": 157
+      },
+      {
+        "label": "EG 3 RATE",
+        "value": 158
+      },
+      {
+        "label": "EG 4 RATE",
+        "value": 159
+      },
+      {
+        "label": "LFO 1 RATE",
+        "value": 160
+      },
+      {
+        "label": "LFO 2 RATE",
+        "value": 161
+      },
+      {
+        "label": "EXCITER FREQUENCY",
+        "value": 149
+      },
+      {
+        "label": "EXCITER MIX",
+        "value": 150
+      },
+      {
+        "label": "ENHANCER MIX",
+        "value": 151
+      }
+    ]
+  ]
+}

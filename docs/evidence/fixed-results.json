@@ -1,0 +1,87 @@
+{
+  "sampleRate": 44100,
+  "cvResolution": 0.01,
+  "threshold": 0.0004,
+  "cases": [
+    {
+      "attack": 0,
+      "decay": 0,
+      "sustain": 0,
+      "release": 0,
+      "retrigger": 0,
+      "rate": 0,
+      "frames": 44100,
+      "maxLevelError": 3.3194710979955744e-8
+    },
+    {
+      "attack": 300,
+      "decay": 500,
+      "sustain": 700,
+      "release": 500,
+      "retrigger": 0,
+      "rate": 0,
+      "frames": 88200,
+      "maxLevelError": 7.302293085209577e-7
+    },
+    {
+      "attack": 500,
+      "decay": 300,
+      "sustain": 350,
+      "release": 400,
+      "retrigger": 1,
+      "rate": 0,
+      "frames": 88200,
+      "maxLevelError": 0.0000013370470947071667
+    },
+    {
+      "attack": 1000,
+      "decay": 1000,
+      "sustain": 1000,
+      "release": 1000,
+      "retrigger": 0,
+      "rate": 0,
+      "frames": 441000,
+      "maxLevelError": 5.665232742368964e-7
+    },
+    {
+      "attack": 130,
+      "decay": 680,
+      "sustain": 910,
+      "release": 410,
+      "retrigger": 1,
+      "rate": 350,
+      "frames": 88200,
+      "maxLevelError": 3.0656305888276947e-7
+    },
+    {
+      "attack": 100,
+      "decay": 200,
+      "sustain": 500,
+      "release": 400,
+      "retrigger": 0,
+      "rate": -350,
+      "frames": 176400,
+      "maxLevelError": 0.000056307662121390933
+    },
+    {
+      "attack": 800,
+      "decay": 800,
+      "sustain": 500,
+      "release": 800,
+      "retrigger": 0,
+      "rate": -1000,
+      "frames": 88200,
+      "maxLevelError": 8.65049819222606e-8
+    },
+    {
+      "attack": 100,
+      "decay": 500,
+      "sustain": 500,
+      "release": 500,
+      "retrigger": 1,
+      "rate": 1000,
+      "frames": 44100,
+      "maxLevelError": 3.400696243632817e-7
+    }
+  ]
+}

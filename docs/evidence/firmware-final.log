@@ -1,0 +1,26 @@
+loader: image 8232 B at 0x1c0a800, bss end 0x1c0f400
+loader: ota.bin 6954 B
+  ok    .ram_text: 901 insns, no calls
+  ok    image 155800 B of 581564; RAM .data+.bss 24304 B of 98304; pool 294216 B of 344064
+  ok    register access: hal/ only (src/, loader/ clean)
+app      /workspace/scratch/cab844368e85/OpenIFW-FM1/build/target-source/build/dinghy.bin  155800 B
+loader   /workspace/scratch/cab844368e85/OpenIFW-FM1/build/target-source/build/loader/ota.bin  6954 B
+package  /workspace/scratch/cab844368e85/OpenIFW-FM1/build/target-source/build/dinghy.fwsc  610110 B, identity FM-1_982
+{
+  "version": "0.2.0",
+  "identity": "FM-1_982",
+  "appBytes": 155800,
+  "packageBytes": 610110,
+  "sha256": "52f353626620a286ea6617b104339a264d6ffea008ee3650f1220f364f257938",
+  "hardwareTested": false,
+  "ramDataBss": 24304,
+  "poolBytes": 294216,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false
+}

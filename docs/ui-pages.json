@@ -1,0 +1,1066 @@
+[
+  {
+    "key": "HOME",
+    "group": "HOME",
+    "title": "HOME",
+    "ids": [
+      49,
+      50,
+      60,
+      63
+    ],
+    "labels": [
+      "CUT",
+      "RES",
+      "ATK",
+      "REL"
+    ],
+    "kind": "SCOPE",
+    "description": "FILTER 1 / ENVELOPE 1"
+  },
+  {
+    "key": "MIX",
+    "group": "HOME",
+    "title": "MIXER",
+    "ids": [
+      129,
+      132,
+      139,
+      135
+    ],
+    "labels": [
+      "AMP1",
+      "AMP2",
+      "LEVEL",
+      "ROUTE"
+    ],
+    "kind": "MIX",
+    "description": ""
+  },
+  {
+    "key": "OSC1",
+    "group": "EDIT",
+    "title": "OSC 1 / MIX",
+    "ids": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "labels": [
+      "SAW",
+      "WAVE",
+      "PULSE",
+      "WIDTH"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC1TUNE",
+    "group": "EDIT",
+    "title": "OSC 1 / TUNE",
+    "ids": [
+      0,
+      1,
+      2,
+      9
+    ],
+    "labels": [
+      "SYNC",
+      "SEMI",
+      "CENTS",
+      "WAVE"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC1ROUTE",
+    "group": "EDIT",
+    "title": "OSC 1 / ROUTE",
+    "ids": [
+      10,
+      11,
+      65535,
+      65535
+    ],
+    "labels": [
+      "OUT1",
+      "OUT2",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "OSC2",
+    "group": "EDIT",
+    "title": "OSC 2 / MIX",
+    "ids": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "labels": [
+      "SAW",
+      "WAVE",
+      "PULSE",
+      "WIDTH"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC2TUNE",
+    "group": "EDIT",
+    "title": "OSC 2 / TUNE",
+    "ids": [
+      12,
+      13,
+      14,
+      21
+    ],
+    "labels": [
+      "SYNC",
+      "SEMI",
+      "CENTS",
+      "WAVE"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC2ROUTE",
+    "group": "EDIT",
+    "title": "OSC 2 / ROUTE",
+    "ids": [
+      22,
+      23,
+      65535,
+      65535
+    ],
+    "labels": [
+      "OUT1",
+      "OUT2",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "OSC3",
+    "group": "EDIT",
+    "title": "OSC 3 / MIX",
+    "ids": [
+      27,
+      28,
+      29,
+      30
+    ],
+    "labels": [
+      "SAW",
+      "WAVE",
+      "PULSE",
+      "WIDTH"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC3TUNE",
+    "group": "EDIT",
+    "title": "OSC 3 / TUNE",
+    "ids": [
+      24,
+      25,
+      26,
+      33
+    ],
+    "labels": [
+      "SYNC",
+      "SEMI",
+      "CENTS",
+      "WAVE"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC3ROUTE",
+    "group": "EDIT",
+    "title": "OSC 3 / ROUTE",
+    "ids": [
+      34,
+      35,
+      65535,
+      65535
+    ],
+    "labels": [
+      "OUT1",
+      "OUT2",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "OSC4",
+    "group": "EDIT",
+    "title": "OSC 4 / MIX",
+    "ids": [
+      39,
+      40,
+      41,
+      42
+    ],
+    "labels": [
+      "SAW",
+      "WAVE",
+      "PULSE",
+      "WIDTH"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC4TUNE",
+    "group": "EDIT",
+    "title": "OSC 4 / TUNE",
+    "ids": [
+      36,
+      37,
+      38,
+      45
+    ],
+    "labels": [
+      "SYNC",
+      "SEMI",
+      "CENTS",
+      "WAVE"
+    ],
+    "kind": "OSC",
+    "description": ""
+  },
+  {
+    "key": "OSC4ROUTE",
+    "group": "EDIT",
+    "title": "OSC 4 / ROUTE",
+    "ids": [
+      46,
+      47,
+      43,
+      44
+    ],
+    "labels": [
+      "OUT1",
+      "OUT2",
+      "NOISE",
+      "LO-FI"
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "FILTER1",
+    "group": "EDIT",
+    "title": "FILTER 1",
+    "ids": [
+      49,
+      50,
+      48,
+      52
+    ],
+    "labels": [
+      "CUT",
+      "RES",
+      "TYPE",
+      "KEY"
+    ],
+    "kind": "FILTER",
+    "description": ""
+  },
+  {
+    "key": "FILTER1BR",
+    "group": "EDIT",
+    "title": "FILTER 1 / BREATH",
+    "ids": [
+      51,
+      53,
+      65535,
+      65535
+    ],
+    "labels": [
+      "DEPTH",
+      "SOURCE",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "FILTER2",
+    "group": "EDIT",
+    "title": "FILTER 2",
+    "ids": [
+      55,
+      56,
+      54,
+      58
+    ],
+    "labels": [
+      "CUT",
+      "RES",
+      "TYPE",
+      "KEY"
+    ],
+    "kind": "FILTER",
+    "description": ""
+  },
+  {
+    "key": "FILTER2BR",
+    "group": "EDIT",
+    "title": "FILTER 2 / BREATH",
+    "ids": [
+      57,
+      59,
+      65535,
+      65535
+    ],
+    "labels": [
+      "DEPTH",
+      "SOURCE",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "FILTER3",
+    "group": "EDIT",
+    "title": "FILTER 3",
+    "ids": [
+      124,
+      125,
+      126,
+      127
+    ],
+    "labels": [
+      "ON",
+      "STAGE",
+      "CUT",
+      "RES"
+    ],
+    "kind": "FILTER",
+    "description": ""
+  },
+  {
+    "key": "FILTER3MIX",
+    "group": "EDIT",
+    "title": "FILTER 3 / MIX",
+    "ids": [
+      128,
+      135,
+      65535,
+      65535
+    ],
+    "labels": [
+      "MIX",
+      "ROUTE",
+      "",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "VOICE",
+    "group": "EDIT",
+    "title": "VOICE / GLIDE",
+    "ids": [
+      146,
+      145,
+      148,
+      147
+    ],
+    "labels": [
+      "GLIDE",
+      "MIN",
+      "MODE",
+      "MIDI"
+    ],
+    "kind": "VOICE",
+    "description": "MONO / LAST NOTE / LEGATO"
+  },
+  {
+    "key": "SMOOTH",
+    "group": "EDIT",
+    "title": "GATE / SMOOTH",
+    "ids": [
+      140,
+      141,
+      142,
+      143
+    ],
+    "labels": [
+      "OPEN",
+      "CLOSE",
+      "BREATH",
+      "BEND"
+    ],
+    "kind": "VOICE",
+    "description": ""
+  },
+  {
+    "key": "GLSMOOTH",
+    "group": "EDIT",
+    "title": "GLIDE / SMOOTH",
+    "ids": [
+      144,
+      137,
+      138,
+      136
+    ],
+    "labels": [
+      "SMOOTH",
+      "BEND",
+      "CENTS",
+      "TRANS"
+    ],
+    "kind": "VOICE",
+    "description": ""
+  },
+  {
+    "key": "EG1",
+    "group": "ENV",
+    "title": "ENVELOPE 1",
+    "ids": [
+      60,
+      61,
+      62,
+      63
+    ],
+    "labels": [
+      "ATK",
+      "DEC",
+      "SUS",
+      "REL"
+    ],
+    "kind": "ENV",
+    "description": ""
+  },
+  {
+    "key": "EG2",
+    "group": "ENV",
+    "title": "ENVELOPE 2",
+    "ids": [
+      65,
+      66,
+      67,
+      68
+    ],
+    "labels": [
+      "ATK",
+      "DEC",
+      "SUS",
+      "REL"
+    ],
+    "kind": "ENV",
+    "description": ""
+  },
+  {
+    "key": "EG3",
+    "group": "ENV",
+    "title": "ENVELOPE 3",
+    "ids": [
+      70,
+      71,
+      72,
+      73
+    ],
+    "labels": [
+      "ATK",
+      "DEC",
+      "SUS",
+      "REL"
+    ],
+    "kind": "ENV",
+    "description": ""
+  },
+  {
+    "key": "EG4",
+    "group": "ENV",
+    "title": "ENVELOPE 4",
+    "ids": [
+      75,
+      76,
+      77,
+      78
+    ],
+    "labels": [
+      "ATK",
+      "DEC",
+      "SUS",
+      "REL"
+    ],
+    "kind": "ENV",
+    "description": ""
+  },
+  {
+    "key": "RETRIGGER",
+    "group": "ENV",
+    "title": "RETRIGGER",
+    "ids": [
+      64,
+      69,
+      74,
+      79
+    ],
+    "labels": [
+      "EG1",
+      "EG2",
+      "EG3",
+      "EG4"
+    ],
+    "kind": "VOICE",
+    "description": "EACH EG KEEPS ITS OWN RETRIGGER"
+  },
+  {
+    "key": "BREG",
+    "group": "ENV",
+    "title": "BREATH x EG",
+    "ids": [
+      53,
+      59,
+      131,
+      134
+    ],
+    "labels": [
+      "FLT1",
+      "FLT2",
+      "AMP1",
+      "AMP2"
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "LFO1",
+    "group": "LFO",
+    "title": "LFO 1",
+    "ids": [
+      81,
+      80,
+      82,
+      83
+    ],
+    "labels": [
+      "RATE",
+      "WAVE",
+      "TRIG",
+      "SYNC"
+    ],
+    "kind": "LFO",
+    "description": ""
+  },
+  {
+    "key": "LFO1SYNC",
+    "group": "LFO",
+    "title": "LFO 1 / SYNC",
+    "ids": [
+      85,
+      83,
+      82,
+      65535
+    ],
+    "labels": [
+      "BEAT",
+      "SYNC",
+      "TRIG",
+      ""
+    ],
+    "kind": "LFO",
+    "description": ""
+  },
+  {
+    "key": "LFO2",
+    "group": "LFO",
+    "title": "LFO 2",
+    "ids": [
+      87,
+      86,
+      88,
+      89
+    ],
+    "labels": [
+      "RATE",
+      "WAVE",
+      "TRIG",
+      "SYNC"
+    ],
+    "kind": "LFO",
+    "description": ""
+  },
+  {
+    "key": "LFO2SYNC",
+    "group": "LFO",
+    "title": "LFO 2 / SYNC",
+    "ids": [
+      91,
+      89,
+      88,
+      65535
+    ],
+    "labels": [
+      "BEAT",
+      "SYNC",
+      "TRIG",
+      ""
+    ],
+    "kind": "LFO",
+    "description": ""
+  },
+  {
+    "key": "MOD",
+    "group": "MOD",
+    "title": "MOD MATRIX",
+    "ids": [
+      308,
+      309,
+      311,
+      312
+    ],
+    "labels": [
+      "SLOT",
+      "SRC1",
+      "DEST",
+      "DEPTH"
+    ],
+    "kind": "MOD",
+    "description": ""
+  },
+  {
+    "key": "MOD2",
+    "group": "MOD",
+    "title": "MOD / MULTIPLY",
+    "ids": [
+      308,
+      310,
+      311,
+      312
+    ],
+    "labels": [
+      "SLOT",
+      "SRC2",
+      "DEST",
+      "DEPTH"
+    ],
+    "kind": "MOD",
+    "description": ""
+  },
+  {
+    "key": "FX",
+    "group": "FX",
+    "title": "FX / MIX",
+    "ids": [
+      161,
+      178,
+      189,
+      217
+    ],
+    "labels": [
+      "PHASE",
+      "CHO",
+      "DLY1",
+      "REV"
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "PHASER",
+    "group": "FX",
+    "title": "PHASER",
+    "ids": [
+      158,
+      159,
+      161,
+      156
+    ],
+    "labels": [
+      "RATE",
+      "FDBK",
+      "MIX",
+      "BYP"
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "PHASER2",
+    "group": "FX",
+    "title": "PHASER / TONE",
+    "ids": [
+      160,
+      157,
+      65535,
+      65535
+    ],
+    "labels": [
+      "TONE",
+      "STEREO",
+      "",
+      ""
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "DELAY1",
+    "group": "FX",
+    "title": "DELAY 1",
+    "ids": [
+      193,
+      191,
+      189,
+      184
+    ],
+    "labels": [
+      "TIME",
+      "FDBK",
+      "MIX",
+      "BYP"
+    ],
+    "kind": "DELAY",
+    "description": ""
+  },
+  {
+    "key": "DELAY1TONE",
+    "group": "FX",
+    "title": "DELAY 1 / TONE",
+    "ids": [
+      188,
+      194,
+      65535,
+      65535
+    ],
+    "labels": [
+      "LOW",
+      "HIGH",
+      "",
+      ""
+    ],
+    "kind": "DELAY",
+    "description": ""
+  },
+  {
+    "key": "DELAY2",
+    "group": "FX",
+    "title": "DELAY 2",
+    "ids": [
+      207,
+      205,
+      203,
+      198
+    ],
+    "labels": [
+      "TIME",
+      "FDBK",
+      "MIX",
+      "BYP"
+    ],
+    "kind": "DELAY",
+    "description": ""
+  },
+  {
+    "key": "DELAY2TONE",
+    "group": "FX",
+    "title": "DELAY 2 / TONE",
+    "ids": [
+      202,
+      208,
+      65535,
+      65535
+    ],
+    "labels": [
+      "LOW",
+      "HIGH",
+      "",
+      ""
+    ],
+    "kind": "DELAY",
+    "description": ""
+  },
+  {
+    "key": "REVERB",
+    "group": "FX",
+    "title": "REVERB",
+    "ids": [
+      212,
+      223,
+      224,
+      217
+    ],
+    "labels": [
+      "BYP",
+      "SIZE",
+      "DAMP",
+      "MIX"
+    ],
+    "kind": "REVERB",
+    "description": ""
+  },
+  {
+    "key": "WIDTH",
+    "group": "FX",
+    "title": "REVERB / WIDTH",
+    "ids": [
+      225,
+      223,
+      224,
+      217
+    ],
+    "labels": [
+      "WIDTH",
+      "SIZE",
+      "DAMP",
+      "MIX"
+    ],
+    "kind": "REVERB",
+    "description": ""
+  },
+  {
+    "key": "CHORUS",
+    "group": "FX",
+    "title": "CHORUS",
+    "ids": [
+      176,
+      177,
+      178,
+      170
+    ],
+    "labels": [
+      "RATE",
+      "DEPTH",
+      "MIX",
+      "BYP"
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "EXCITER",
+    "group": "FX",
+    "title": "EXCITER",
+    "ids": [
+      149,
+      150,
+      65535,
+      65535
+    ],
+    "labels": [
+      "FREQ",
+      "MIX",
+      "",
+      ""
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "ENHANCER",
+    "group": "FX",
+    "title": "ENHANCER",
+    "ids": [
+      152,
+      153,
+      151,
+      65535
+    ],
+    "labels": [
+      "LEFT",
+      "RIGHT",
+      "MIX",
+      ""
+    ],
+    "kind": "DELAY",
+    "description": ""
+  },
+  {
+    "key": "EQ",
+    "group": "FX",
+    "title": "EQ / OUTPUT",
+    "ids": [
+      154,
+      155,
+      139,
+      65535
+    ],
+    "labels": [
+      "LOW",
+      "HIGH",
+      "LEVEL",
+      ""
+    ],
+    "kind": "FX",
+    "description": ""
+  },
+  {
+    "key": "TUNE",
+    "group": "TUNE",
+    "title": "TUNING",
+    "ids": [
+      136,
+      138,
+      226,
+      137
+    ],
+    "labels": [
+      "TRANS",
+      "CENTS",
+      "A4 HZ",
+      "BEND"
+    ],
+    "kind": "VOICE",
+    "description": ""
+  },
+  {
+    "key": "AMP",
+    "group": "AMP",
+    "title": "AMPLIFIERS",
+    "ids": [
+      129,
+      130,
+      132,
+      133
+    ],
+    "labels": [
+      "LVL1",
+      "BR1",
+      "LVL2",
+      "BR2"
+    ],
+    "kind": "MIX",
+    "description": ""
+  },
+  {
+    "key": "AMPSOURCE",
+    "group": "AMP",
+    "title": "AMP / BREATH",
+    "ids": [
+      131,
+      134,
+      142,
+      65535
+    ],
+    "labels": [
+      "SRC1",
+      "SRC2",
+      "SMOOTH",
+      ""
+    ],
+    "kind": "ROUTE",
+    "description": ""
+  },
+  {
+    "key": "GLOBAL",
+    "group": "GLOBAL",
+    "title": "CONTROL",
+    "ids": [
+      229,
+      230,
+      231,
+      232
+    ],
+    "labels": [
+      "WIND",
+      "MIDI",
+      "OCT",
+      "SLOT"
+    ],
+    "kind": "SETTINGS",
+    "description": ""
+  },
+  {
+    "key": "LEARN",
+    "group": "GLOBAL",
+    "title": "MIDI / LEARN",
+    "ids": [
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "labels": [
+      "",
+      "",
+      "",
+      ""
+    ],
+    "kind": "LEARN",
+    "description": "TURN PARAM / REC / SEND CC"
+  },
+  {
+    "key": "SAVE",
+    "group": "SAVE",
+    "title": "USER SOUND",
+    "ids": [
+      304,
+      305,
+      306,
+      307
+    ],
+    "labels": [
+      "SLOT",
+      "LOAD",
+      "ERASE",
+      "SAVE"
+    ],
+    "kind": "SAVE",
+    "description": ""
+  },
+  {
+    "key": "PRESETS",
+    "group": "PRESETS",
+    "title": "PRESETS",
+    "ids": [
+      300,
+      301,
+      302,
+      303
+    ],
+    "labels": [
+      "NO.",
+      "CORE",
+      "FAV",
+      "LIST"
+    ],
+    "kind": "PRESETS",
+    "description": ""
+  },
+  {
+    "key": "ADVANCED",
+    "group": "ADVANCED",
+    "title": "ALL PARAMETERS",
+    "ids": [
+      65535,
+      65535,
+      65535,
+      65535
+    ],
+    "labels": [
+      "",
+      "",
+      "",
+      ""
+    ],
+    "kind": "ADVANCED",
+    "description": "EXPERT / RAW PARAMETER WORDS"
+  }
+]

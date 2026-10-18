@@ -1,0 +1,161 @@
+{
+  "cases": 12,
+  "results": [
+    {
+      "file": "tresure-island.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "tresure-island.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 4.547473508864641e-13,
+      "pcmRMSE": 2.7068294695622863e-15,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/primer.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/primer.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/ai-no-labyrinth.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/ai-no-labyrinth.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/daisy-area-2.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/daisy-area-2.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/wanna-go-to-hawaii.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/wanna-go-to-hawaii.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/judd-ish-2000.json",
+      "dry": true,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    },
+    {
+      "file": "presets/judd-ish-2000.json",
+      "dry": false,
+      "frames": 14112,
+      "pcmMaxError": 0,
+      "pcmRMSE": 0,
+      "ignoredUnusedKeys": [
+        "Osc1Waveform3",
+        "Osc2Waveform3",
+        "Osc3Waveform3",
+        "Osc4Waveform3"
+      ]
+    }
+  ]
+}

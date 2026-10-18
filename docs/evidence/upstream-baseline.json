@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-18",
+  "openifw": {
+    "commit": "a478abd0645225add3f2a7751522da1bced7a2e6",
+    "command": "node --test tests/*.test.mjs",
+    "tests": 32,
+    "pass": 32,
+    "fail": 0
+  },
+  "dinghy": {
+    "commit": "d44df7db09b98ccad2f1233b8f83f5f09c04829e",
+    "command": "sh tests/run_host.sh",
+    "hostCompile": true,
+    "wavFrames": 286464,
+    "pngScreens": 2
+  },
+  "environment": {
+    "os": "Linux x86_64",
+    "cc": "GCC 13.3.0",
+    "node": "24.19.0",
+    "python": "3.12.14"
+  },
+  "hardwareBuild": false,
+  "hardwareTest": false,
+  "leakSanitizerTest": false
+}

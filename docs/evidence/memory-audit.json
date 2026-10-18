@@ -1,0 +1,330 @@
+[
+  {
+    "sampleRate": 44100,
+    "allocations": [
+      {
+        "name": "effects.chorus.data",
+        "bytes": 17640
+      },
+      {
+        "name": "effects.enhancer.data",
+        "bytes": 17640
+      },
+      {
+        "name": "effects.delays.0.data",
+        "bytes": 361620
+      },
+      {
+        "name": "effects.delays.1.data",
+        "bytes": 361620
+      },
+      {
+        "name": "effects.delays.2.data",
+        "bytes": 361620
+      },
+      {
+        "name": "effects.delays.3.data",
+        "bytes": 361620
+      },
+      {
+        "name": "effects.delayLP",
+        "bytes": 32
+      },
+      {
+        "name": "effects.delayHP",
+        "bytes": 32
+      },
+      {
+        "name": "effects.reverbL.0.data",
+        "bytes": 4464
+      },
+      {
+        "name": "effects.reverbL.1.data",
+        "bytes": 4752
+      },
+      {
+        "name": "effects.reverbL.2.data",
+        "bytes": 5108
+      },
+      {
+        "name": "effects.reverbL.3.data",
+        "bytes": 5424
+      },
+      {
+        "name": "effects.reverbL.4.data",
+        "bytes": 5688
+      },
+      {
+        "name": "effects.reverbL.5.data",
+        "bytes": 5964
+      },
+      {
+        "name": "effects.reverbL.6.data",
+        "bytes": 6228
+      },
+      {
+        "name": "effects.reverbL.7.data",
+        "bytes": 6468
+      },
+      {
+        "name": "effects.reverbR.0.data",
+        "bytes": 4556
+      },
+      {
+        "name": "effects.reverbR.1.data",
+        "bytes": 4844
+      },
+      {
+        "name": "effects.reverbR.2.data",
+        "bytes": 5200
+      },
+      {
+        "name": "effects.reverbR.3.data",
+        "bytes": 5516
+      },
+      {
+        "name": "effects.reverbR.4.data",
+        "bytes": 5780
+      },
+      {
+        "name": "effects.reverbR.5.data",
+        "bytes": 6056
+      },
+      {
+        "name": "effects.reverbR.6.data",
+        "bytes": 6320
+      },
+      {
+        "name": "effects.reverbR.7.data",
+        "bytes": 6560
+      },
+      {
+        "name": "effects.diffuserL.0.data",
+        "bytes": 2224
+      },
+      {
+        "name": "effects.diffuserL.1.data",
+        "bytes": 1764
+      },
+      {
+        "name": "effects.diffuserL.2.data",
+        "bytes": 1364
+      },
+      {
+        "name": "effects.diffuserL.3.data",
+        "bytes": 900
+      },
+      {
+        "name": "effects.diffuserR.0.data",
+        "bytes": 2316
+      },
+      {
+        "name": "effects.diffuserR.1.data",
+        "bytes": 1856
+      },
+      {
+        "name": "effects.diffuserR.2.data",
+        "bytes": 1456
+      },
+      {
+        "name": "effects.diffuserR.3.data",
+        "bytes": 992
+      },
+      {
+        "name": "effects.reverbDamp",
+        "bytes": 128
+      },
+      {
+        "name": "effects.phaser",
+        "bytes": 96
+      },
+      {
+        "name": "effects.phaserFeedback",
+        "bytes": 16
+      },
+      {
+        "name": "effects.phaserLow",
+        "bytes": 16
+      },
+      {
+        "name": "effects.allpass",
+        "bytes": 192
+      },
+      {
+        "name": "effects.exciter1.data",
+        "bytes": 100
+      },
+      {
+        "name": "effects.exciter2.data",
+        "bytes": 100
+      }
+    ],
+    "totalEffectArrayBytes": 1584272,
+    "delayPairBytes": 1446480,
+    "dinghyPoolBytes": 344064
+  },
+  {
+    "sampleRate": 48000,
+    "allocations": [
+      {
+        "name": "effects.chorus.data",
+        "bytes": 19200
+      },
+      {
+        "name": "effects.enhancer.data",
+        "bytes": 19200
+      },
+      {
+        "name": "effects.delays.0.data",
+        "bytes": 393600
+      },
+      {
+        "name": "effects.delays.1.data",
+        "bytes": 393600
+      },
+      {
+        "name": "effects.delays.2.data",
+        "bytes": 393600
+      },
+      {
+        "name": "effects.delays.3.data",
+        "bytes": 393600
+      },
+      {
+        "name": "effects.delayLP",
+        "bytes": 32
+      },
+      {
+        "name": "effects.delayHP",
+        "bytes": 32
+      },
+      {
+        "name": "effects.reverbL.0.data",
+        "bytes": 4856
+      },
+      {
+        "name": "effects.reverbL.1.data",
+        "bytes": 5172
+      },
+      {
+        "name": "effects.reverbL.2.data",
+        "bytes": 5556
+      },
+      {
+        "name": "effects.reverbL.3.data",
+        "bytes": 5900
+      },
+      {
+        "name": "effects.reverbL.4.data",
+        "bytes": 6188
+      },
+      {
+        "name": "effects.reverbL.5.data",
+        "bytes": 6488
+      },
+      {
+        "name": "effects.reverbL.6.data",
+        "bytes": 6776
+      },
+      {
+        "name": "effects.reverbL.7.data",
+        "bytes": 7040
+      },
+      {
+        "name": "effects.reverbR.0.data",
+        "bytes": 4956
+      },
+      {
+        "name": "effects.reverbR.1.data",
+        "bytes": 5272
+      },
+      {
+        "name": "effects.reverbR.2.data",
+        "bytes": 5656
+      },
+      {
+        "name": "effects.reverbR.3.data",
+        "bytes": 6000
+      },
+      {
+        "name": "effects.reverbR.4.data",
+        "bytes": 6288
+      },
+      {
+        "name": "effects.reverbR.5.data",
+        "bytes": 6588
+      },
+      {
+        "name": "effects.reverbR.6.data",
+        "bytes": 6876
+      },
+      {
+        "name": "effects.reverbR.7.data",
+        "bytes": 7140
+      },
+      {
+        "name": "effects.diffuserL.0.data",
+        "bytes": 2420
+      },
+      {
+        "name": "effects.diffuserL.1.data",
+        "bytes": 1920
+      },
+      {
+        "name": "effects.diffuserL.2.data",
+        "bytes": 1484
+      },
+      {
+        "name": "effects.diffuserL.3.data",
+        "bytes": 976
+      },
+      {
+        "name": "effects.diffuserR.0.data",
+        "bytes": 2520
+      },
+      {
+        "name": "effects.diffuserR.1.data",
+        "bytes": 2020
+      },
+      {
+        "name": "effects.diffuserR.2.data",
+        "bytes": 1584
+      },
+      {
+        "name": "effects.diffuserR.3.data",
+        "bytes": 1076
+      },
+      {
+        "name": "effects.reverbDamp",
+        "bytes": 128
+      },
+      {
+        "name": "effects.phaser",
+        "bytes": 96
+      },
+      {
+        "name": "effects.phaserFeedback",
+        "bytes": 16
+      },
+      {
+        "name": "effects.phaserLow",
+        "bytes": 16
+      },
+      {
+        "name": "effects.allpass",
+        "bytes": 192
+      },
+      {
+        "name": "effects.exciter1.data",
+        "bytes": 104
+      },
+      {
+        "name": "effects.exciter2.data",
+        "bytes": 104
+      }
+    ],
+    "totalEffectArrayBytes": 1724272,
+    "delayPairBytes": 1574400,
+    "dinghyPoolBytes": 344064
+  }
+]

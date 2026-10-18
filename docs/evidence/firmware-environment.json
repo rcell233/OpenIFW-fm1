@@ -1,0 +1,11 @@
+{
+  "platform": "Linux x86_64",
+  "jieliCompilerPresent": true,
+  "sdkFilesPresent": {
+    "cpu/wl82/tools/uboot.boot": true,
+    "cpu/wl82/tools/cfg_tool.bin": true,
+    "cpu/wl82/tools/cfg/eq_cfg_hw.bin": true
+  },
+  "fixedSynthIntegrated": true,
+  "firmwarePackageProduced": true
+}

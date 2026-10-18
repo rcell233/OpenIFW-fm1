@@ -1,0 +1,27 @@
+name: DSP and panel tests
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: python3 tools/get_wasi_sdk.py
+      - run: make test
+      - run: make sanitize
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validation-results
+          path: |
+            build/test-results.json
+            build/fixed-engine-results.json
+            build/fixed-results.json
+            build/panel/*.ppm
+            build/panel/*.wav
+            build/ui/results.json
+            build/ui/*.ppm
+            build/emu/results.json

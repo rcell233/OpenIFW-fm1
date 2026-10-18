@@ -1,0 +1,151 @@
+{
+  "reference": "unchanged OpenIFW a478abd JavaScript",
+  "durationPerCase": 4,
+  "wetIsMeasurementOnly": true,
+  "results": [
+    {
+      "name": "Tresure Island",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.000004054838492833977,
+      "peak": 0.000029224902391433716,
+      "referenceRMS": 0.013100926547044946,
+      "envelopeMax": 0.000001299611701810477,
+      "pitchSemitonesMax": 0.00005623144117805623,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Tresure Island",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.0008103988247678892,
+      "peak": 0.004990153014659882,
+      "referenceRMS": 0.017471398668847917,
+      "envelopeMax": 0.000001299611701810477,
+      "pitchSemitonesMax": 0.00005623144117805623,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Primer",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.00001988752523015592,
+      "peak": 0.0005822107195854187,
+      "referenceRMS": 0.011684014987514337,
+      "envelopeMax": 0.000011880902532790394,
+      "pitchSemitonesMax": 0.00008789435952394342,
+      "stageBoundaryMismatches": 1,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Primer",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.0004709370464064398,
+      "peak": 0.0028999578207731247,
+      "referenceRMS": 0.021924155575363587,
+      "envelopeMax": 0.000011880902532790394,
+      "pitchSemitonesMax": 0.00008789435952394342,
+      "stageBoundaryMismatches": 1,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Ai no Labyrinth",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.00004383633118331732,
+      "peak": 0.003283795900642872,
+      "referenceRMS": 0.01220471698850697,
+      "envelopeMax": 0.0000052777514525370606,
+      "pitchSemitonesMax": 0.000014535297530926528,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Ai no Labyrinth",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.000892345464065804,
+      "peak": 0.008303996175527573,
+      "referenceRMS": 0.018535953647004055,
+      "envelopeMax": 0.0000052777514525370606,
+      "pitchSemitonesMax": 0.000014535297530926528,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Daisy Area 2",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.00005384385708374475,
+      "peak": 0.0007336586713790894,
+      "referenceRMS": 0.03110553444993943,
+      "envelopeMax": 0.000004796303800236323,
+      "pitchSemitonesMax": 0.00003315156155281329,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Daisy Area 2",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.0007512354934789539,
+      "peak": 0.006063900887966156,
+      "referenceRMS": 0.036204966125905284,
+      "envelopeMax": 0.000004796303800236323,
+      "pitchSemitonesMax": 0.00003315156155281329,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Wanna Go To Hawaii",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.00003644444248017585,
+      "peak": 0.0009220317006111145,
+      "referenceRMS": 0.01248253280845863,
+      "envelopeMax": 0.000004383979161137752,
+      "pitchSemitonesMax": 0.000033221491008816884,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "Wanna Go To Hawaii",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.0005820234636182949,
+      "peak": 0.0038987398147583008,
+      "referenceRMS": 0.0242604811456864,
+      "envelopeMax": 0.000004383979161137752,
+      "pitchSemitonesMax": 0.000033221491008816884,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "JUDD-ish 2000",
+      "dry": true,
+      "seconds": 4,
+      "rmse": 0.0000643313471764842,
+      "peak": 0.002533234655857086,
+      "referenceRMS": 0.012367676165786814,
+      "envelopeMax": 0.0000052777514525370606,
+      "pitchSemitonesMax": 0.00002447800272875611,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    },
+    {
+      "name": "JUDD-ish 2000",
+      "dry": false,
+      "seconds": 4,
+      "rmse": 0.0006966062717703414,
+      "peak": 0.006253466010093689,
+      "referenceRMS": 0.023859110275545114,
+      "envelopeMax": 0.0000052777514525370606,
+      "pitchSemitonesMax": 0.00002447800272875611,
+      "stageBoundaryMismatches": 0,
+      "exactNoteGateStackChecks": 11025
+    }
+  ]
+}

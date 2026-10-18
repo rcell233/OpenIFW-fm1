@@ -1,0 +1,7 @@
+build/
+__pycache__/
+.DS_Store
+cc*.o
+cc*.s
+dependencies/
+*.pyc

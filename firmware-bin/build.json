@@ -1,0 +1,18 @@
+{
+  "version": "0.4.0",
+  "identity": "FM-1_982",
+  "appBytes": 225156,
+  "packageBytes": 610110,
+  "sha256": "db9b9493661b25e5d83148b3a852b130ee4eb7840fe1e4396dc2ecd613fa81fc",
+  "hardwareTested": false,
+  "ramDataBss": 27552,
+  "poolBytes": 294216,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false
+}

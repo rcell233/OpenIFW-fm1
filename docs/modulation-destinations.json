@@ -1,0 +1,267 @@
+[
+  {
+    "label": "None",
+    "key": null,
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 Pitch",
+    "key": "Osc1Pitch",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 FM",
+    "key": "Osc1FM",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 SAW Level",
+    "key": "Osc1SawLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 TRI Level",
+    "key": "Osc1TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 Wave Level",
+    "key": "Osc1TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 PWM Level",
+    "key": "Osc1PwmLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 PWM Width",
+    "key": "Osc1PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 1 PWM Phase",
+    "key": "Osc1PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 Pitch",
+    "key": "Osc2Pitch",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 FM",
+    "key": "Osc2FM",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 SAW Level",
+    "key": "Osc2SawLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 TRI Level",
+    "key": "Osc2TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 Wave Level",
+    "key": "Osc2TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 PWM Level",
+    "key": "Osc2PwmLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 PWM Width",
+    "key": "Osc2PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 2 PWM Phase",
+    "key": "Osc2PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 Pitch",
+    "key": "Osc3Pitch",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 FM",
+    "key": "Osc3FM",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 SAW Level",
+    "key": "Osc3SawLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 TRI Level",
+    "key": "Osc3TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 Wave Level",
+    "key": "Osc3TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 PWM Level",
+    "key": "Osc3PwmLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 PWM Width",
+    "key": "Osc3PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 3 PWM Phase",
+    "key": "Osc3PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 Pitch",
+    "key": "Osc4Pitch",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 FM",
+    "key": "Osc4FM",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 SAW Level",
+    "key": "Osc4SawLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 TRI Level",
+    "key": "Osc4TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 Wave Level",
+    "key": "Osc4TriLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 PWM Level",
+    "key": "Osc4PwmLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 PWM Width",
+    "key": "Osc4PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 PWM Phase",
+    "key": "Osc4PwmWidth",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 Noise Level",
+    "key": "Osc4NoiseLevel",
+    "behavior": "active"
+  },
+  {
+    "label": "OSC 4 Noise Lo-Fi",
+    "key": "Osc4NoiseLoFi",
+    "behavior": "Accepted upstream, not consumed by core.js; preserve no-op"
+  },
+  {
+    "label": "Filter 1 Frequency",
+    "key": "Filter1Frequency",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 1 Resonance",
+    "key": "Filter1Resonance",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 2 Frequency",
+    "key": "Filter2Frequency",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 2 Resonance",
+    "key": "Filter2Resonance",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 3 Frequency",
+    "key": "Filter3Frequency",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 3 Resonance",
+    "key": "Filter3Resonance",
+    "behavior": "active"
+  },
+  {
+    "label": "Filter 3 Mix",
+    "key": "Filter3Mix",
+    "behavior": "active"
+  },
+  {
+    "label": "AMP 1 Level",
+    "key": "Amp1Level",
+    "behavior": "active"
+  },
+  {
+    "label": "AMP 2 Level",
+    "key": "Amp2Level",
+    "behavior": "active"
+  },
+  {
+    "label": "EG 1 Rate",
+    "key": "Eg1Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "EG 2 Rate",
+    "key": "Eg2Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "EG 3 Rate",
+    "key": "Eg3Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "EG 4 Rate",
+    "key": "Eg4Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "LFO 1 Rate",
+    "key": "Lfo1Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "LFO 2 Rate",
+    "key": "Lfo2Rate",
+    "behavior": "active"
+  },
+  {
+    "label": "Exciter Frequency",
+    "key": "ExciterFrequency",
+    "behavior": "active"
+  },
+  {
+    "label": "Exciter Mix",
+    "key": "ExciterMix",
+    "behavior": "active"
+  },
+  {
+    "label": "Enhancer Mix",
+    "key": "EnhancerMix",
+    "behavior": "active"
+  }
+]

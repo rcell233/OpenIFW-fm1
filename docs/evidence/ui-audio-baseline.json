@@ -1,0 +1,93 @@
+{
+  "baselineVersion": "0.3.0",
+  "baselineWasmSha256": "c76531aadf3b079ba9559f356d02cbb622e4a14fca5a6b7dc74d204c9b40d0f9",
+  "sampleRate": 44100,
+  "channels": 2,
+  "format": "IEEE754 float32 LE planar per 256 frames",
+  "scenarios": [
+    {
+      "name": "program-4-play",
+      "program": 4,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "a68c0f3ce4ce4d8451a346ada6635a13cfb0c39b59115fca6a52ba3a57c71aca"
+    },
+    {
+      "name": "program-4-navigation",
+      "program": 4,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "a68c0f3ce4ce4d8451a346ada6635a13cfb0c39b59115fca6a52ba3a57c71aca"
+    },
+    {
+      "name": "program-18-play",
+      "program": 18,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "fe21283a33fc0bdfdba09d755df66a879e00f1751d68598833d3fb0cc22afaef"
+    },
+    {
+      "name": "program-18-navigation",
+      "program": 18,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "fe21283a33fc0bdfdba09d755df66a879e00f1751d68598833d3fb0cc22afaef"
+    },
+    {
+      "name": "program-14-play",
+      "program": 14,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "826432fb19f8249d3ffcb61baa0620a85088f650cfb8ce0add8aae1ca0df36c7"
+    },
+    {
+      "name": "program-14-navigation",
+      "program": 14,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "826432fb19f8249d3ffcb61baa0620a85088f650cfb8ce0add8aae1ca0df36c7"
+    },
+    {
+      "name": "program-10-play",
+      "program": 10,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "d044c230b6e0a744adff1bbddceda964c6d7eb69f9629a53108b32c4b57194f8"
+    },
+    {
+      "name": "program-10-navigation",
+      "program": 10,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "d044c230b6e0a744adff1bbddceda964c6d7eb69f9629a53108b32c4b57194f8"
+    },
+    {
+      "name": "program-8-play",
+      "program": 8,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "d383e1f82eb7d7ad7500cc576edf18ff409499149636b722ae68125794bbe425"
+    },
+    {
+      "name": "program-8-navigation",
+      "program": 8,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "d383e1f82eb7d7ad7500cc576edf18ff409499149636b722ae68125794bbe425"
+    },
+    {
+      "name": "program-21-play",
+      "program": 21,
+      "navigate": false,
+      "frames": 102400,
+      "sha256": "734fdc4447fd49ef12cbc431602de265d5bdcfecd84ebdb24f19dee3753d2400"
+    },
+    {
+      "name": "program-21-navigation",
+      "program": 21,
+      "navigate": true,
+      "frames": 102400,
+      "sha256": "734fdc4447fd49ef12cbc431602de265d5bdcfecd84ebdb24f19dee3753d2400"
+    }
+  ]
+}

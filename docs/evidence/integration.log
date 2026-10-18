@@ -1,0 +1,25 @@
+python3 tools/build_web.py
+{"directory": "/workspace/scratch/cab844368e85/OpenIFW-FM1/build/web", "files": 19, "presets": 8}
+node tests/web_test.mjs
+PASS web: 8 C-derived presets, 1832 NRPN parameter round trips, AudioWorklet output exact vs pinned JS, panic clears schedules, UI IDs
+mkdir -p build
+cc -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/panel_test.c firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c -o build/panel-test
+ASAN_OPTIONS=detect_leaks=0 build/panel-test
+==56==WARNING: reading executable name failed with errno 2, some stack frames may not be symbolized
+==56==WARNING: reading executable name failed with errno 2, some stack frames may not be symbolized
+PASS panel: MIDI/velocity-zero/sustain/stack, queue overflow panic, CRC storage, NRPN, all 233 controls, silent save gate
+mkdir -p build
+cc -O2 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -DIFW_HOST -Ivendor/dinghy/firmware/gen firmware/src/app.c firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c -o build/fm1-host
+mkdir -p build/panel
+build/fm1-host build/panel/openifw tests/panel-script.txt
+   100 ms  MIDI out 90 60 110
+   300 ms  MIDI out 90 64 110
+   500 ms  MIDI out 90 67 110
+   900 ms  MIDI out 80 67 0
+  1000 ms  screen -> build/panel/openifw-1000.ppm
+  1100 ms  MIDI out 80 64 0
+  1300 ms  MIDI out 80 60 0
+  1500 ms  MIDI out 90 72 110
+  1800 ms  MIDI out 80 72 0
+  3000 ms  screen -> build/panel/openifw-3000.ppm
+sound  -> build/panel/openifw.wav (330496 frames)

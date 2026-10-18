@@ -1,0 +1,26 @@
+100 keys 128
+300 keys 2176
+500 keys 18560
+900 keys 2176
+1100 keys 128
+1300 keys 0
+1450 btn 1
+1500 keys 128
+1600 btn 0
+1800 keys 0
+2000 btn 4
+2050 enc 2 18
+2100 enc 3 -10
+2150 enc 4 -15
+2200 enc 5 20
+2400 midi 0x90 69 100
+2550 midi 0x90 76 110
+2650 midi 0x90 76 0
+2800 midi 0x80 69 0
+3200 btn 11
+3250 enc 2 2
+3300 enc 4 9
+3350 enc 5 8
+3500 btn 8
+3700 btn 9
+7500 end

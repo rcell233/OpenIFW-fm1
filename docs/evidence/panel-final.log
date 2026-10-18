@@ -1,0 +1,17 @@
+mkdir -p build
+cc -O2 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -DIFW_HOST -Ivendor/dinghy/firmware/gen firmware/src/app.c firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c -o build/fm1-host
+mkdir -p build/panel
+build/fm1-host build/panel/openifw tests/panel-script.txt
+   100 ms  MIDI out 90 60 110
+   300 ms  MIDI out 90 64 110
+   500 ms  MIDI out 90 67 110
+   900 ms  MIDI out 80 67 0
+  1000 ms  screen -> build/panel/openifw-1000.ppm
+  1100 ms  MIDI out 80 64 0
+  1300 ms  MIDI out 80 60 0
+  1500 ms  MIDI out 90 72 110
+  1800 ms  MIDI out 80 72 0
+  2100 ms  screen -> build/panel/openifw-2100.ppm
+  3300 ms  screen -> build/panel/openifw-3300.ppm
+  6000 ms  screen -> build/panel/openifw-6000.ppm
+sound  -> build/panel/openifw.wav (330496 frames)

@@ -1,0 +1,1511 @@
+[
+  {
+    "id": 0,
+    "name": "Osc1Sync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 1,
+    "name": "Osc1Semi",
+    "default": 0,
+    "bounds": [
+      -36,
+      36
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Osc1Tune",
+    "default": 0,
+    "bounds": [
+      -50,
+      50
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "Osc1SawLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "name": "Osc1TriLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 5,
+    "name": "Osc1PwmLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 6,
+    "name": "Osc1PwmWidth",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 7,
+    "name": "Osc1NoiseLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 8,
+    "name": "Osc1NoiseLoFi",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 9,
+    "name": "Osc1Waveform2",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 10,
+    "name": "Osc1Output1",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 11,
+    "name": "Osc1Output2",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 12,
+    "name": "Osc2Sync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 13,
+    "name": "Osc2Semi",
+    "default": 0,
+    "bounds": [
+      -36,
+      36
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 14,
+    "name": "Osc2Tune",
+    "default": 0,
+    "bounds": [
+      -50,
+      50
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 15,
+    "name": "Osc2SawLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 16,
+    "name": "Osc2TriLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 17,
+    "name": "Osc2PwmLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 18,
+    "name": "Osc2PwmWidth",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 19,
+    "name": "Osc2NoiseLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 20,
+    "name": "Osc2NoiseLoFi",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 21,
+    "name": "Osc2Waveform2",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 22,
+    "name": "Osc2Output1",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 23,
+    "name": "Osc2Output2",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 24,
+    "name": "Osc3Sync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 25,
+    "name": "Osc3Semi",
+    "default": 0,
+    "bounds": [
+      -36,
+      36
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 26,
+    "name": "Osc3Tune",
+    "default": 0,
+    "bounds": [
+      -50,
+      50
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 27,
+    "name": "Osc3SawLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 28,
+    "name": "Osc3TriLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 29,
+    "name": "Osc3PwmLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 30,
+    "name": "Osc3PwmWidth",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 31,
+    "name": "Osc3NoiseLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 32,
+    "name": "Osc3NoiseLoFi",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 33,
+    "name": "Osc3Waveform2",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 34,
+    "name": "Osc3Output1",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 35,
+    "name": "Osc3Output2",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 36,
+    "name": "Osc4Sync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 37,
+    "name": "Osc4Semi",
+    "default": 0,
+    "bounds": [
+      -36,
+      36
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 38,
+    "name": "Osc4Tune",
+    "default": 0,
+    "bounds": [
+      -50,
+      50
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 39,
+    "name": "Osc4SawLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 40,
+    "name": "Osc4TriLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 41,
+    "name": "Osc4PwmLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 42,
+    "name": "Osc4PwmWidth",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 43,
+    "name": "Osc4NoiseLevel",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 44,
+    "name": "Osc4NoiseLoFi",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 45,
+    "name": "Osc4Waveform2",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 46,
+    "name": "Osc4Output1",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 47,
+    "name": "Osc4Output2",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 48,
+    "name": "Filter1Type",
+    "default": "LPF24",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 49,
+    "name": "Filter1Frequency",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 50,
+    "name": "Filter1Resonance",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 51,
+    "name": "Filter1Breath",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 52,
+    "name": "Filter1KeyTrack",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 53,
+    "name": "Filter1BreathSubMod",
+    "default": "BREATH",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 54,
+    "name": "Filter2Type",
+    "default": "LPF24",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 55,
+    "name": "Filter2Frequency",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 56,
+    "name": "Filter2Resonance",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 57,
+    "name": "Filter2Breath",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 58,
+    "name": "Filter2KeyTrack",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 59,
+    "name": "Filter2BreathSubMod",
+    "default": "BREATH",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 60,
+    "name": "Eg1Attack",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 61,
+    "name": "Eg1Decay",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 62,
+    "name": "Eg1Sustain",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 63,
+    "name": "Eg1Release",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 64,
+    "name": "Eg1Retrigger",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 65,
+    "name": "Eg2Attack",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 66,
+    "name": "Eg2Decay",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 67,
+    "name": "Eg2Sustain",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 68,
+    "name": "Eg2Release",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 69,
+    "name": "Eg2Retrigger",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 70,
+    "name": "Eg3Attack",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 71,
+    "name": "Eg3Decay",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 72,
+    "name": "Eg3Sustain",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 73,
+    "name": "Eg3Release",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 74,
+    "name": "Eg3Retrigger",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 75,
+    "name": "Eg4Attack",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 76,
+    "name": "Eg4Decay",
+    "default": 5,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 77,
+    "name": "Eg4Sustain",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 78,
+    "name": "Eg4Release",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 79,
+    "name": "Eg4Retrigger",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 80,
+    "name": "Lfo1Waveform",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 81,
+    "name": "Lfo1Speed",
+    "default": 2,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 82,
+    "name": "Lfo1KeySync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 83,
+    "name": "Lfo1BPMSync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 84,
+    "name": "Lfo1BpmSync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 85,
+    "name": "Lfo1Beat",
+    "default": "1/4",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 86,
+    "name": "Lfo2Waveform",
+    "default": "TRI",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 87,
+    "name": "Lfo2Speed",
+    "default": 2,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 88,
+    "name": "Lfo2KeySync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 89,
+    "name": "Lfo2BPMSync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 90,
+    "name": "Lfo2BpmSync",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 91,
+    "name": "Lfo2Beat",
+    "default": "1/4",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 92,
+    "name": "Mod1Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 93,
+    "name": "Mod1Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 94,
+    "name": "Mod1Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 95,
+    "name": "Mod1Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 96,
+    "name": "Mod2Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 97,
+    "name": "Mod2Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 98,
+    "name": "Mod2Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 99,
+    "name": "Mod2Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 100,
+    "name": "Mod3Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 101,
+    "name": "Mod3Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 102,
+    "name": "Mod3Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 103,
+    "name": "Mod3Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 104,
+    "name": "Mod4Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 105,
+    "name": "Mod4Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 106,
+    "name": "Mod4Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 107,
+    "name": "Mod4Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 108,
+    "name": "Mod5Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 109,
+    "name": "Mod5Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 110,
+    "name": "Mod5Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 111,
+    "name": "Mod5Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 112,
+    "name": "Mod6Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 113,
+    "name": "Mod6Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 114,
+    "name": "Mod6Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 115,
+    "name": "Mod6Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 116,
+    "name": "Mod7Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 117,
+    "name": "Mod7Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 118,
+    "name": "Mod7Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 119,
+    "name": "Mod7Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 120,
+    "name": "Mod8Source1",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 121,
+    "name": "Mod8Source2",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 122,
+    "name": "Mod8Destination",
+    "default": "None",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 123,
+    "name": "Mod8Depth",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 124,
+    "name": "Filter3Enabled",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 125,
+    "name": "Filter3Stage",
+    "default": 2,
+    "bounds": [
+      2,
+      24
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 126,
+    "name": "Filter3Frequency",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 127,
+    "name": "Filter3Resonance",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 128,
+    "name": "Filter3Mix",
+    "default": 0,
+    "bounds": [
+      -10,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 129,
+    "name": "Amp1Level",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 130,
+    "name": "Amp1Breath",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 131,
+    "name": "Amp1BreathSubMod",
+    "default": "BREATH",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 132,
+    "name": "Amp2Level",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 133,
+    "name": "Amp2Breath",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 134,
+    "name": "Amp2BreathSubMod",
+    "default": "BREATH",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 135,
+    "name": "FilterConnection",
+    "default": "Parallel 2",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 136,
+    "name": "Transpose",
+    "default": 0,
+    "bounds": [
+      -24,
+      24
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 137,
+    "name": "PitchBendRange",
+    "default": 2,
+    "bounds": [
+      0,
+      24
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 138,
+    "name": "MasterTune",
+    "default": 0,
+    "bounds": [
+      -50,
+      50
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 139,
+    "name": "MasterLevel",
+    "default": 10,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 140,
+    "name": "GateOpenSmoothTime",
+    "default": 2,
+    "bounds": null,
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 141,
+    "name": "GateCloseSmoothTime",
+    "default": 15,
+    "bounds": null,
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 142,
+    "name": "BreathSmoothTime",
+    "default": 12,
+    "bounds": null,
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 143,
+    "name": "PitchBendSmoothTime",
+    "default": 5,
+    "bounds": null,
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 144,
+    "name": "GlideSmoothTime",
+    "default": 5,
+    "bounds": null,
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 145,
+    "name": "GlideMinimumSpeed",
+    "default": 0,
+    "bounds": [
+      0,
+      1
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 146,
+    "name": "GlideSpeed",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 147,
+    "name": "GlideMidiEnabled",
+    "default": "Off",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 148,
+    "name": "GlideMode",
+    "default": "Time",
+    "bounds": null,
+    "kind": "text",
+    "status": "active"
+  },
+  {
+    "id": 149,
+    "name": "ExciterFrequency",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 150,
+    "name": "ExciterMix",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 151,
+    "name": "EnhancerMix",
+    "default": 0,
+    "bounds": [
+      0,
+      10
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 152,
+    "name": "EnhancerDelayL",
+    "default": 0,
+    "bounds": [
+      0,
+      100
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 153,
+    "name": "EnhancerDelayR",
+    "default": 0,
+    "bounds": [
+      0,
+      100
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 154,
+    "name": "EqLowGain",
+    "default": 0,
+    "bounds": [
+      -12,
+      12
+    ],
+    "kind": "number",
+    "status": "active"
+  },
+  {
+    "id": 155,
+    "name": "EqHighGain",
+    "default": 0,
+    "bounds": [
+      -12,
+      12
+    ],
+    "kind": "number",
+    "status": "active"
+  }
+]

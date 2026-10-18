@@ -1,0 +1,57 @@
+make CFLAGS='-O1 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off -fsanitize=address,undefined -fno-omit-frame-pointer' build/ifw-reference-sanitize
+make[1]: Entering directory '/workspace/scratch/cab844368e85/OpenIFW-FM1'
+mkdir -p build
+cc -O1 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off -fsanitize=address,undefined -fno-omit-frame-pointer src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c -lm -o build/ifw-reference-sanitize
+make[1]: Leaving directory '/workspace/scratch/cab844368e85/OpenIFW-FM1'
+ASAN_OPTIONS=detect_leaks=0 IFW_REFERENCE=build/ifw-reference-sanitize node tests/compare.mjs
+PASS empty-defaults: PCM max=0.00e+0, state max=0.00e+0
+PASS sine-440: PCM max=0.00e+0, state max=0.00e+0
+PASS dense-parallel2: PCM max=0.00e+0, state max=1.11e-16
+PASS wave-SIN: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-SINE: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-TRI: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-SAW: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-SQU: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-PWM: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-PULSE: PCM max=0.00e+0, state max=0.00e+0
+PASS wave-Ext-In: PCM max=0.00e+0, state max=0.00e+0
+PASS filter-Serial-LPF24: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Serial-LPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Serial-HPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Serial-BPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel1-LPF24: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel1-LPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel1-HPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel1-BPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel2-LPF24: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel2-LPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel2-HPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS filter-Parallel2-BPF12: PCM max=0.00e+0, state max=1.11e-16
+PASS pwm-width-0: PCM max=0.00e+0, state max=0.00e+0
+PASS pwm-width-5: PCM max=0.00e+0, state max=0.00e+0
+PASS pwm-width-10: PCM max=0.00e+0, state max=0.00e+0
+PASS legato-glide-Time: PCM max=0.00e+0, state max=1.11e-16
+PASS legato-glide-Rate: PCM max=0.00e+0, state max=1.11e-16
+PASS matrix-eight-slots: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-isolated-0: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-isolated-1: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-isolated-2: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-isolated-3: PCM max=1.82e-12, state max=1.11e-16
+PASS fx-isolated-4: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-full-chain: PCM max=0.00e+0, state max=1.11e-16
+PASS panic-with-tail: PCM max=0.00e+0, state max=1.11e-16
+PASS fx-setting-bypass: PCM max=0.00e+0, state max=1.11e-16
+PASS sample-rate-48000: PCM max=0.00e+0, state max=1.11e-16
+PASS sample-rate-96000: PCM max=0.00e+0, state max=1.11e-16
+PASS noise-seeded: PCM max=0.00e+0, state max=0.00e+0
+PASS silent-osc-fm: PCM max=0.00e+0, state max=0.00e+0
+PASS silent-osc-no-fm: PCM max=0.00e+0, state max=0.00e+0
+PASS sync-clock-fm: PCM max=0.00e+0, state max=0.00e+0
+PASS sync-clock-no-fm: PCM max=0.00e+0, state max=0.00e+0
+PASS br-eg-release: PCM max=0.00e+0, state max=0.00e+0
+PASS lfo-both-bpm-spellings: PCM max=0.00e+0, state max=0.00e+0
+PASS tuning-transpose: PCM max=0.00e+0, state max=0.00e+0
+PASS destination-aliases: PCM max=0.00e+0, state max=1.11e-16
+PASS live-edit-preserves-legato: PCM max=0.00e+0, state max=1.11e-16
+PASS all-128-held-notes: PCM max=0.00e+0, state max=0.00e+0
+PASS 168 comparisons; 1018985 frames; A4=440.000005 Hz; worst PCM=1.8189894035458565e-12
