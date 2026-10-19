@@ -5,7 +5,7 @@ import json
 R=Path(__file__).resolve().parents[1]
 ids={p['name']:p['id'] for p in json.loads((R/'docs/parameters.json').read_text())}
 groups=['HOME','EDIT','ENV','LFO','MOD','FX','TUNE','AMP','GLOBAL','SAVE','PRESETS','ADVANCED']
-special=dict(PRESET=300,CORE=301,FAV=302,LIST=303,SLOT=304,LOAD=305,ERASE=306,SAVE=307,MODSLOT=308,MODSRC1=309,MODSRC2=310,MODDEST=311,MODDEPTH=312)
+special=dict(PRESET=300,CORE=301,FAV=302,LIST=303,SLOT=304,LOAD=305,ERASE=306,SAVE=307,MODSLOT=308,MODSRC1=309,MODSRC2=310,MODDEST=311,MODDEPTH=312,PERFMODE=313,PERFRESET=314,PERFFREEZE=315,PERFSTATE=316)
 pages=[]
 def add(key,group,title,params,labels,kind='SCOPE',description=''):
  def ident(p):
@@ -56,6 +56,7 @@ add('LEARN','GLOBAL','MIDI / LEARN',[],[],kind='LEARN',description='TURN PARAM /
 add('SAVE','SAVE','USER SOUND',['SLOT','LOAD','ERASE','SAVE'],['SLOT','LOAD','ERASE','SAVE'],kind='SAVE')
 add('PRESETS','PRESETS','PRESETS',['PRESET','CORE','FAV','LIST'],['NO.','CORE','FAV','LIST'],kind='PRESETS')
 add('ADVANCED','ADVANCED','ALL PARAMETERS',[],[],kind='ADVANCED',description='EXPERT / RAW PARAMETER WORDS')
+add('PERF','GLOBAL','PERFORMANCE',['PERFMODE','PERFRESET','PERFFREEZE','PERFSTATE'],['OUTPUT','RESET','HOLD','STATUS'],kind='PERF',description='COMPLETE AUDIO IRQ / 5804 us')
 kinds=list(dict.fromkeys(p['kind'] for p in pages))
 out=['/* Generated UI mapping only; no synthesis code or preset parameters. */',
  'enum {'+','.join('UG_'+g for g in groups)+',UG_COUNT};',

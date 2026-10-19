@@ -1,0 +1,49 @@
+{
+  "factoryPrograms": [
+    {
+      "name": "Tresure Island",
+      "program": 4,
+      "sha256": "4baa48db5036d25019534c88464c216e40a9b4d21f2d987be1b3e61c06ca5362"
+    },
+    {
+      "name": "Primer",
+      "program": 18,
+      "sha256": "c13ebf5fb2386305a12ff19094e604a8f18459798ab11ba6be27d0b1507dad63"
+    },
+    {
+      "name": "Ai no Labyrinth",
+      "program": 14,
+      "sha256": "14ccced6bcd030874fbb8b6a6e8245151e26cfd9cfac38aeacfdce53d442923f"
+    },
+    {
+      "name": "Daisy Area 2",
+      "program": 10,
+      "sha256": "4913b2a6ae5b4fd3b5ff3d809e7b97ae4e060da346c0b39756f7fbc030c96349"
+    },
+    {
+      "name": "Wanna Go To Hawaii",
+      "program": 8,
+      "sha256": "63e1bc3cb53feb39d85484a8cb3bc0af78eda5bb6ad760ef077fb79b4b26e5ab"
+    },
+    {
+      "name": "JUDD-ish 2000",
+      "program": 21,
+      "sha256": "394b8e2f60791fa3ca0a87e9d0018ab0fb4f3690d29e0bda034965e1b35935bb"
+    }
+  ],
+  "parameterChecks": 1098,
+  "matrixFields": 192,
+  "envFields": 120,
+  "equivalence": {
+    "operations": 255,
+    "renders": 197,
+    "bytesCompared": 24502072,
+    "pcm": true,
+    "lcd": true,
+    "patch": true,
+    "musicalState": true
+  },
+  "flashReboot": true,
+  "quickTapWorklet": true,
+  "browserUIQA": false
+}

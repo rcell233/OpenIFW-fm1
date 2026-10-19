@@ -1,0 +1,21 @@
+{
+  "checks": 66,
+  "firmwareSha256": "cf7ab1e35378ae7797ab817c7e32aaa8ce0b49d3bbbe55185aa18ded7ae2a9b8",
+  "fullImageBytes": 610090,
+  "fullInstall": true,
+  "resume": true,
+  "errors": [
+    "corrupt package",
+    "corrupt loader",
+    "wrong model",
+    "foreign loader",
+    "unplug",
+    "mismatch",
+    "bounds",
+    "timeouts",
+    "multiple devices",
+    "permission denied"
+  ],
+  "pageLifecycle": true,
+  "realHardwareFlashed": false
+}

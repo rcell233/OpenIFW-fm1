@@ -3,23 +3,34 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed panel-test web-test
+test: all fixed-test build/ifw-fixed panel-test web-test performance-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	node tests/engine_fixed_compare.mjs
+	python3 tests/performance_regression.py
 	node tests/factory_regression.mjs
 factory-test: build/ifw-fixed
 	node tests/factory_regression.mjs
 build/ifw-fixed: tests/engine_fixed_host.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
 	mkdir -p build
 	$(CC) $(CFLAGS) tests/engine_fixed_host.c $(FIXED) -o $@
+build/dsp-regression: tests/dsp_optimization.c tests/dsp_math.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
+	mkdir -p build
+	$(CC) $(CFLAGS) -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c $(FIXED) -o $@
+build/dsp-regression-unity: tests/dsp_optimization.c tests/dsp_math.c firmware/src/dsp.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
+	mkdir -p build
+	$(CC) $(CFLAGS) -O3 -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c firmware/src/dsp.c -o $@
+performance-test: build/dsp-regression build/dsp-regression-unity
+	python3 tests/performance_regression.py --live-only
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsp_optimization.c firmware/src/dsp.c -o build/dsp-regression-sanitize
+	ASAN_OPTIONS=detect_leaks=0 build/dsp-regression-sanitize > build/dsp-regression-sanitize.json
 panel-test:
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/panel_test.c $(FIXED) -o build/panel-test

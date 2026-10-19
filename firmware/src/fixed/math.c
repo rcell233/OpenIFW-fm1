@@ -4,11 +4,16 @@
 uint32_t ifw_udiv64(uint64_t n,uint32_t d) {
     uint32_t r=(uint32_t)(n>>32),lo=(uint32_t)n,q=0;
     if(!d || r>=d) return UINT32_MAX;
+#ifdef IFW_TARGET
+    /* pi32v2 has an exact 64/32 divide. Same overflow/zero contract. */
+    (void)lo;(void)q;return (uint32_t)(n/d);
+#else
     for(unsigned i=0;i<32;i++) {
         uint32_t carry=r>>31; r=(r<<1)|(lo>>31);lo<<=1;q<<=1;
         if(carry || r>=d) {r-=d;q|=1;}
     }
     return q;
+#endif
 }
 int32_t ifw_sdiv64(int64_t n,uint32_t d) {
     uint32_t q=ifw_udiv64(n<0?0u-(uint64_t)n:(uint64_t)n,d);
@@ -18,8 +23,9 @@ int32_t ifw_sdiv64(int64_t n,uint32_t d) {
 uint32_t ifw_ratio16(uint32_t n,uint32_t d) {
     if(!d) return 0;
     if(n>=d) return 65536;
-    unsigned shift=0;uint32_t v=d;
-    while(v>65535u) {v>>=1;shift++;}
+    /* Same truncation as repeatedly shifting d, in one leading-zero count. */
+    unsigned shift=d>65535u?16u-(unsigned)__builtin_clz(d):0u;
+    uint32_t v=d>>shift;
     return (n<<(16-shift))/v;
 }
 static int32_t lerp(const int32_t *t,unsigned i,uint32_t frac,unsigned bits) {
@@ -49,6 +55,18 @@ int32_t ifw_wave20(uint32_t p,uint32_t dt,int type,uint32_t width) {
     if(type==2) return (int32_t)(p>>11)-IFW_Q20-blep(p,dt);
     if(type==3) return (p<width?IFW_Q20:-IFW_Q20)-((int32_t)(width>>11)-IFW_Q20)+blep(p,dt)-blep(p-width,dt);
     return 0;
+}
+void ifw_waves20(uint32_t p,uint32_t dt,int type,uint32_t width,
+                 int32_t *saw,int32_t *secondary,int32_t *pulse) {
+    /* The saw and shifted pulse use the same edge correction. Keep the same
+     * Q20 operations/rounding and compute that correction once. */
+    int32_t edge=blep(p,dt);
+    *saw=(int32_t)(p>>11)-IFW_Q20-edge;
+    uint32_t shifted=p+width;
+    *pulse=(shifted<width?IFW_Q20:-IFW_Q20)-((int32_t)(width>>11)-IFW_Q20)+blep(shifted,dt)-edge;
+    if(type==2)*secondary=*saw;
+    else if(type==3)*secondary=(p<IFW_PHASE_HALF?IFW_Q20:-IFW_Q20)+edge-blep(p-IFW_PHASE_HALF,dt);
+    else *secondary=ifw_wave20(p+(type<=1?IFW_PHASE_HALF:0),dt,type,IFW_PHASE_HALF);
 }
 uint64_t ifw_note_step(int32_t note,int32_t tuning) {
     int32_t semitone=note>>16,frac=note-semitone*65536;

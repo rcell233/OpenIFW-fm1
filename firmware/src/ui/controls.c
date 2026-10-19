@@ -98,6 +98,9 @@ static uint32_t ui_first(uint32_t g) {
 static void ui_show(uint32_t p) {
   if (p >= UP_COUNT)
     return;
+  if(page==UP_PERF && p!=UP_PERF && perf_mode) {
+    perf_mode=0;perf_reset();
+  }
   page = p;
   home = (p == UP_HOME);
   ui.memory[ui_pages[p].group] = (uint16_t)p;
@@ -347,6 +350,10 @@ static void ui_menu_edit(int32_t d) {
       ui.menu = 0;
       ui_show(UP_ADVANCED);
     }
+    if (r == 3 && d > 0) {
+      ui.menu = 0;
+      ui_show(UP_PERF);
+    }
     if (r == 4 && d > 0)
       panic_panel();
   }
@@ -443,6 +450,23 @@ static void ui_knob(uint32_t k, int32_t d) {
     return;
   }
   uint32_t id = control_id(k);
+  if (id == UC_PERFMODE) {
+    perf_mode=(uint32_t)ifw_clamp((int32_t)perf_mode+d,0,2);
+    perf_reset();dirty=1;
+    return;
+  }
+  if (id == UC_PERFRESET) {
+    if(d>0)perf_reset();
+    dirty=1;return;
+  }
+  if (id == UC_PERFFREEZE) {
+    if(d>0) {perf_snapshot();perf_freeze=1;}
+    else perf_freeze=0;
+    dirty=1;return;
+  }
+  if (id == UC_PERFSTATE) {
+    ui_message("XRUN / DMA LATE MUST STAY 0");return;
+  }
   if (id == UC_PRESET) {
     ui_preset_turn(d);
     return;

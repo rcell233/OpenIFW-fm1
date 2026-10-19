@@ -1062,5 +1062,24 @@
     ],
     "kind": "ADVANCED",
     "description": "EXPERT / RAW PARAMETER WORDS"
+  },
+  {
+    "key": "PERF",
+    "group": "GLOBAL",
+    "title": "PERFORMANCE",
+    "ids": [
+      313,
+      314,
+      315,
+      316
+    ],
+    "labels": [
+      "OUTPUT",
+      "RESET",
+      "HOLD",
+      "STATUS"
+    ],
+    "kind": "PERF",
+    "description": "COMPLETE AUDIO IRQ / 5804 us"
   }
 ]

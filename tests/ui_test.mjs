@@ -28,6 +28,21 @@ for(const p of pages.filter(p=>!['PRESETS','ADVANCED'].includes(p.group))){go(e,
 go(e,'PRESETS');shot(e,'PRESETS');go(e,'ADVANCED');shot(e,'ADVANCED');
 
 // A remembered page returns on the group button; repeat tap / SELECT cycles it.
+// Performance controls are temporary diagnostics; navigation restores synth.
+const diagnostic=await make();advance(diagnostic,40);go(diagnostic,'PERF');
+const diagnosticPatch=patch(diagnostic);eq(diagnostic.web_perf_mode(),0);
+eq(str(diagnostic,diagnostic.web_ui_control_value(3)),'N/A','host must not claim device CPU timing');
+enc(diagnostic,3,1);eq(diagnostic.web_perf_mode(),1);advance(diagnostic,100);
+diagnostic.web_render(1024);
+const tone=Array.from(new Float32Array(diagnostic.memory.buffer,diagnostic.web_out_l(),1024));
+assert.ok(Math.max(...tone)>.02&&Math.min(...tone)<-.02,'diagnostic sine is missing');checks++;
+let crossings=0;for(let i=1;i<tone.length;i++)if(tone[i-1]<=0&&tone[i]>0)crossings++;
+assert.ok(crossings>=9&&crossings<=11,'diagnostic sine frequency is not 440 Hz');checks++;
+enc(diagnostic,3,1);eq(diagnostic.web_perf_mode(),2);advance(diagnostic,100);diagnostic.web_render(1024);
+eq(Array.from(new Float32Array(diagnostic.memory.buffer,diagnostic.web_out_l(),1024)).every(v=>v===0),true,'diagnostic mute');
+eq(patch(diagnostic),diagnosticPatch,'diagnostics changed preset');
+go(diagnostic,'HOME');eq(diagnostic.web_perf_mode(),0,'leaving diagnostics must restore synth');
+
 go(e,'OSC3TUNE');go(e,'EG2');tap(e,4);eq(e.web_page(),id('OSC3TUNE'));tap(e,4);eq(e.web_page(),id('OSC3ROUTE'));enc(e,1,1);eq(e.web_page(),id('OSC4'));
 
 // The press timestamp must work on even and odd milliseconds, without false holds.

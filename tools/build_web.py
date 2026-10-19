@@ -41,7 +41,7 @@ subprocess.run(cmd,check=True,env=env)
 subprocess.run(['node','--check',str(O/'worklet.js')],check=True)
 for name in ['install.js','controller.js']:
     subprocess.run(['node','--check',str(O/'install'/name)],check=True)
-record=dict(version='0.4.0',kind='shared-C-firmware-host',wasmBytes=(O/'openifw.wasm').stat().st_size,
+record=dict(version=release['version'],kind='shared-C-firmware-host',wasmBytes=(O/'openifw.wasm').stat().st_size,
             wasmSha256=hashlib.sha256((O/'openifw.wasm').read_bytes()).hexdigest(),factoryPresets=6,
             compiler=subprocess.check_output([cc,'--version'],env=env,text=True).splitlines()[0])
 (O/'build.json').write_text(json.dumps(record,indent=2)+'\n')

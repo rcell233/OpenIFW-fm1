@@ -1,14 +1,36 @@
-# 真机验证尚未完成
+# 0.4.1 真机声音与实时预算
 
-此开发环境只完成主机测试和 pi32v2 交叉编译，没有连接 FM-1，也没有执行刷写。0.2 包应作为实验固件评估。
+用户已经在设备上运行 0.4.0，反馈 UI 正常、声音严重爆音。0.4.1 完成等价性能优化和自动测试；此开发环境没有连接设备，不能把模型测试当作声音已在真机修复。先安装 [0.4.1](https://rcell233.github.io/OpenIFW-fm1/install/)，再按下面读数验证。
 
-1. 在 https://rcell233.github.io/OpenIFW-fm1/install/ 通过 Chrome / Edge 安装本项目发布的 `.fwsc`，验证正常启动、完整写入、重启与身份确认，并实测中断后的恢复；确认版本身份 `FM-1_982`。原有 OCT− 开机 USB rescue 与升级 loader 保留。
-2. 默认 Tresure Island 按一个音，再重叠按第二、第三个音。应始终只听到最后音；依次松开应回退到还按住的音，最后松开有 EG 尾音。
-3. 在 ENV 把某一 EG 的 Retrigger 开启，对比重叠音时该 EG 重启、其他 EG 连续。测试 Time / Rate Glide、弯音、Wind 气息和 CC64。
-4. MIDI NoteOn 力度 0 应松键；CC120 / 123 应停音。跨八度按住物理键再变更八度，松键不能挂音。
-5. 连接 USB Audio，先录 Tresure Island，再录 Primer、Daisy Area 2、Wanna Go To Hawaii 和满载双 Delay / Reverb 的音色。屏幕翻页、MIDI 和 USB Audio 并发下持续观测。
-6. GLO 后 SELECT 下一页显示 RENDER MAX US 与 XRUN BLOCKS。44100 Hz / 256 帧的周期约 5804 µs；建议峰值尽量低于 2900 µs，超时块数应保持 0。这些阈值尚无真机测量值。
-7. 从 Demo 选择 MIDI 输出并发送音色到 FM-1；核对几项 OSC、MOD、EG、FX 参数。设备通道为 1 或全通道。网页没有设备确认回包，必须核对屏幕／声音。按 SAVE，松开所有音并等尾音结束后再断电，重启应能恢复 USER 音色。
-8. 最后检查升级／救援回归。此包未宣称通过这些真机步骤。
+## 先测正常合成
 
-保存仅使用平台原有 4 KiB settings sector，不扩大写 Flash 范围。一次保存包含三个用户槽与配置，带版本和 CRC，最后写头；断电可能使该次保存无效，此时回到默认用户音色。
+1. 进入 **GLO → PERFORMANCE**（GLO 组第三页）；也可长按 HOME，在 **SYS → PERFORMANCE** 向右操作打开。
+2. K1 保持 **SYNTH**，K3 保持 **OFF**；向右转 K2 **RESET** 清零统计。
+3. 依次演奏六个工厂音色，持续音、重叠音、快速换音和高低音都测；演奏中翻页、转旋钮。分别测试模拟音频输出，以及连接 USB Audio 录音。
+4. 返回 PERFORMANCE 查看 **MAX、DSP、XRUN、DMA、CLIP**。可向右转 K3 冻结画面，向左恢复。
+
+| 读数 | 含义 |
+| --- | --- |
+| LAST / AVG / MAX | 完整音频中断的最近 / 平均 / 峰值耗时，单位 µs；包括 DSP、主音量、USB tap、输出格式转换与期间的 TIMER5 抢占 |
+| DSP | 应用音频处理的峰值；包含事件与 patch 配置、DSP、示波器与电平统计 |
+| XRUN | 完整回调超过名义 256 / 44100 秒预算的次数，约 **5805 µs** |
+| DMA | 写入期间 DMA 已换半区，或处理时间已超过半区周期的次数；长于两个周期也计入 |
+| PEAK / CLIP | DSP 输出的峰值和触达 Q15 限幅的采样数，统计点在硬件 MASTER 音量之前；CLIP 与计算超时是不同指标 |
+
+正常演奏时 XRUN / DMA 应持续为 **0**，MAX 应低于预算并留出余量。模型中的工厂音色通过不代表 USB 主机、Flash/cache 等实际开销已测量；设备上的这些读数才是实时判断依据。
+
+## 用独立信号定位
+
+在 PERFORMANCE 转 K1 到 **SINE**：设备直接输出低电平 440 Hz 正弦音，跳过合成器和效果器。若它清晰而 SYNTH 爆音，同时 XRUN / DMA 增长，重点检查 DSP 实时负载。再转到 **MUTE**，输出全零；若此时仍有明显杂音，应继续检查音频输出、USB、供电或连接链路。
+
+两个测试都不写音色或配置；退出 PERFORMANCE 自动恢复 SYNTH，重启也默认 SYNTH。网页 Demo 只能演示测试信号，耗时栏显示 DEVICE ONLY / N.A.，不提供设备 CPU 实测值。
+
+记录音色名、音域、是否连接 USB Audio、MAX / DSP / XRUN / DMA / CLIP，以及 SINE 和 MUTE 的声音情况，便于进一步区分超时、限幅与输出链路故障。
+
+## 音乐行为和保存
+
+继续验证末音优先、重叠按键不增加声部、松键回退到仍按住的音及其力度；逐个测试四 EG Retrigger、Time / Rate Glide、CC7、弯音、CC64、CC120/123。更改键盘八度后松开旧键不得挂音。
+
+SAVE 后松开所有音并等待尾音结束，确认保存提示，再重启检查三个用户槽与配置。保存仍使用原 4 KiB settings sector，不扩大 Flash 范围；保留原 OCT− 开机 USB rescue 与升级 loader。设备身份为 FM-1_982。
+
+模型中 8 路 FM、24 级 Filter 3、五个效果器全开和高音的组合仍超预算；当前版本保留其音色与运算行为，使用这类自定义组合时必须查看实时读数。完整数据和复现方法见 [性能报告](PERFORMANCE.md)。

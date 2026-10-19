@@ -26,6 +26,7 @@
 <ol class="steps" aria-label="安装阶段"><li data-stage="0">01 连接设备</li><li data-stage="1">02 准备升级</li><li data-stage="2">03 写入固件</li><li data-stage="3">04 重启确认</li></ol>
 </section>
 <noscript>安装器需要启用 JavaScript。</noscript>
+<details><summary>更新后验证声音与性能</summary><p>进入 GLO 的 PERFORMANCE 页，或长按 HOME → SYS → PERFORMANCE。向右转第二旋钮 RESET，持续演奏并观察 MAX / XRUN / DMA；后两项应保持 0。第一旋钮可选 SINE / MUTE 帮助排查输出链路，退出此页自动恢复 SYNTH。</p><p><a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/docs/PERFORMANCE.md">性能评估与真机检查说明</a></p></details>
 <details><summary>连接失败或安装中断</summary><ul><li>确认使用能传输数据的 USB 线，并关闭占用 FM-1 MIDI 的 DAW、编辑器或其他网页。</li><li>如果连接了多台设备，请只保留要安装的那台 FM-1。</li><li>如果设备仍停在兼容的升级模式，重新接上 USB 后点 Install，会恢复写入。</li><li>如果当前固件无法正常启动，可尝试按住 OCT− 开机进入 USB 救援模式，再连接安装。</li><li>如果浏览器拒绝 MIDI 权限，请在地址栏的站点设置中允许 MIDI，然后重试。</li></ul><p>本页使用 FM-1 的 USB-MIDI 升级协议，只安装本项目发布的 OpenIFW 固件。只有型号确认通过的 FM-1 才会进入写入流程。</p></details>
 <details><summary>固件与安装日志</summary><p id="identity"></p><pre id="digest"></pre><pre id="log"></pre></details>
 <footer>升级传输沿用 Felucca（Leo Kuroshita / Hügelton Instruments）的 GPL-3.0 代码。<a href="../THIRD_PARTY_NOTICES.md">许可与归属</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/tree/main/firmware-bin">固件与构建信息</a><br>网页流程经过模拟设备测试，尚未连接实体 FM-1 进行刷写验证。</footer>

@@ -1,16 +1,16 @@
 # OpenIFW-fm1
 
-OpenIFW 的 FM-1 专用单音合成器移植。**0.4 按 Ghoulbox 重做页面、四旋钮和按钮操作。合成引擎、原始六个音色及单音 / Legato 保持 0.3 不变；30 个核心文件哈希和 12 组音频逐字节回归已通过。尚未上板测试，浏览器点击验证受预览环境限制。**
+OpenIFW 的 FM-1 专用单音合成器移植。**0.4.1 针对硬件爆音做保持输出一致的 DSP 优化，加入完整音频中断计时、XRUN / DMA 诊断和临时正弦音 / 静音测试。六个原始预设、矩阵、包络、单音 / Legato 的音频回归保持一致。性能模型与实机测量范围见 [性能报告](docs/PERFORMANCE.md)。**
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
 
-在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.0**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.1**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
-此网页流程已通过模拟 USB-MIDI 设备测试，未连接实体 FM-1 实际刷写。固件继续使用原来的 0.4.0 二进制，音源、预设与单音 / Legato 未改。
+网页安装协议已通过模拟设备测试。用户反馈 0.4.0 已能在实体设备启动，UI 正常但音频严重爆音；0.4.1 优化版仍需实机验证声音及 PERFORMANCE 读数。此开发环境没有连接用户设备。
 
 ## 保留的合成行为
 
@@ -33,6 +33,7 @@ make sanitize          # 桌面参考引擎 ASan/UBSan
 make panel-host        # 实际 app.c 在模拟面板运行，生成 WAV 和 PPM 屏幕
 make web-test          # 编译实际 C 固件为 WASM，验证 PCM / LCD / 参数 / Flash / AudioWorklet
 make factory-test      # 六个原始音色各 4 秒干湿对照，包含包络和单音状态
+make performance-test  # 旧版逐采样回归、实时编辑历史和等价运算边界
 python3 -m http.server 8000 --directory build/web
 ```
 
@@ -49,11 +50,11 @@ export AC79_SDK=/absolute/path/to/ac79-sdk
 sh build.sh --firmware
 ```
 
-SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；保留的 Dinghy 平台、HAL、链接布局和升级 loader 源文件不改动。
+SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；保留的 Dinghy 平台、HAL、链接布局和升级 loader 源文件不改动；新增 HAL 算术适配只封装 pi32v2 饱和加减，不改设备寄存器或时钟。
 
-已编译的实验固件：[OpenIFW-FM1-0.4.0.fwsc](firmware-bin/OpenIFW-FM1-0.4.0.fwsc)，资源与 SHA-256 见同目录 build.json。
+已编译的实验固件：[OpenIFW-FM1-0.4.1.fwsc](firmware-bin/OpenIFW-FM1-0.4.1.fwsc)，资源与 SHA-256 见同目录 build.json。
 
-输出 `build/firmware/OpenIFW-FM1-0.4.0.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
+输出 `build/firmware/OpenIFW-FM1-0.4.1.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
 
 实际大小与预算记录于 `docs/evidence/firmware-build.json`；pool 294,216 B / 344,064 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 
@@ -65,13 +66,13 @@ SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 
 
 SAVE 打开用户槽页，旋钮选择槽和 LOAD / ERASE / SAVE 操作，OCT+ 执行；覆盖或丢弃编辑需要确认，可输入 12 字符名称。长按 SAVE 撤销 / 重做上次加载。收藏、列表过滤、配色、显示和操作偏好可保存。没有增加音序器、多轨或和弦声部。
 
-USB MIDI 默认全通道接收，CC7 气息、CC9 Vibrato、CC5 Glide、CC64 延音，CC120/123 停音；CC20–23 编辑当前四参数。REC 学习最后编辑参数的 CC，用户槽和设置在声音和事件队列静止后写入。GLO 可设置键盘模式 / CC 气息模式、MIDI 通道、键盘八度和保存槽。详见 [面板说明](docs/UI_SPEC.md)。
+USB MIDI 默认全通道接收，CC7 气息、CC9 Vibrato、CC5 Glide、CC64 延音，CC120/123 停音；CC20–23 编辑当前四参数。REC 学习最后编辑参数的 CC，用户槽和设置在声音和事件队列静止后写入。GLO 可设置键盘模式 / CC 气息模式、MIDI 通道、键盘八度和保存槽。GLO 的 PERFORMANCE 页（或长按 HOME → SYS → PERFORMANCE）显示完整 IRQ 的耗时与超时计数。详见 [面板说明](docs/UI_SPEC.md)。
 
 原始 ProgramIndex 为 4、18、14、10、8、21；MIDI Program Change 按这些值选择对应程序。浏览器与目标使用同一处理逻辑。面板中所有矩阵源均可显示，包含原始 Primer 使用的 Pitch Bend (+-)；ARP 实际跳 AMP 参数。
 
 ## 验证范围
 
-`tests/installer_test.mjs` 验证真实固件包的完整 USB-MIDI 传输、恢复、错误分支及网页权限流程；不连接真实设备。`tests/ui_test.mjs` 验证 56 页映射、按钮时序、效果器和矩阵隔离、保存确认与撤销，并重放操作做 ASan / UBSan 检查。`tests/ui_audio_unchanged.mjs` 将六个原始程序的演奏和切页过程与冻结的 0.3 音频哈希比较。`tests/web_test.mjs` 检查六个原始音色的数值、矩阵和包络字段，并对相同输入下原生 C / WASM 的 PCM、LCD、patch 和演奏状态逐字节比较；另测模拟 Flash 保存重启和真实 AudioWorklet 的快速按键。`tests/factory_regression.mjs` 直接以未经修改的 OpenIFW JS 为参照，测试每个原始音色各 4 秒干／湿声，保留成对 WAV 和详细数值。效果器误差作为单独测量，不宣称完全一致。
+`tests/installer_test.mjs` 验证真实固件包的完整 USB-MIDI 传输、恢复、错误分支及网页权限流程；不连接真实设备。`tests/ui_test.mjs` 验证 57 页映射、按钮时序、效果器和矩阵隔离、保存确认与撤销，并重放操作做 ASan / UBSan 检查。`tests/ui_audio_unchanged.mjs` 将六个原始程序的演奏和切页过程与冻结的 0.3 音频哈希比较。`tests/web_test.mjs` 检查六个原始音色的数值、矩阵和包络字段，并对相同输入下原生 C / WASM 的 PCM、LCD、patch 和演奏状态逐字节比较；另测模拟 Flash 保存重启和真实 AudioWorklet 的快速按键。`tests/factory_regression.mjs` 直接以未经修改的 OpenIFW JS 为参照，测试每个原始音色各 4 秒干／湿声，保留成对 WAV 和详细数值。效果器误差作为单独测量，不宣称完全一致。
 
 运行结果、已知差异和未验证项见 [测试结果](docs/TEST_RESULTS.md)。未连接实体 FM-1；预览 supervisor 不可用，因此尚不能声称已完成本页面的浏览器点击、触屏和视觉 QA。C 绘制屏幕已导出并检查；Node 中实际 WASM / AudioWorklet 测试不替代浏览器交互测试。
 

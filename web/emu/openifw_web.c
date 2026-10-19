@@ -80,6 +80,7 @@ EXPORT uint32_t web_ui_confirm(void) {return ui.confirm;}
 EXPORT uint32_t web_ui_naming(void) {return ui.naming;}
 EXPORT uint32_t web_ui_slot(void) {return ui.mod_slot;}
 EXPORT uint32_t web_ui_control_id(uint32_t k) {return control_id(k);}
+EXPORT uint32_t web_perf_mode(void) {return perf_mode;}
 EXPORT const char *web_ui_control_name(uint32_t k) {return k>3?"":ui.menu?ui_menu_label(ui.menu_tab,ui.menu_row):ui.naming?(k==0?"LETTER":k==1?"CURSOR":k==3?"SAVE":""):ui_card_label(k);}
 EXPORT const char *web_ui_control_value(uint32_t k) {static char value[4][32];if(k>3)return "";if(ui.menu)ui_menu_text(ui.menu_tab,ui.menu_row,value[k]);else if(ui.naming)str_cpy(value[k],ui.name,32);else ui_value(control_id(k),value[k],0);return value[k];}
 EXPORT const char *web_ui_title(void) {return ui.menu?"MENU":ui.naming?"NAME USER SOUND":ui.layer?ui_layer_name():ui_pages[page].title;}

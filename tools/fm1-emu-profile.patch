@@ -1,0 +1,119 @@
+diff --git a/crates/fm1-core/src/lib.rs b/crates/fm1-core/src/lib.rs
+index d69aa41..54173e5 100644
+--- a/crates/fm1-core/src/lib.rs
++++ b/crates/fm1-core/src/lib.rs
+@@ -220,6 +220,7 @@ pub struct Cpu {
+     pub route_hist: [u64; 32],
+     pub slow_hist: std::collections::HashMap<&'static str, u64>,
+     pub profile: bool,
++    pub pc_hist: std::collections::BTreeMap<u32,u64>,
+     pub jit_entries: u64,
+     pub jit_insns: u64,
+     pub jit_helpers: std::collections::BTreeMap<String, u64>,
+@@ -249,8 +250,9 @@ pub struct Cpu {
+ 
+ impl Cpu {
+     pub fn jit_profile_json(&self) -> String {
++        let pcs = self.pc_hist.iter().map(|(pc,n)|format!("[{pc},{n}]")).collect::<Vec<_>>().join(",");
+         let helpers = self.jit_helpers.iter().map(|(k, v)| format!("\"{k}\":{v}")).collect::<Vec<_>>().join(",");
+-        format!("{{\"entries\":{},\"instructions\":{},\"helpers\":{{{helpers}}}}}", self.jit_entries, self.jit_insns)
++        format!("{{\"entries\":{},\"instructions\":{},\"pcs\":[{pcs}],\"helpers\":{{{helpers}}}}}", self.jit_entries, self.jit_insns)
+     }
+ 
+     /// Count a JIT helper call when profiling. Called for every helper op, so the check is
+@@ -529,6 +531,7 @@ impl Cpu {
+                     sync!();
+                     return Ok((n, true));
+                 }
++                if self.profile {*self.pc_hist.entry(pc).or_default()+=1;}
+                 let next_pc = pc + op.len as u32;
+                 if !(careful || op.careful) {
+                     // plain micro-op: cannot start or end a pair, block or loop
+@@ -853,6 +856,7 @@ impl Cpu {
+     /// Fetch/decode/execute one instruction. Fetches a 6-byte window (the
+     /// longest pi32v2 instruction); short instructions zero-extend.
+     pub fn step<B: Bus>(&mut self, bus: &mut B) -> Result<(), CoreError> {
++        if self.profile {*self.pc_hist.entry(self.pc).or_default()+=1;}
+         let slot = self.fetch(bus)?;
+         let l = self.icache[slot];
+         let next_pc = self.pc + l.len as u32;
+@@ -868,7 +872,7 @@ impl Cpu {
+             }
+         }
+         let x = self.icache_x[slot].expect("decoded line");
+-        if self.profile {
++        if false {
+             self.route_hist[(x.pre.route as usize).min(30)] += 1;
+             let tag = format!("{}{}{}{}", if l.fast.is_some() {"F"} else {"-"}, if l.pair_head {"H"} else {"-"}, if self.pair_pending.is_some() {"P"} else {"-"}, x.entry.name);
+             let tag: &'static str = Box::leak(tag.into_boxed_str());
+@@ -1869,6 +1873,11 @@ impl Cpu {
+                 self.flags = f;
+                 return Ok(Some(None));
+             }
++            "R = R - R (ssat)" => {
++                let d = r(self, 0)?;
++                self.regs[d] = (self.regs[r(self, 1)?] as i32).saturating_sub(self.regs[r(self, 2)?] as i32) as u32;
++                return Ok(Some(None));
++            }
+             "R = R + R (ssat)" => {
+                 let d = r(self, 0)?;
+                 self.regs[d] = (self.regs[r(self, 1)?] as i32).saturating_add(self.regs[r(self, 2)?] as i32) as u32;
+diff --git a/crates/fm1-isa/src/lib.rs b/crates/fm1-isa/src/lib.rs
+index 2674079..61c8a75 100644
+--- a/crates/fm1-isa/src/lib.rs
++++ b/crates/fm1-isa/src/lib.rs
+@@ -201,8 +201,27 @@ pub enum DecodeError {
+     UnknownInstruction { raw: u64, addr: u32 },
+ }
+ 
++// Register-independent scalar encodings verified with JieLi objdump.
++static PROBE_ISA: &[IsaEntry] = &[
++    IsaEntry {name:"ifw_ssat_add",syntax:"R = R + R (ssat)",len:4,count:0,
++      mask:0x000fffff,match_:0x0000e439,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(24,27)],mult:0,adj:0,hi:0,lo:0}]},
++    IsaEntry {name:"ifw_ssat_sub",syntax:"R = R - R (ssat)",len:4,count:0,
++      mask:0x000fffff,match_:0x0008e439,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(24,27)],mult:0,adj:0,hi:0,lo:0}]},
++    IsaEntry {name:"ifw_rotate32",syntax:"R = R <> #i",len:4,count:0,
++      mask:0x0e00ffff,match_:0x0000e1c4,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(16,19),(24,24)],mult:0,adj:0,hi:0,lo:0}]},
++];
+ /// Decode from a zero-extended little-endian window of up to 6 bytes.
+ pub fn decode_win(win: u64, addr: u32) -> Result<Instruction, DecodeError> {
++    for e in PROBE_ISA {if win&e.mask==e.match_ {return Ok(Instruction{addr,raw:win,entry:e});}}
+     // the FPU first: its encodings never appear in the objdump corpora, and the float
+     // compares are the integer ones plus a flag bit the corpus masks may not pin down
+     for e in fpu::FPU {
+diff --git a/crates/fm1-web/src/lib.rs b/crates/fm1-web/src/lib.rs
+index 8d876a2..686e250 100644
+--- a/crates/fm1-web/src/lib.rs
++++ b/crates/fm1-web/src/lib.rs
+@@ -107,7 +107,8 @@ impl Machine {
+         let jit = self.cpu.jit_on;
+         if let Some(c1) = self.cpu1.as_mut() { c1.profile = self.cpu.profile; }
+         let Machine { cpu, cpu1, soc, pending_tick, .. } = self;
+-        if machine::run_dual(cpu1, soc, n, RAM_SIZE, jit, |soc, k| machine::run_blocks(cpu, soc, k, pending_tick)).is_err() {
++        if let Err(e)=machine::run_dual(cpu1, soc, n, RAM_SIZE, jit, |soc, k| machine::run_blocks(cpu, soc, k, pending_tick)) {
++            unsafe {LAST_ERROR=format!("{e}").into_bytes();LAST_ERROR.push(0);}
+             self.halted = true;
+         }
+     }
+@@ -676,3 +677,12 @@ mod persistence_tests {
+         assert_eq!(m.soc.flash.mem, expected, "invalid banks cannot modify saved patches");
+     }
+ }
++
++#[no_mangle]
++pub extern "C" fn fm1_target_read32(addr: u32) -> u32 {machine().map_or(0,|m|m.soc.read32(addr))}
++#[no_mangle]
++pub extern "C" fn fm1_target_pc() -> u32 {machine().map_or(0,|m|m.cpu.pc)}
++
++static mut LAST_ERROR: Vec<u8> = Vec::new();
++#[no_mangle]
++pub extern "C" fn fm1_last_error()->*const u8 {unsafe {LAST_ERROR.as_ptr()}}

@@ -140,6 +140,20 @@ static void ui_value(uint32_t id, char *s, int compact) {
     str_cpy(s, "--", 32);
     return;
   }
+  if (id == UC_PERFMODE) {
+    static const char *const modes[]={"SYNTH","SINE","MUTE"};
+    str_cpy(s,modes[perf_mode%3],32);return;
+  }
+  if (id == UC_PERFRESET) {str_cpy(s,"+",32);return;}
+  if (id == UC_PERFFREEZE) {str_cpy(s,perf_freeze?"ON":"OFF",32);return;}
+  if (id == UC_PERFSTATE) {
+#if defined(IFW_HOST) || defined(IFW_EMU)
+    str_cpy(s,"N/A",32);
+#else
+    str_cpy(s,(perf_view.overruns||perf_view.dma_late)?"LATE":"OK",32);
+#endif
+    return;
+  }
   if (id == UC_PRESET) {
     ui_int(s, (int32_t)preset + 1);
     return;
@@ -624,7 +638,7 @@ static const char *ui_menu_label(uint32_t t, uint32_t row) {
       {"HOLD", "KNOB ACCEL", "", "", ""},
       {"TUNING", "MASTER", "AMP 1", "AMP 2", ""},
       {"CHANNEL", "WIND CC7", "LEARN", "CLEAR LEARN", ""},
-      {"SAVE SETUP", "ALL PARAMS", "VERSION", "ENGINE", "PANIC"}};
+      {"SAVE SETUP", "ALL PARAMS", "VERSION", "PERFORMANCE", "PANIC"}};
   return names[t % 5][row % 5];
 }
 static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
@@ -667,7 +681,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "UI 0.4", "OPENIFW", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.1", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -762,6 +776,29 @@ static void ui_stage(void) {
     return;
   }
   uint32_t kind = ui_pages[page].kind;
+  if (kind == UK_PERF) {
+    ui_center(7,84,226,&UI_S,"AUDIO IRQ BUDGET: 5804 us",uc.theme);
+#if defined(IFW_HOST) || defined(IFW_EMU)
+    ui_center(7,115,226,&UI_S,"TIMING: DEVICE ONLY",uc.mid);
+    ui_center(7,140,226,&UI_S,"SINE / MUTE TEST AVAILABLE",uc.mid);
+    ui_center(7,170,226,&UI_S,"HOST CPU IS NOT FM-1 CPU",uc.dim);
+#else
+    char a[32],b[32];
+    str_cpy(a,"LAST ",32);ui_int(b,(int32_t)(perf_view.last_ticks/24u));ui_append(a,b,32);
+    ui_append(a,"  AVG ",32);ui_int(b,perf_view.blocks?(int32_t)ifw_udiv64(perf_view.total_ticks,perf_view.blocks)/24:0);ui_append(a,b,32);
+    ui_center(7,108,226,&UI_S,a,uc.text);
+    str_cpy(a,"MAX ",32);ui_int(b,(int32_t)(perf_view.max_ticks/24u));ui_append(a,b,32);
+    ui_append(a,"  DSP ",32);ui_int(b,(int32_t)(perf_view.dsp_max_ticks/24u));ui_append(a,b,32);
+    ui_center(7,132,226,&UI_S,a,uc.text);
+    str_cpy(a,"XRUN ",32);ui_int(b,(int32_t)perf_view.overruns);ui_append(a,b,32);
+    ui_append(a,"  DMA ",32);ui_int(b,(int32_t)perf_view.dma_late);ui_append(a,b,32);
+    ui_center(7,156,226,&UI_S,a,(perf_view.overruns||perf_view.dma_late)?uc.accent:uc.theme);
+    str_cpy(a,"PEAK ",32);ui_int(b,(int32_t)perf_view.peak);ui_append(a,b,32);
+    ui_append(a," CLIP ",32);ui_int(b,(int32_t)perf_view.clips);ui_append(a,b,32);
+    ui_center(7,180,226,&UI_S,a,uc.mid);
+#endif
+    return;
+  }
   if (kind == UK_PRESETS) {
     ui_preset_list();
     return;
@@ -846,6 +883,11 @@ static void ui_paint(void) {
     ui_dialog();
 }
 static void draw_panel(uint32_t full) {
+  static uint32_t perf_draw_at;
+  if(page==UP_PERF) {
+    if(!full && fm1_ms-perf_draw_at<200u)return;
+    perf_draw_at=fm1_ms;perf_snapshot();full=1;
+  }
   ui_palette();
   if (!full && (ui.menu || ui.confirm || ui.naming || ui.layer ||
                 page == UP_SAVE || page == UP_PRESETS))

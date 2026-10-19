@@ -5,11 +5,26 @@
 #elif defined(IFW_HOST)
 #include "../../tests/panel_host.c"
 #else
+#define fm1_alnk0_irq ifw_platform_alnk0_irq
 #include "platform.c"
+#undef fm1_alnk0_irq
 #endif
 #include "fixed/synth.h"
+#include "audio_perf.h"
 #include "panel_params.h"
 #include "presets.h"
+#ifdef IFW_DSP_STRESS
+#include "dsp_stress.h"
+#endif
+#ifdef IFW_DSP_SELFTEST
+#include "dsp_selftest.h"
+#ifndef IFW_DSP_BASELINE
+#include "dsp_math_test.h"
+#else
+static unsigned opt_math_checks(void) {return 0;}
+#endif
+static volatile uint32_t dsp_check[20];
+#endif
 #ifndef RING_PUBLISH
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
 #endif
@@ -61,16 +76,31 @@ static void app_audio(int32_t *out,uint32_t n) {
         }
     }
     if(changed)ifw_fixed_set_patch(&synth,&synth.patch);
-    ifw_fixed_process(&synth,out,n);
+    if(perf_mode) {
+        for(uint32_t i=0;i<n;i++) {
+            int32_t sample=perf_mode==1?ifw_sin20(perf_phase)/128:0;
+            perf_phase+=42852281u; /* 440 Hz at 44.1 kHz, Q32 */
+            out[2*i]=out[2*i+1]=sample;
+        }
+    }else ifw_fixed_process(&synth,out,n);
     if(n>=96)for(uint32_t i=0;i<96;i++)scope[i]=(int16_t)ifw_clamp(out[(i*n/96)*2],-32767,32767);
     meter.note=synth.note;meter.held=synth.mono.count;meter.breath=synth.breath;meter.gate=synth.gate;
     uint32_t quiet=!synth.gate_target && !synth.gate;
     for(int i=0;i<4;i++) {meter.env[i]=synth.env[i].level;if(synth.env[i].stage)quiet=0;}
-    for(uint32_t i=0;i<n*2;i++)if(out[i]>1 || out[i]<-1)quiet=0;
+    uint32_t peak=0,clips=0;
+    for(uint32_t i=0;i<n*2;i++) {
+        int32_t v=out[i];if(v>1 || v<-1)quiet=0;
+        uint32_t a=(uint32_t)(v<0?-(int64_t)v:v);if(a>peak)peak=a;
+        if(a>=32767u)clips++;
+    }
+    if(peak>audio_perf.peak)audio_perf.peak=peak;
+    audio_perf.clips+=clips;
     quiet_frames=quiet?quiet_frames+n:0;if(quiet_frames>FS*2)quiet_frames=FS*2;
     meter.quiet=quiet_frames>=FS;
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
-    uint32_t us=(fm1_ticks()-start)/FM1_TICKS_PER_US;
+    uint32_t ticks=fm1_ticks()-start,us=ticks/FM1_TICKS_PER_US;
+    audio_perf.dsp_ticks=ticks;
+    if(ticks>audio_perf.dsp_max_ticks)audio_perf.dsp_max_ticks=ticks;
     if(us>meter.max_us)meter.max_us=us;
     if(us>5804)meter.overruns++;
 #endif
@@ -181,7 +211,21 @@ static void format_value(char *text,uint32_t id) {
 #include "ui/controls.c"
 #include "ui/draw.c"
 static void app_init(void) {
-    storage_load();make_preset(&edit_patch,0);ifw_fixed_init(&synth,&edit_patch,&fx_buffers);RING_PUBLISH();ready=1;
+#ifdef IFW_DSP_SELFTEST
+    uint32_t checks[16];opt_regression(&synth,&fx_buffers,checks);
+    for(unsigned i=0;i<16;i++)dsp_check[i+2]=checks[i];
+    dsp_check[18]=opt_math_checks();dsp_check[19]=1;
+    dsp_check[1]=20;dsp_check[0]=0x54535749u;
+#endif
+    perf_mode=0;perf_phase=0;perf_reset();
+    storage_load();make_preset(&edit_patch,0);
+#ifdef IFW_DSP_STRESS
+    perf_stress_patch(&edit_patch);
+#endif
+    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);RING_PUBLISH();ready=1;
+#ifdef IFW_DSP_STRESS
+    enqueue(2,INT32_MAX,0);enqueue(0,108,INT32_MAX);
+#endif
     for(int i=0;i<27;i++)key_notes[i]=255;
     ui_init();lcd_fill(0,0,240,240,RGB(14,11,8));draw_panel(1);
 }
