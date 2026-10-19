@@ -14,6 +14,23 @@ for name in ['index.html','worklet.js']:shutil.copy2(R/'web'/name,O/name)
 if (R/'web/fonts').exists():shutil.copytree(R/'web/fonts',O/'fonts')
 for n in ['LICENSE','THIRD_PARTY_NOTICES.md']:shutil.copy2(R/n,O/n)
 shutil.copytree(R/'vendor/openifw/presets',O/'presets')
+shutil.copytree(R/'web/install',O/'install')
+(O/'install/lib').mkdir()
+for name in ['fm1ota.js','fm1pkg.js']:
+    shutil.copy2(R/'vendor/felucca-web'/name,O/'install/lib'/name)
+release=json.loads((R/'firmware-bin/build.json').read_text())
+filename=f"OpenIFW-FM1-{release['version']}.fwsc"
+package=(R/'firmware-bin'/filename).read_bytes()
+if len(package)!=release['packageBytes'] or hashlib.sha256(package).hexdigest()!=release['sha256']:
+    raise SystemExit('Firmware package does not match firmware-bin/build.json; installer was not built.')
+if release['identity']!='FM-1_982':
+    raise SystemExit('Unexpected installer firmware identity.')
+(O/'firmware').mkdir()
+shutil.copy2(R/'firmware-bin'/filename,O/'firmware'/filename)
+shutil.copy2(R/'firmware-bin/build.json',O/'firmware/build.json')
+(O/'install/release.json').write_text(json.dumps(dict(schema=1,version=release['version'],
+    product=release['identity'],file=filename,bytes=len(package),sha256=release['sha256'],
+    hardwareTested=release['hardwareTested']),indent=2)+'\n')
 tmp=R/'build/tmp';tmp.mkdir(exist_ok=True)
 env=dict(os.environ,TMPDIR=str(tmp),LD_LIBRARY_PATH=str(sdk/'lib')+(':'+os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else ''))
 cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',
@@ -22,6 +39,8 @@ cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra',
      *[str(R/'firmware/src/fixed'/f'{n}.c') for n in ['synth','effects','math','envelope']],str(R/'firmware/src/control/mono.c'),'-o',str(O/'openifw.wasm')]
 subprocess.run(cmd,check=True,env=env)
 subprocess.run(['node','--check',str(O/'worklet.js')],check=True)
+for name in ['install.js','controller.js']:
+    subprocess.run(['node','--check',str(O/'install'/name)],check=True)
 record=dict(version='0.4.0',kind='shared-C-firmware-host',wasmBytes=(O/'openifw.wasm').stat().st_size,
             wasmSha256=hashlib.sha256((O/'openifw.wasm').read_bytes()).hexdigest(),factoryPresets=6,
             compiler=subprocess.check_output([cc,'--version'],env=env,text=True).splitlines()[0])

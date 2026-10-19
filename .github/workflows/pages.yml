@@ -1,4 +1,4 @@
-name: Publish browser demo
+name: Publish demo and USB installer
 on:
   push:
     branches: [main]

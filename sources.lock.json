@@ -81,7 +81,9 @@
     "vendor/openifw/presets/tresure-island.json": "4baa48db5036d25019534c88464c216e40a9b4d21f2d987be1b3e61c06ca5362",
     "vendor/openifw/presets/ai-no-labyrinth.json": "14ccced6bcd030874fbb8b6a6e8245151e26cfd9cfac38aeacfdce53d442923f",
     "web/fonts/DotGothic16-subset.woff": "64f5bf21134bb81ed79b6ab1f65e0a8c75d55cfd68b08a2501e21e571a3cc61f",
-    "web/fonts/OFL.txt": "5e59cab6d61d59a5b3110ed900dce715383cb2626a473dcf77c13c116aa839eb"
+    "web/fonts/OFL.txt": "5e59cab6d61d59a5b3110ed900dce715383cb2626a473dcf77c13c116aa839eb",
+    "vendor/felucca-web/fm1ota.js": "4d9fb9962ee0c2ac33e94ffd551eed577776e3705597e422b0eed8be21008c66",
+    "vendor/felucca-web/fm1pkg.js": "0ad2257f83b2a55627d684556f7e285faa638365e2892802692ec7a1943bf2aa"
   },
   "jieli_sdk": {
     "url": "https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK",
@@ -124,5 +126,11 @@
     "source": "https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth/blob/f23fbc593f8af29dfa01174278f08ee79155ed27/assets/fonts/VT323-Regular.ttf",
     "license": "SIL-OFL-1.1",
     "sha256": "cf4de751ada78ceac033dbe16a687742939995b77bc2a052ae17a4957958594d"
+  },
+  "felucca_web_installer": {
+    "url": "https://github.com/hugelton/Felucca",
+    "commit": "5738617968a22b5d4c0d3470cfcc95559052f446",
+    "license": "GPL-3.0-only",
+    "selection": "unchanged web/fm1ota.js and web/fm1pkg.js; USB-MIDI installer and package parser only; no engine or preset imports"
   }
 }

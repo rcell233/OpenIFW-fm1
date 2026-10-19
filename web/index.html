@@ -18,6 +18,9 @@
 html, body { background: var(--bg); }
 body { margin: 0; color: var(--fg); font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
 main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 32px; }
+.site-nav { display: flex; gap: 22px; align-items: center; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid #59432b; font-size: 13px; }
+.site-nav strong { margin-right: auto; color: var(--fg); letter-spacing: .08em; }
+.site-nav a { color: #e89a2c; text-underline-offset: 4px; }
 @media (orientation: portrait) and (max-width: 700px) { main { padding: 8px 8px 24px; } }
 a { color: inherit; }
 .device { position: relative; width: 100%; aspect-ratio: 1000 / 624; user-select: none; -webkit-user-select: none;
@@ -74,6 +77,7 @@ footer small { font-size: 11px; opacity: .8; }
 </head>
 <body>
 <main>
+<nav class="site-nav" aria-label="Website"><strong>OPENIFW / FM-1</strong><a href="./install/">Install on FM-1</a><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub</a></nav>
 <div class="device" id="device">
   <svg id="panel" viewBox="0 0 1000 624" aria-hidden="true"></svg>
   <canvas id="screen" width="240" height="240" role="img" aria-label="The screen"></canvas>
@@ -99,7 +103,7 @@ footer small { font-size: 11px; opacity: .8; }
 <footer>
   <small class="version">OpenIFW FM-1 · 0.4.0 · Firmware simulator</small><br>
   OpenIFW by rcell233 · UI &amp; controls after <a href="https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth">Ghoulbox</a> by Jason Persinger · Panel adapted from Felucca by Leo Kuroshita, Hügelton Instruments · <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a> · browser build after charlesvestal's <a href="https://github.com/charlesvestal/fm1-x0x">X0X</a> · DotGothic16 font, <a href="fonts/OFL.txt">SIL OFL 1.1</a><br>
-  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/raw/refs/heads/main/firmware-bin/OpenIFW-FM1-0.4.0.fwsc">Firmware 0.4.0</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
+  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="./firmware/OpenIFW-FM1-0.4.0.fwsc">Firmware 0.4.0</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
   <small>M-VAVE and FM-1 are trademarks of their respective owners. OpenIFW FM-1 is not affiliated with or endorsed by them.</small>
 </footer>
 </main>

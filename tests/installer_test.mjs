@@ -1,0 +1,119 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Protocol mock based on Felucca's test_web.mjs, Leo Kuroshita / Hügelton Instruments.
+// No connected hardware is probed by these tests.
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import vm from 'node:vm';
+import {verifyFirmware,loadFirmware,installFirmware,errorText,candidateCount} from '../build/web/install/controller.js';
+import {pack7,unpack7} from '../build/web/install/lib/fm1ota.js';
+import {sha256hex,Package} from '../build/web/install/lib/fm1pkg.js';
+let checks=0;const ok=(v,m)=>{assert.ok(v,m);checks++;};const eq=(a,b,m)=>{assert.deepEqual(a,b,m);checks++;};
+const meta=JSON.parse(readFileSync('build/web/install/release.json'));
+const bytes=new Uint8Array(readFileSync('build/web/firmware/'+meta.file));
+const verified=await verifyFirmware(bytes,meta),pkg=new Package(bytes);
+eq(verified.product,'FM-1_982');eq(verified.image.length,bytes.length-20);
+const bad=async(p,code)=>{await assert.rejects(p,e=>e.code===code);checks++;};
+await bad(verifyFirmware(bytes.slice(0,-1),meta),'badpkg');
+const changed=bytes.slice();changed[2000]^=1;await bad(verifyFirmware(changed,meta),'badpkg');
+await bad(verifyFirmware(bytes,{...meta,product:'FM-2_982'}),'badpkg');
+const brokenLoader=bytes.slice(),ota=pkg.entries.find(e=>e.type===100);brokenLoader[ota.dataOff+20+200]^=1;
+await bad(verifyFirmware(brokenLoader,{...meta,sha256:await sha256hex(brokenLoader)}),'badpkg');
+const addresses=[];
+await loadFirmware('https://rcell233.github.io/OpenIFW-fm1/install/install.js',async u=>{
+  addresses.push(String(u));return String(u).endsWith('release.json')?new Response(JSON.stringify(meta)):new Response(bytes);
+});
+eq(addresses,['https://rcell233.github.io/OpenIFW-fm1/install/release.json','https://rcell233.github.io/OpenIFW-fm1/firmware/'+meta.file]);
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response('',{status:404})),'download');
+
+// Virtual device time keeps the unchanged transport's production timeouts intact.
+async function clock(work){
+  const original={setTimeout,clearTimeout,now:Date.now};let now=0,id=0,timers=new Map(),done=false,value,error;
+  globalThis.setTimeout=(f,ms,...args)=>{const n=++id;timers.set(n,{at:now+Number(ms),f:()=>f(...args)});return n;};
+  globalThis.clearTimeout=n=>timers.delete(n);Date.now=()=>now;
+  try{
+    Promise.resolve().then(work).then(v=>{value=v;done=true;},e=>{error=e;done=true;});
+    for(let n=0;!done&&n<30000;n++){
+      for(let k=0;k<24;k++)await Promise.resolve();
+      if(done)break;
+      let next=null;for(const t of timers)if(!next||t[1].at<next[1].at)next=t;
+      if(!next)throw new Error('simulated install stalled without a timer');
+      timers.delete(next[0]);now=next[1].at;next[1].f();
+    }
+    assert.ok(done,'simulated install did not settle');if(error)throw error;return value;
+  }finally{globalThis.setTimeout=original.setTimeout;globalThis.clearTimeout=original.clearTimeout;Date.now=original.now;}
+}
+const HS=[0xf0,0,0x32,0x45,0,0,0,0x40,0x7f,0xf7],UPGRADE=[0xf0,0x22,0x24,0x35,0x7f,0xf7];
+const same=(a,b)=>a.length===b.length&&a.every((v,i)=>v===b[i]);
+class Device{
+  constructor(options={}){this.opt=options;this.access={inputs:new Map(),outputs:new Map()};this.reads=0;this.bad=0;this.upgrades=0;this.written=0;this.boot(options.identity??'FM-1_015');}
+  boot(identity){
+    for(const m of [this.access.inputs,this.access.outputs]){for(const p of m.values())p.state='disconnected';m.clear();}
+    this.identity=identity;this.pending=null;this.queue=[];
+    const name=identity.startsWith('ota-')?'FM-1 Update':'FM-1',
+      input={id:'in',name,state:'connected',connection:'closed',onmidimessage:null,async open(){this.connection='open';},async close(){this.connection='closed';}},
+      output={id:'out',name,state:'connected',connection:'closed',async open(){this.connection='open';},async close(){this.connection='closed';},send:d=>{if(output.state!=='connected')throw new Error('disconnected');setTimeout(()=>this.receive(Array.from(d)),1);}};
+    this.input=input;this.output=output;this.access.inputs.set(input.id,input);this.access.outputs.set(output.id,output);
+  }
+  emit(bytes){const input=this.input;setTimeout(()=>{if(input.state==='connected'&&input.onmidimessage)input.onmidimessage({data:Uint8Array.from(bytes)});},1);}
+  disconnect(){this.input.state=this.output.state='disconnected';}
+  receive(data){
+    if(same(data,HS)){const t=Array.from(new TextEncoder().encode(this.identity)),b=[0,0x59,0x11,0,0,0,...t,...Array(28-t.length).fill(0)];this.emit([0xf0,...pack7(b),0xf7]);return;}
+    if(same(data,UPGRADE)){
+      this.upgrades++;this.writing=this.identity.startsWith('ota-');
+      this.queue=this.writing?Array.from({length:Math.ceil(verified.image.length/512)},(_,k)=>[k*512,Math.min(512,verified.image.length-k*512)]):[[0,64],[64,160],[verified.image.length-64,64]];
+      if(this.opt.badRequest)this.queue.unshift([verified.image.length+1,512]);
+      if(!this.opt.stopBeforeFinish)this.queue.push([this.writing?0xf0000000:0xe0000000,8]);
+      this.next();return;
+    }
+    if(!this.pending)return;
+    const [addr,len,flag]=this.pending,u=unpack7(data.slice(1,-1));let sum=0;for(let i=6;i<u.length;i++)sum+=u[i];
+    const wanted=addr>=0xe0000000?[...new TextEncoder().encode('success'),0]:verified.image.subarray(addr,addr+len);
+    if(!same(u.slice(14,-1),wanted)||(sum&255)!==255||u[6]!==(addr>=0xe0000000?0:flag)||u.length!==15+wanted.length)this.bad++;
+    this.reads++;if(this.writing&&addr<0xe0000000)this.written+=len;this.pending=null;
+    if(this.reads>=this.opt.unplugAfter){this.disconnect();return;}
+    if(addr===0xe0000000){this.disconnect();if(!this.opt.noLoader)setTimeout(()=>this.boot('ota-FM-1_982'),300);}
+    else if(addr===0xf0000000){this.disconnect();if(!this.opt.noReboot)setTimeout(()=>this.boot(this.opt.returnIdentity??'FM-1_982'),300);}
+    else this.next();
+  }
+  next(){const r=this.queue.shift();if(!r)return;const [a,n]=r,flag=(this.reads%2)?0xa5:0;this.pending=[a,n,flag];const b=[0,0x59,0x30,0,0,0,flag,a&255,a>>>8&255,a>>>16&255,a>>>24&255,n&255,n>>>8,0];let sum=0;for(let i=6;i<14;i++)sum+=b[i];b.push(~sum&255);if(this.opt.corruptRequest&&!this.corruptSent){this.corruptSent=true;const bad=b.slice();bad[14]^=1;this.emit([0xf0,...pack7(bad),0xf7]);}this.emit([0xf0,...pack7(b),0xf7]);}
+}
+const events=[],dev=new Device({corruptRequest:true});
+eq(await clock(()=>installFirmware(verified,dev.access,k=>events.push(k))),'FM-1_982');
+eq(dev.bad,0,'every reply must preserve data, flags, packet length and checksum');
+eq(dev.written,verified.image.length,'the full real release image was transferred');
+eq(events.at(-1),'done');ok(events.includes('verify')&&events.includes('loader')&&events.includes('write')&&events.includes('reboot'));
+eq(dev.input.connection,'closed');eq(dev.output.connection,'closed');
+const resume=new Device({identity:'ota-FM-1_990'}),resumeEvents=[];
+eq(await clock(()=>installFirmware(verified,resume.access,k=>resumeEvents.push(k))),'FM-1_982');ok(resumeEvents.includes('resume'));eq(resume.written,verified.image.length);eq(resume.bad,0);
+for(const [options,code]of [[{identity:'FM-2_015'},'model'],[{identity:'ota-FM-1_015'},'foreign'],[{unplugAfter:1},'lost'],[{unplugAfter:5},'lost'],[{returnIdentity:'FM-1_990'},'mismatch'],[{badRequest:true},'badreq'],[{noLoader:true},'noloader'],[{noReboot:true},'noreturn'],[{identity:'ota-FM-1_982',stopBeforeFinish:true},'stopped']]){
+ const d=new Device(options),events=[];await bad(clock(()=>installFirmware(verified,d.access,k=>events.push(k))),code);ok(!events.includes('done'),code+' cannot claim success');if(['model','foreign'].includes(code))eq(d.upgrades,0);
+}
+await bad(clock(()=>installFirmware(verified,{inputs:new Map(),outputs:new Map()})),'notfound');
+const multiple=new Device();multiple.access.inputs.set('other',{name:'FM-1 second',state:'connected'});multiple.access.outputs.set('other',{name:'FM-1 second',state:'connected'});eq(candidateCount(multiple.access),2);await bad(installFirmware(verified,multiple.access),'multiple');eq(multiple.upgrades,0);
+ok(errorText({code:'denied'}).includes('权限'));ok(errorText({code:'lost'}).includes('重新连接'));
+
+// Page lifecycle: loading never asks for MIDI; only the Install click may do so.
+async function page({midi=true,denied=false,secure=true,downloadFail=false}={}){
+  const elements=new Map(),handlers={},stages=Array.from({length:4},(_,i)=>({dataset:{stage:String(i)},classList:{toggle(){}}}));
+  const el=id=>{if(!elements.has(id))elements.set(id,{disabled:id==='install',hidden:true,textContent:'',dataset:{},classList:{toggle(){}},listeners:{},addEventListener(k,f){this.listeners[k]=f;},removeAttribute(k){delete this[k];}});return elements.get(id);};
+  let permissions=0,installs=0,allow;
+  const state={get permissions(){return permissions;},get installs(){return installs;},el,handlers,finish(){allow?.();}};
+  const source=readFileSync('build/web/install/install.js','utf8').replace(/^import .*;\n/m,'').replaceAll('import.meta.url',JSON.stringify('https://rcell233.github.io/OpenIFW-fm1/install/install.js'));
+  vm.runInNewContext(source,{document:{getElementById:el,querySelectorAll:()=>stages},navigator:midi?{async requestMIDIAccess(options){permissions++;eq(options.sysex,true);if(denied)throw new DOMException('Permission denied','NotAllowedError');return {};}}:{},isSecureContext:secure,URL,Date,console,
+    addEventListener:(k,f)=>handlers[k]=f,errorText,
+    loadFirmware:async()=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return verified;},
+    installFirmware:async(_v,_a,step)=>{installs++;step('write',1);await new Promise(r=>allow=r);step('done','FM-1_982');},
+  });
+  for(let i=0;i<20;i++)await Promise.resolve();return state;
+}
+const ui=await page();eq(ui.permissions,0);eq(ui.installs,0);eq(ui.el('install').disabled,false);
+const installing=ui.el('install').listeners.click();for(let i=0;i<10;i++)await Promise.resolve();eq(ui.permissions,1);eq(ui.installs,1);eq(ui.el('install').disabled,true);
+await ui.el('install').listeners.click();eq(ui.permissions,1,'second click must not launch another install');
+let prevented=false;ui.handlers.beforeunload({preventDefault(){prevented=true;}});eq(prevented,true);
+ui.finish();await installing;eq(ui.el('install').disabled,false);ok(ui.el('status').textContent.includes('安装完成'));
+const permission=await page({denied:true});await permission.el('install').listeners.click();eq(permission.installs,0);eq(permission.el('install').disabled,false);ok(permission.el('status').textContent.includes('权限'));
+const unsupported=await page({midi:false});eq(unsupported.el('install').disabled,true);eq(unsupported.el('download').hidden,false);
+const insecure=await page({secure:false});eq(insecure.el('install').disabled,true);ok(insecure.el('status').textContent.includes('HTTPS'));
+const network=await page({downloadFail:true});eq(network.el('install').disabled,false);eq(network.permissions,0);
+mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,resume:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
+console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

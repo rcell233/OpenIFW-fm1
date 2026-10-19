@@ -25,3 +25,4 @@ jobs:
             build/ui/results.json
             build/ui/*.ppm
             build/emu/results.json
+            build/installer/results.json

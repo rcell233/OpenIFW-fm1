@@ -2,7 +2,15 @@
 
 OpenIFW 的 FM-1 专用单音合成器移植。**0.4 按 Ghoulbox 重做页面、四旋钮和按钮操作。合成引擎、原始六个音色及单音 / Legato 保持 0.3 不变；30 个核心文件哈希和 12 组音频逐字节回归已通过。尚未上板测试，浏览器点击验证受预览环境限制。**
 
-开发预览：[OpenIFW FM1 · Play](https://openifw-fm1-demo.rcell233.chatgpt.site)（当前仅项目所有者可访问）。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
+公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
+
+## 从网页安装
+
+在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.0**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+
+安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
+
+此网页流程已通过模拟 USB-MIDI 设备测试，未连接实体 FM-1 实际刷写。固件继续使用原来的 0.4.0 二进制，音源、预设与单音 / Legato 未改。
 
 ## 保留的合成行为
 
@@ -49,7 +57,7 @@ SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 
 
 实际大小与预算记录于 `docs/evidence/firmware-build.json`；pool 294,216 B / 344,064 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 
-真机验证步骤和实时预算见 [硬件验证](docs/HARDWARE_TEST.md)。安装方式沿用 [Dinghy 文档](vendor/dinghy/README.md) 和其 `tools/fm1_install.py`；此开发环境没有连接或刷写任何设备。
+真机验证步骤和实时预算见 [硬件验证](docs/HARDWARE_TEST.md)。优先使用本项目的 [网页安装器](https://rcell233.github.io/OpenIFW-fm1/install/)，也可沿用 [Dinghy 文档](vendor/dinghy/README.md) 的 `tools/fm1_install.py`；此开发环境没有连接或刷写任何设备。
 
 ## 面板与音色传输
 
@@ -63,13 +71,13 @@ USB MIDI 默认全通道接收，CC7 气息、CC9 Vibrato、CC5 Glide、CC64 延
 
 ## 验证范围
 
-`tests/ui_test.mjs` 验证 56 页映射、按钮时序、效果器和矩阵隔离、保存确认与撤销，并重放操作做 ASan / UBSan 检查。`tests/ui_audio_unchanged.mjs` 将六个原始程序的演奏和切页过程与冻结的 0.3 音频哈希比较。`tests/web_test.mjs` 检查六个原始音色的数值、矩阵和包络字段，并对相同输入下原生 C / WASM 的 PCM、LCD、patch 和演奏状态逐字节比较；另测模拟 Flash 保存重启和真实 AudioWorklet 的快速按键。`tests/factory_regression.mjs` 直接以未经修改的 OpenIFW JS 为参照，测试每个原始音色各 4 秒干／湿声，保留成对 WAV 和详细数值。效果器误差作为单独测量，不宣称完全一致。
+`tests/installer_test.mjs` 验证真实固件包的完整 USB-MIDI 传输、恢复、错误分支及网页权限流程；不连接真实设备。`tests/ui_test.mjs` 验证 56 页映射、按钮时序、效果器和矩阵隔离、保存确认与撤销，并重放操作做 ASan / UBSan 检查。`tests/ui_audio_unchanged.mjs` 将六个原始程序的演奏和切页过程与冻结的 0.3 音频哈希比较。`tests/web_test.mjs` 检查六个原始音色的数值、矩阵和包络字段，并对相同输入下原生 C / WASM 的 PCM、LCD、patch 和演奏状态逐字节比较；另测模拟 Flash 保存重启和真实 AudioWorklet 的快速按键。`tests/factory_regression.mjs` 直接以未经修改的 OpenIFW JS 为参照，测试每个原始音色各 4 秒干／湿声，保留成对 WAV 和详细数值。效果器误差作为单独测量，不宣称完全一致。
 
 运行结果、已知差异和未验证项见 [测试结果](docs/TEST_RESULTS.md)。未连接实体 FM-1；预览 supervisor 不可用，因此尚不能声称已完成本页面的浏览器点击、触屏和视觉 QA。C 绘制屏幕已导出并检查；Node 中实际 WASM / AudioWorklet 测试不替代浏览器交互测试。
 
 ## GitHub 与 Pages
 
-源码仓库：[rcell233/OpenIFW-fm1](https://github.com/rcell233/OpenIFW-fm1)。包含 DSP、固件宿主、交互回归和 GitHub Pages 工作流。Pages 首次启用时，在 Settings → Pages 中将 Source 设为 GitHub Actions。所有资源使用相对路径，支持 `/OpenIFW-fm1/` 项目路径。工作流会构建真实 C / WASM 并先执行测试，再部署。
+源码仓库：[rcell233/OpenIFW-fm1](https://github.com/rcell233/OpenIFW-fm1)。包含 DSP、固件宿主、交互回归和 GitHub Pages 工作流。Pages 已启用，Source 使用 GitHub Actions。所有资源使用相对路径，支持 `/OpenIFW-fm1/` 项目路径。工作流会构建真实 C / WASM 并先执行测试，再部署。安装器从同一次 Pages 构建读取发布信息和固件；不依赖另一个站点或跨域代理。更新代码 push 到 main 后自动测试并发布。
 
 ## 代码与许可
 

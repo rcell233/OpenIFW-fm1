@@ -2,7 +2,7 @@
 
 此开发环境只完成主机测试和 pi32v2 交叉编译，没有连接 FM-1，也没有执行刷写。0.2 包应作为实验固件评估。
 
-1. 按平台文档通过现有安装器使用本项目 `.fwsc`；确认版本身份 `FM-1_982`。原有 OCT− 开机 USB rescue 与升级 loader 保留。
+1. 在 https://rcell233.github.io/OpenIFW-fm1/install/ 通过 Chrome / Edge 安装本项目发布的 `.fwsc`，验证正常启动、完整写入、重启与身份确认，并实测中断后的恢复；确认版本身份 `FM-1_982`。原有 OCT− 开机 USB rescue 与升级 loader 保留。
 2. 默认 Tresure Island 按一个音，再重叠按第二、第三个音。应始终只听到最后音；依次松开应回退到还按住的音，最后松开有 EG 尾音。
 3. 在 ENV 把某一 EG 的 Retrigger 开启，对比重叠音时该 EG 重启、其他 EG 连续。测试 Time / Rate Glide、弯音、Wind 气息和 CC64。
 4. MIDI NoteOn 力度 0 应松键；CC120 / 123 应停音。跨八度按住物理键再变更八度，松键不能挂音。

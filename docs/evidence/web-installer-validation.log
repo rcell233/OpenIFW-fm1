@@ -1,0 +1,18 @@
+python3 tools/build_web.py
+Generated six original OpenIFW factory programs, no parameter overrides.
+{"version": "0.4.0", "kind": "shared-C-firmware-host", "wasmBytes": 560695, "wasmSha256": "a32a2d91c27d4e92e78a8b89b37a2bf41e6ab032926de14e7b61e2731a7f8c8f", "factoryPresets": 6, "compiler": "clang version 23.1.0-wasi-sdk (https://github.com/llvm/llvm-project 895aa2c896ada719451be2e3673c83da8ddf1141)"}
+python3 tests/ui_engine_unchanged.py
+PASS frozen engine: 30 DSP / mono / preset files unchanged.
+cc -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Ivendor/dinghy/firmware/gen tests/emu_native.c firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c -o build/emu-native
+node tests/web_test.mjs
+PASS firmware WASM: 1098 factory values, 192 matrix and 120 envelope fields; 24502072 native/WASM bytes identical; physical modes, mono/legato, sustain, real flash reboot and AudioWorklet taps.
+node tests/ui_test.mjs
+PASS UI: 1153 checks; 56 mapped pages; tap/hold/double tap, FX and matrix isolation, menu, save/cancel/undo/CRC.
+node tests/ui_audio_unchanged.mjs
+PASS frozen audio: 12 scenarios / 1,228,800 stereo frames match 0.3.0 exactly, including page navigation during legato and sustain.
+node tests/installer_test.mjs
+PASS installer: 66 checks; complete 610090-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.
+cc -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c -o build/ui-sanitize
+ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin
+==119==WARNING: reading executable name failed with errno 2, some stack frames may not be symbolized
+==119==WARNING: reading executable name failed with errno 2, some stack frames may not be symbolized

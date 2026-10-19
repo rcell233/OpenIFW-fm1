@@ -32,6 +32,7 @@ web-test: web
 	node tests/web_test.mjs
 	node tests/ui_test.mjs
 	node tests/ui_audio_unchanged.mjs
+	node tests/installer_test.mjs
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(FIXED) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin
 firmware:
