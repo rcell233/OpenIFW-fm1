@@ -1,11 +1,11 @@
 {
-  "version": "0.4.3",
+  "version": "0.4.4",
   "identity": "FM-1_982",
-  "appBytes": 224776,
+  "appBytes": 224872,
   "packageBytes": 610110,
-  "sha256": "91c1bdb590b8d5b03a63d41703d8262f58d32b4249e20e2d0391516bfdd12d46",
+  "sha256": "39fb0338e9c12394897edd62b19902af1f82b324c03628ee102c7d8c9ec1af8e",
   "hardwareTested": false,
-  "ramDataBss": 31328,
+  "ramDataBss": 31344,
   "poolBytes": 294216,
   "limits": {
     "app": 581564,

@@ -14,8 +14,11 @@ except ImportError:
     np=None
 
 ROOT=Path(__file__).resolve().parents[1]
-pipeline='--pipeline' in sys.argv
-OUT=ROOT/('build/target-audit/dma-pipeline' if pipeline else 'build/target-audit/dma');OUT.mkdir(parents=True,exist_ok=True)
+unprotected='--pipeline-042' in sys.argv
+pipeline='--pipeline' in sys.argv or unprotected
+OUT=ROOT/('build/target-audit/dma-042-starvation' if unprotected else 'build/target-audit/dma-pipeline' if pipeline else 'build/target-audit/dma');OUT.mkdir(parents=True,exist_ok=True)
+header=ROOT/('tests/audio_output_042.h' if unprotected else 'firmware/src/audio_output.h')
+if unprotected:assert hashlib.sha256(header.read_bytes()).hexdigest()=='5214b276e5214b7bfbeba8b88f74148163874a08f8902857cf7bdfa1721bb0ae'
 platform=(ROOT/'vendor/dinghy/firmware/src/platform.c').read_text()
 body=platform.split('void fm1_alnk0_irq(void)',1)[1].split('extern void isr_alnk0(void);',1)[0]
 body='void dut_irq(void)'+body
@@ -25,7 +28,7 @@ if pipeline:
 #include "firmware/src/audio_perf.h"
 static uint32_t fm1_ticks(void){return (uint32_t)(now*24000000./44100.);}
 #define fm1_alnk0_irq dut_irq
-#include "firmware/src/audio_output.h"
+#include "'''+str(header.relative_to(ROOT))+'''"
 '''
 source=r'''
 #include <stdint.h>
@@ -38,8 +41,8 @@ source=r'''
 #define FM1_AUDIO_HALF 0x80u
 static int32_t abuf[1024],master_q12=4096;
 static uint8_t in_audio,pending;
-static uint32_t frame,rendered,phase,irqs,raw_dma_words;
-static double now,frame_cost;
+static uint32_t frame,rendered,phase,irqs,raw_dma_words,main_services;
+static double now,frame_cost,last_main,max_main_gap;
 static FILE *pcm;
 static void advance(double until) {
     while((double)(frame+1)<=until) {
@@ -67,12 +70,17 @@ static void app_audio(int32_t *out,uint32_t n){
 '''+body+r'''
 int main(int argc,char **argv){
     (void)argc;frame_cost=strtod(argv[1],0);pcm=fopen(argv[2],"wb");
-    while(frame<44100u*4u){
+    while(frame<44100u*10u){
         if(pending){dut_irq();irqs++;}
-        else advance((double)((frame/256u+1u)*256u));
+        else {main_services++;last_main=now;advance((double)((frame/256u+1u)*256u));}
+        if(now-last_main>max_main_gap)max_main_gap=now-last_main;
     }
     fclose(pcm);
-    printf("{\"ratio\":%.4f,\"playedFrames\":%u,\"synthFrames\":%u,\"irqs\":%u,\"rawDmaWords\":%u}",frame_cost,frame,rendered,irqs,raw_dma_words);
+    unsigned yields=0;
+#ifdef IFW_AUDIO_MAX_BUSY
+    yields=audio_yields;
+#endif
+    printf("{\"ratio\":%.4f,\"playedFrames\":%u,\"synthFrames\":%u,\"irqs\":%u,\"rawDmaWords\":%u,\"mainServices\":%u,\"maxMainGapMs\":%.6f,\"audioYields\":%u}",frame_cost,frame,rendered,irqs,raw_dma_words,main_services,max_main_gap*1000./44100.,yields);
     return 0;
 }
 '''
@@ -102,11 +110,17 @@ for ratio in [.75,.99,1.01,1.25,1.8]:
     result['effectiveSynthHz']=result['synthFrames']/result['playedFrames']*44100
     result['deadlineMs']=256/44100*1000
     result['injectedRenderMs']=ratio*result['deadlineMs']
+    result['watchdogWouldExpireAt8s']=result['maxMainGapMs']>=8000
     if pipeline:
         expected=44100/max(1,ratio)
-        assert abs(result['effectiveSynthHz']-expected)<120
+        if unprotected or ratio<1:assert abs(result['effectiveSynthHz']-expected)<120
         assert result['rawDmaWords']==0,'DMA observed an intermediate Q15 sample'
         if ratio<1:assert result['tone440EnergyFraction']>.99
+        if unprotected and ratio>1:
+            assert result['watchdogWouldExpireAt8s'] and result['mainServices']==1
+        elif not unprotected:
+            assert result['mainServices']>20 and result['maxMainGapMs']<150 and not result['watchdogWouldExpireAt8s']
+            if ratio>1:assert result['audioYields']>0 and result['effectiveSynthHz']<=expected+120
     elif ratio<1:
         assert abs(result['effectiveSynthHz']-44100)<100
         assert result['tone440EnergyFraction']>.99
@@ -116,8 +130,8 @@ for ratio in [.75,.99,1.01,1.25,1.8]:
     with wave.open(str(raw.with_suffix('.wav')),'wb') as wav:
         wav.setnchannels(1);wav.setsampwidth(2);wav.setframerate(44100);wav.writeframes(raw.read_bytes())
     results.append(result)
-report={'kind':('pipelined' if pipeline else 'vendor')+'-production-ISR-with-controlled-render-duration','hardwareMeasured':False,
- 'sourceSha256':hashlib.sha256((ROOT/'firmware/src/audio_output.h').read_bytes() if pipeline else body.encode()).hexdigest(),
+report={'kind':('unprotected-0.4.2' if unprotected else 'protected-pipeline' if pipeline else 'vendor')+'-production-ISR-with-controlled-render-duration','hardwareMeasured':False,
+ 'sourceSha256':hashlib.sha256(header.read_bytes() if pipeline else body.encode()).hexdigest(),
  'assumptions':'sample-clocked fake DMA; injected constant render cost; no USB or bus contention; publication cost not simulated',
  'results':results}
 (OUT/'results.json').write_text(json.dumps(report,indent=2)+'\n')

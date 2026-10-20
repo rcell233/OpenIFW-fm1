@@ -57,7 +57,9 @@ const result={kind:'pi32v2-instruction-model-not-hardware',cycleAccurate:false,h
  irqBudgetUs:256/44100*1e6,all:perf(),steady:percentiles(measured),dspSteady:percentiles(dsp),
  audioFrames:frames,audioSha256:audioHash.digest('hex'),shortQuanta:short,wallSeconds:(performance.now()-start)/1000};
 {const d=percentiles(drawIntervals);result.drawIntervalsMs={count:d.blocks,p50:d.p50Us,p95:d.p95Us,max:d.maxUs};}
-if(syms.symbols.ui_poll_max_gap)result.uiService={maxGapMs:r32(syms.symbols.ui_poll_max_gap),turns:r32(syms.symbols.ui_poll_turns)};
+if(syms.symbols.ui_poll_max_gap){const now=r32(syms.symbols.fm1_ms),last=r32(syms.symbols.ui_poll_last);
+ result.uiService={maxGapMs:r32(syms.symbols.ui_poll_max_gap),turns:r32(syms.symbols.ui_poll_turns),nowMs:now,lastAtMs:last,sinceLastMs:(now-last)>>>0};}
+if(syms.symbols.audio_yields)result.overloadYields=r32(syms.symbols.audio_yields);
 if(process.env.IFW_SIM_MODE)result.diagnosticMode=process.env.IFW_SIM_MODE;
 if(process.env.IFW_SIM_PCM)writeFileSync(process.env.IFW_SIM_PCM,Buffer.concat(pcm));
 if(syms.symbols.dsp_check){const a=syms.symbols.dsp_check;result.targetRegression={complete:r32(a)===0x54535749,

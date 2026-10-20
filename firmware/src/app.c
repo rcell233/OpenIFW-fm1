@@ -50,7 +50,7 @@ static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: MODULE";
 #include "ui/state.h"
-static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)meter.max_us;if(id==234)return (int32_t)meter.overruns;if(id==235)return FS;if(id==236)return 403;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
+static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)meter.max_us;if(id==234)return (int32_t)meter.overruns;if(id==235)return FS;if(id==236)return 404;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
     if(overflow)return;

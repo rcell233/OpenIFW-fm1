@@ -19,7 +19,7 @@ spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py');b
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=R/'build/firmware';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
 # Tool paths must remain below SRC; the stage and output are siblings originally.
 b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.3'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.4'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:

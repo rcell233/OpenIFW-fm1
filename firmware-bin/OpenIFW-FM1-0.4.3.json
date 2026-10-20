@@ -1,0 +1,25 @@
+{
+  "version": "0.4.3",
+  "identity": "FM-1_982",
+  "appBytes": 224776,
+  "packageBytes": 610110,
+  "sha256": "91c1bdb590b8d5b03a63d41703d8262f58d32b4249e20e2d0391516bfdd12d46",
+  "hardwareTested": false,
+  "ramDataBss": 31328,
+  "poolBytes": 294216,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false,
+  "ramCodeBytes": 2848,
+  "ramDspBytes": 0,
+  "dspPlacement": "xip",
+  "linkerSha256": "6a9f41205e482fbdf2d24dc418416e45a3a8e1781d3e594279d751335af8942a",
+  "outputLookaheadFrames": 256,
+  "withdrawn": true,
+  "withdrawalReason": "Reproduced sustained-overload main-loop starvation in 0.4.2/0.4.3; superseded by 0.4.4."
+}
