@@ -13,6 +13,9 @@
 #include "audio_perf.h"
 #include "panel_params.h"
 #include "presets.h"
+#ifdef IFW_DSP_ISR_TEST
+#include "dsp_irq_stream.h"
+#endif
 #ifdef IFW_DSP_STRESS
 #include "dsp_stress.h"
 #endif
@@ -57,6 +60,9 @@ static void enqueue(uint32_t type,int32_t a,int32_t b) {
 static int32_t midi31(uint32_t v) {return (int32_t)(v*16909320u);}
 static void app_audio(int32_t *out,uint32_t n) {
     if(!ready)return;
+#ifdef IFW_DSP_ISR_TEST
+    irq_stream_render(&synth,out,n);return;
+#endif
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
     uint32_t start=fm1_ticks();
 #endif
@@ -222,7 +228,11 @@ static void app_init(void) {
 #ifdef IFW_DSP_STRESS
     perf_stress_patch(&edit_patch);
 #endif
-    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);RING_PUBLISH();ready=1;
+    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);
+#ifdef IFW_DSP_ISR_TEST
+    irq_stream_init();
+#endif
+    RING_PUBLISH();ready=1;
 #ifdef IFW_DSP_STRESS
     enqueue(2,INT32_MAX,0);enqueue(0,108,INT32_MAX);
 #endif

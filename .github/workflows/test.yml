@@ -26,3 +26,6 @@ jobs:
             build/ui/*.ppm
             build/emu/results.json
             build/installer/results.json
+            build/target-audit/irq-native.json
+            build/target-audit/dma/results.json
+            build/target-audit/octave-config.json

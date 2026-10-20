@@ -1,0 +1,201 @@
+diff --git a/crates/fm1-core/src/lib.rs b/crates/fm1-core/src/lib.rs
+index d69aa41..26e109a 100644
+--- a/crates/fm1-core/src/lib.rs
++++ b/crates/fm1-core/src/lib.rs
+@@ -220,6 +220,9 @@ pub struct Cpu {
+     pub route_hist: [u64; 32],
+     pub slow_hist: std::collections::HashMap<&'static str, u64>,
+     pub profile: bool,
++    /// Sensitivity experiment only; not a measured pi32v2 latency.
++    pub audit_div_extra: u32,
++    pub pc_hist: std::collections::BTreeMap<u32,u64>,
+     pub jit_entries: u64,
+     pub jit_insns: u64,
+     pub jit_helpers: std::collections::BTreeMap<String, u64>,
+@@ -249,8 +252,9 @@ pub struct Cpu {
+ 
+ impl Cpu {
+     pub fn jit_profile_json(&self) -> String {
++        let pcs = self.pc_hist.iter().map(|(pc,n)|format!("[{pc},{n}]")).collect::<Vec<_>>().join(",");
+         let helpers = self.jit_helpers.iter().map(|(k, v)| format!("\"{k}\":{v}")).collect::<Vec<_>>().join(",");
+-        format!("{{\"entries\":{},\"instructions\":{},\"helpers\":{{{helpers}}}}}", self.jit_entries, self.jit_insns)
++        format!("{{\"entries\":{},\"instructions\":{},\"pcs\":[{pcs}],\"helpers\":{{{helpers}}}}}", self.jit_entries, self.jit_insns)
+     }
+ 
+     /// Count a JIT helper call when profiling. Called for every helper op, so the check is
+@@ -529,6 +533,7 @@ impl Cpu {
+                     sync!();
+                     return Ok((n, true));
+                 }
++                if self.profile {*self.pc_hist.entry(pc).or_default()+=1;}
+                 let next_pc = pc + op.len as u32;
+                 if !(careful || op.careful) {
+                     // plain micro-op: cannot start or end a pair, block or loop
+@@ -853,6 +858,7 @@ impl Cpu {
+     /// Fetch/decode/execute one instruction. Fetches a 6-byte window (the
+     /// longest pi32v2 instruction); short instructions zero-extend.
+     pub fn step<B: Bus>(&mut self, bus: &mut B) -> Result<(), CoreError> {
++        if self.profile {*self.pc_hist.entry(self.pc).or_default()+=1;}
+         let slot = self.fetch(bus)?;
+         let l = self.icache[slot];
+         let next_pc = self.pc + l.len as u32;
+@@ -868,7 +874,7 @@ impl Cpu {
+             }
+         }
+         let x = self.icache_x[slot].expect("decoded line");
+-        if self.profile {
++        if false {
+             self.route_hist[(x.pre.route as usize).min(30)] += 1;
+             let tag = format!("{}{}{}{}", if l.fast.is_some() {"F"} else {"-"}, if l.pair_head {"H"} else {"-"}, if self.pair_pending.is_some() {"P"} else {"-"}, x.entry.name);
+             let tag: &'static str = Box::leak(tag.into_boxed_str());
+@@ -1282,6 +1288,7 @@ impl Cpu {
+                 };
+             }
+             Fast::Div { d, a, b, k } => {
++                bus.add_ticks(self.audit_div_extra as u64);
+                 let (a, b) = (self.regs[(a & 15) as usize], self.regs[(b & 15) as usize]);
+                 self.regs[(d & 15) as usize] = if b == 0 {
+                     0
+@@ -1869,6 +1876,11 @@ impl Cpu {
+                 self.flags = f;
+                 return Ok(Some(None));
+             }
++            "R = R - R (ssat)" => {
++                let d = r(self, 0)?;
++                self.regs[d] = (self.regs[r(self, 1)?] as i32).saturating_sub(self.regs[r(self, 2)?] as i32) as u32;
++                return Ok(Some(None));
++            }
+             "R = R + R (ssat)" => {
+                 let d = r(self, 0)?;
+                 self.regs[d] = (self.regs[r(self, 1)?] as i32).saturating_add(self.regs[r(self, 2)?] as i32) as u32;
+@@ -1913,6 +1925,7 @@ impl Cpu {
+                 let d = r(self, 0)?;
+                 let a = self.regs[r(self, 1)?];
+                 let b = v(self, 2)?;
++                if s.contains(" / ") || s.contains(" % ") {bus.add_ticks(self.audit_div_extra as u64);}
+                 self.regs[d] = match &s[6..7] {
+                     "+" => self.alu_f(Op::Add, a, b),
+                     "-" => self.alu_f(Op::Sub, a, b),
+@@ -1932,6 +1945,7 @@ impl Cpu {
+                 let d = r(self, 0)?;
+                 let a = self.regs[r(self, 1)?];
+                 let b = self.regs[r(self, 2)?];
++                if s.contains(" / ") || s.contains(" % ") {bus.add_ticks(self.audit_div_extra as u64);}
+                 self.regs[d] = match &s[6..7] {
+                     "+" => self.alu_f(Op::Add, a, b),
+                     "-" => self.alu_f(Op::Sub, a, b),
+@@ -2763,6 +2777,7 @@ impl Cpu {
+                         self.regs[hi] = (y >> 32) as u32;
+                     }
+                     _ => {
++                        bus.add_ticks(self.audit_div_extra as u64);
+                         let q = ((raw >> 21) & 7) as usize;
+                         let x = (self.regs[2 * q + 1] as u64) << 32 | self.regs[2 * q] as u64;
+                         let b = self.regs[((raw >> 24) & 0xf) as usize];
+diff --git a/crates/fm1-isa/src/lib.rs b/crates/fm1-isa/src/lib.rs
+index 2674079..61c8a75 100644
+--- a/crates/fm1-isa/src/lib.rs
++++ b/crates/fm1-isa/src/lib.rs
+@@ -201,8 +201,27 @@ pub enum DecodeError {
+     UnknownInstruction { raw: u64, addr: u32 },
+ }
+ 
++// Register-independent scalar encodings verified with JieLi objdump.
++static PROBE_ISA: &[IsaEntry] = &[
++    IsaEntry {name:"ifw_ssat_add",syntax:"R = R + R (ssat)",len:4,count:0,
++      mask:0x000fffff,match_:0x0000e439,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(24,27)],mult:0,adj:0,hi:0,lo:0}]},
++    IsaEntry {name:"ifw_ssat_sub",syntax:"R = R - R (ssat)",len:4,count:0,
++      mask:0x000fffff,match_:0x0008e439,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(24,27)],mult:0,adj:0,hi:0,lo:0}]},
++    IsaEntry {name:"ifw_rotate32",syntax:"R = R <> #i",len:4,count:0,
++      mask:0x0e00ffff,match_:0x0000e1c4,group:"misc",alt:&[],samples:&[],slots:&[
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(28,31)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(20,23)],mult:0,adj:0,hi:0,lo:0},
++        SlotSpec{kind:SlotKind::Imm,pieces:&[(16,19),(24,24)],mult:0,adj:0,hi:0,lo:0}]},
++];
+ /// Decode from a zero-extended little-endian window of up to 6 bytes.
+ pub fn decode_win(win: u64, addr: u32) -> Result<Instruction, DecodeError> {
++    for e in PROBE_ISA {if win&e.mask==e.match_ {return Ok(Instruction{addr,raw:win,entry:e});}}
+     // the FPU first: its encodings never appear in the objdump corpora, and the float
+     // compares are the integer ones plus a flag bit the corpus masks may not pin down
+     for e in fpu::FPU {
+diff --git a/crates/fm1-soc/src/lib.rs b/crates/fm1-soc/src/lib.rs
+index 4543ad1..4ec92f8 100644
+--- a/crates/fm1-soc/src/lib.rs
++++ b/crates/fm1-soc/src/lib.rs
+@@ -132,6 +132,7 @@ impl Board {
+ 
+ pub struct Soc {
+     pub board: Board,
++    pub audit_spi_timing: bool,
+     /// The BT baseband's window base (0x2FC44), as the firmware set it.
+     bt_window: u32,
+     pub xip: Vec<u8>,
+@@ -203,6 +204,7 @@ impl Soc {
+     pub fn new(ram_size: usize, xip: Vec<u8>) -> Self {
+         Self {
+             board: Board::Fm1,
++            audit_spi_timing: false,
+             bt_window: BT_WINDOW_BASE,
+             xip,
+             ram: Ram::new(ram_size),
+@@ -428,7 +430,7 @@ impl Soc {
+     /// (SMK-37: it takes the bytes' time on the wire, see `Periph::spi1_start`.)
+     fn spi1_done(&mut self, bytes: u32) {
+         let irq = self.sfr_get(0x11d00) & 0x2000 != 0;
+-        if self.board == Board::Smk37 {
++        if self.board == Board::Smk37 || self.audit_spi_timing {
+             let baud = self.sfr_get(0x11d04);
+             self.periph.spi1_start(bytes, baud, irq);
+         } else if irq {
+@@ -647,8 +649,8 @@ impl Soc {
+                 if addr == 0x11d00 {
+                     // CON: transfer-done (the FM-1: always, so polls finish; the SMK-37: once the
+                     // bytes have gone out)
+-                    let busy = self.board == Board::Smk37 && self.periph.cycles < self.periph.spi1_done_at;
+-                    self.sfr_get(addr) | if busy { 0 } else { 0x8000 }
++                    let busy = (self.board == Board::Smk37 || self.audit_spi_timing) && self.periph.cycles < self.periph.spi1_done_at;
++                    (self.sfr_get(addr) & !0x8000) | if busy { 0 } else { 0x8000 }
+                 } else if addr == 0x11d10 {
+                     self.sfr_get(addr)
+                 } else {
+diff --git a/crates/fm1-web/src/lib.rs b/crates/fm1-web/src/lib.rs
+index 8d876a2..827cda4 100644
+--- a/crates/fm1-web/src/lib.rs
++++ b/crates/fm1-web/src/lib.rs
+@@ -107,7 +107,8 @@ impl Machine {
+         let jit = self.cpu.jit_on;
+         if let Some(c1) = self.cpu1.as_mut() { c1.profile = self.cpu.profile; }
+         let Machine { cpu, cpu1, soc, pending_tick, .. } = self;
+-        if machine::run_dual(cpu1, soc, n, RAM_SIZE, jit, |soc, k| machine::run_blocks(cpu, soc, k, pending_tick)).is_err() {
++        if let Err(e)=machine::run_dual(cpu1, soc, n, RAM_SIZE, jit, |soc, k| machine::run_blocks(cpu, soc, k, pending_tick)) {
++            unsafe {LAST_ERROR=format!("{e}").into_bytes();LAST_ERROR.push(0);}
+             self.halted = true;
+         }
+     }
+@@ -676,3 +677,20 @@ mod persistence_tests {
+         assert_eq!(m.soc.flash.mem, expected, "invalid banks cannot modify saved patches");
+     }
+ }
++
++#[no_mangle]
++pub extern "C" fn fm1_target_read32(addr: u32) -> u32 {machine().map_or(0,|m|m.soc.read32(addr))}
++#[no_mangle]
++pub extern "C" fn fm1_target_pc() -> u32 {machine().map_or(0,|m|m.cpu.pc)}
++
++static mut LAST_ERROR: Vec<u8> = Vec::new();
++#[no_mangle]
++pub extern "C" fn fm1_last_error()->*const u8 {unsafe {LAST_ERROR.as_ptr()}}
++
++#[no_mangle]
++pub extern "C" fn fm1_audit_div_cycles(cycles:u32) {if let Some(m)=machine(){m.cpu.audit_div_extra=cycles.saturating_sub(1);}}
++#[no_mangle]
++pub extern "C" fn fm1_target_write32(addr:u32,value:u32) {if let Some(m)=machine(){m.soc.write32(addr,value);}}
++
++#[no_mangle]
++pub extern "C" fn fm1_audit_spi_timing(enable:u32){if let Some(m)=machine(){m.soc.audit_spi_timing=enable!=0;}}

@@ -1,0 +1,32 @@
+{
+  "blocks": 768,
+  "frames": 196608,
+  "hashes": [
+    2487913643,
+    3672979936,
+    1576189980,
+    830244902,
+    3828859575,
+    4243867471,
+    3367255549,
+    1947032251,
+    1314428674,
+    467323088,
+    2484020674,
+    263350405,
+    4203956151,
+    3820446827,
+    2180506614,
+    2372140025,
+    1245889392,
+    4171619972,
+    958984482,
+    1468443415,
+    3924068641,
+    993620081,
+    4079188785,
+    4244373416
+  ],
+  "sourceCommit": "4d268389cd23c37d729fc3ae5dde3016cdb0d3f8",
+  "description": "0.4.1 DSP, six factory presets wet then dry; per-case 16384 frames with overlapping notes, return priority and breath changes; PCM and state hashes"
+}

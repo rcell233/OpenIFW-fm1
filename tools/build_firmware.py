@@ -37,6 +37,10 @@ if os.environ.get('IFW_DSP_SELFTEST')=='1':
     for source,name in [('dsp_optimization.c','dsp_selftest.h'),('dsp_math.c','dsp_math_test.h')]:
         shutil.copy2(R/'tests'/source,STAGE/'firmware/src'/name)
     b.CFLAGS.extend(['-Ifirmware/src/fixed'])
+if os.environ.get('IFW_DSP_ISR_TEST')=='1':
+    b.VERSION+='-irqtest';b.CFLAGS.append('-DIFW_DSP_ISR_TEST')
+    shutil.copy2(R/'tests/dsp_irq_stream.c',STAGE/'firmware/src/dsp_irq_stream.h')
+    b.CFLAGS.append('-Ifirmware/src/fixed')
 tmp=R/'build/tmp';tmp.mkdir(exist_ok=True);os.environ['TMPDIR']=str(tmp)
 original_tc_all=b.tc_all
 def compile_all(*cmds):
