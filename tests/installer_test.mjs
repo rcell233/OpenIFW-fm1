@@ -24,6 +24,16 @@ await loadFirmware('https://rcell233.github.io/OpenIFW-fm1/install/install.js',a
 });
 eq(addresses,['https://rcell233.github.io/OpenIFW-fm1/install/release.json','https://rcell233.github.io/OpenIFW-fm1/firmware/'+meta.file]);
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response('',{status:404})),'download');
+const recoveryMeta=JSON.parse(readFileSync('build/web/install/recovery-0.4.1.json'));
+const recoveryBytes=new Uint8Array(readFileSync('build/web/firmware/'+recoveryMeta.file));
+const recoveryAddresses=[];
+const recovery=await loadFirmware('https://example.test/install/install.js',async u=>{
+ recoveryAddresses.push(String(u));return String(u).endsWith('.json')?new Response(JSON.stringify(recoveryMeta)):new Response(recoveryBytes);
+},'recovery-0.4.1.json');
+eq(recovery.meta.version,'0.4.1');eq(recovery.meta.sha256,'cf7ab1e35378ae7797ab817c7e32aaa8ce0b49d3bbbe55185aa18ded7ae2a9b8');
+eq(recoveryAddresses,['https://example.test/install/recovery-0.4.1.json','https://example.test/firmware/OpenIFW-FM1-0.4.1.fwsc']);
+await bad(loadFirmware('https://example.test/install/install.js',async()=>{throw Error('must not fetch');},'../other.json'),'badpkg');
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(meta)),'recovery-0.4.1.json'),'badpkg');
 
 // Virtual device time keeps the unchanged transport's production timeouts intact.
 async function clock(work){
@@ -45,7 +55,7 @@ async function clock(work){
 const HS=[0xf0,0,0x32,0x45,0,0,0,0x40,0x7f,0xf7],UPGRADE=[0xf0,0x22,0x24,0x35,0x7f,0xf7];
 const same=(a,b)=>a.length===b.length&&a.every((v,i)=>v===b[i]);
 class Device{
-  constructor(options={}){this.opt=options;this.access={inputs:new Map(),outputs:new Map()};this.reads=0;this.bad=0;this.upgrades=0;this.written=0;this.boot(options.identity??'FM-1_015');}
+  constructor(options={}){this.opt=options;this.firmware=options.firmware??verified;this.access={inputs:new Map(),outputs:new Map()};this.reads=0;this.bad=0;this.upgrades=0;this.written=0;this.boot(options.identity??'FM-1_015');}
   boot(identity){
     for(const m of [this.access.inputs,this.access.outputs]){for(const p of m.values())p.state='disconnected';m.clear();}
     this.identity=identity;this.pending=null;this.queue=[];
@@ -60,14 +70,14 @@ class Device{
     if(same(data,HS)){const t=Array.from(new TextEncoder().encode(this.identity)),b=[0,0x59,0x11,0,0,0,...t,...Array(28-t.length).fill(0)];this.emit([0xf0,...pack7(b),0xf7]);return;}
     if(same(data,UPGRADE)){
       this.upgrades++;this.writing=this.identity.startsWith('ota-');
-      this.queue=this.writing?Array.from({length:Math.ceil(verified.image.length/512)},(_,k)=>[k*512,Math.min(512,verified.image.length-k*512)]):[[0,64],[64,160],[verified.image.length-64,64]];
-      if(this.opt.badRequest)this.queue.unshift([verified.image.length+1,512]);
+      this.queue=this.writing?Array.from({length:Math.ceil(this.firmware.image.length/512)},(_,k)=>[k*512,Math.min(512,this.firmware.image.length-k*512)]):[[0,64],[64,160],[this.firmware.image.length-64,64]];
+      if(this.opt.badRequest)this.queue.unshift([this.firmware.image.length+1,512]);
       if(!this.opt.stopBeforeFinish)this.queue.push([this.writing?0xf0000000:0xe0000000,8]);
       this.next();return;
     }
     if(!this.pending)return;
     const [addr,len,flag]=this.pending,u=unpack7(data.slice(1,-1));let sum=0;for(let i=6;i<u.length;i++)sum+=u[i];
-    const wanted=addr>=0xe0000000?[...new TextEncoder().encode('success'),0]:verified.image.subarray(addr,addr+len);
+    const wanted=addr>=0xe0000000?[...new TextEncoder().encode('success'),0]:this.firmware.image.subarray(addr,addr+len);
     if(!same(u.slice(14,-1),wanted)||(sum&255)!==255||u[6]!==(addr>=0xe0000000?0:flag)||u.length!==15+wanted.length)this.bad++;
     this.reads++;if(this.writing&&addr<0xe0000000)this.written+=len;this.pending=null;
     if(this.reads>=this.opt.unplugAfter){this.disconnect();return;}
@@ -85,12 +95,25 @@ eq(events.at(-1),'done');ok(events.includes('verify')&&events.includes('loader')
 eq(dev.input.connection,'closed');eq(dev.output.connection,'closed');
 const resume=new Device({identity:'ota-FM-1_990'}),resumeEvents=[];
 eq(await clock(()=>installFirmware(verified,resume.access,k=>resumeEvents.push(k))),'FM-1_982');ok(resumeEvents.includes('resume'));eq(resume.written,verified.image.length);eq(resume.bad,0);
+// USB RESCUE identifies as FM-1_000 and uses the same complete update path.
+const rescue=new Device({identity:'FM-1_000'}),rescueEvents=[];
+eq(await clock(()=>installFirmware(verified,rescue.access,k=>rescueEvents.push(k))),'FM-1_982');
+eq(rescue.written,verified.image.length);eq(rescue.bad,0);eq(rescueEvents.at(-1),'done');
+const rollbackDevice=new Device({identity:'FM-1_000',firmware:recovery});
+eq(await clock(()=>installFirmware(recovery,rollbackDevice.access)),'FM-1_982');
+eq(rollbackDevice.written,recovery.image.length);eq(rollbackDevice.bad,0);
+for(const identity of ['FM-1_015','ota-FM-1_982']){
+ const failed=new Device({identity,returnIdentity:'FM-1_000'}),events=[];
+ await bad(clock(()=>installFirmware(verified,failed.access,k=>events.push(k))),'rescue');
+ ok(!events.includes('done'),'rescue after reboot must never be accepted as success');
+}
 for(const [options,code]of [[{identity:'FM-2_015'},'model'],[{identity:'ota-FM-1_015'},'foreign'],[{unplugAfter:1},'lost'],[{unplugAfter:5},'lost'],[{returnIdentity:'FM-1_990'},'mismatch'],[{badRequest:true},'badreq'],[{noLoader:true},'noloader'],[{noReboot:true},'noreturn'],[{identity:'ota-FM-1_982',stopBeforeFinish:true},'stopped']]){
  const d=new Device(options),events=[];await bad(clock(()=>installFirmware(verified,d.access,k=>events.push(k))),code);ok(!events.includes('done'),code+' cannot claim success');if(['model','foreign'].includes(code))eq(d.upgrades,0);
 }
 await bad(clock(()=>installFirmware(verified,{inputs:new Map(),outputs:new Map()})),'notfound');
 const multiple=new Device();multiple.access.inputs.set('other',{name:'FM-1 second',state:'connected'});multiple.access.outputs.set('other',{name:'FM-1 second',state:'connected'});eq(candidateCount(multiple.access),2);await bad(installFirmware(verified,multiple.access),'multiple');eq(multiple.upgrades,0);
 ok(errorText({code:'denied'}).includes('权限'));ok(errorText({code:'lost'}).includes('重新连接'));
+ok(errorText({code:'rescue'}).includes('FM-1_000'));
 
 // Page lifecycle: loading never asks for MIDI; only the Install click may do so.
 async function page({midi=true,denied=false,secure=true,downloadFail=false}={}){
@@ -115,5 +138,5 @@ const permission=await page({denied:true});await permission.el('install').listen
 const unsupported=await page({midi:false});eq(unsupported.el('install').disabled,true);eq(unsupported.el('download').hidden,false);
 const insecure=await page({secure:false});eq(insecure.el('install').disabled,true);ok(insecure.el('status').textContent.includes('HTTPS'));
 const network=await page({downloadFail:true});eq(network.el('install').disabled,false);eq(network.permissions,0);
-mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,resume:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
+mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
 console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

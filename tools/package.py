@@ -6,7 +6,7 @@ import zipfile
 import hashlib
 root=Path(__file__).resolve().parents[1]
 dest=root.parent/'deliverables'; dest.mkdir(exist_ok=True)
-out=dest/'OpenIFW-FM1-0.4.2.zip'
+out=dest/'OpenIFW-FM1-0.4.3.zip'
 inputs=[]
 for name in ['README.md','LICENSE','THIRD_PARTY_NOTICES.md','Makefile','build.sh','package.json','.gitignore','sources.lock.json']:
     inputs.append((root/name,Path('OpenIFW-FM1')/name))
@@ -19,7 +19,7 @@ for p in sorted((root/'build/comparison').glob('*.wav')):
     inputs.append((p,Path('OpenIFW-FM1/examples/audio')/p.name))
 for name in ['legato-c.wav','legato-js.wav','scenario.json','result.json','legato.ifwtest']:
     inputs.append((root/'build/demo'/name,Path('OpenIFW-FM1/examples/audio')/name))
-for name in ['OpenIFW-FM1-0.4.2.fwsc','build.json']:
+for name in ['OpenIFW-FM1-0.4.3.fwsc','build.json']:
     inputs.append((root/'build/firmware'/name,Path('OpenIFW-FM1/firmware-bin')/name))
 for p in sorted((root/'build/web').rglob('*')):
     if p.is_file():inputs.append((p,Path('OpenIFW-FM1/web-demo')/p.relative_to(root/'build/web')))

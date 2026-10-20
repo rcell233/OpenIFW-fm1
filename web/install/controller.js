@@ -31,10 +31,14 @@ export async function verifyFirmware(bytes,meta){
   }catch(e){throw fail('badpkg','固件内部校验失败：'+e.message);}
 }
 
-export async function loadFirmware(baseURL,fetcher=fetch){
-  const response=await fetcher(new URL('./release.json',baseURL),{cache:'no-store'});
+export async function loadFirmware(baseURL,fetcher=fetch,release='release.json'){
+  if(!['release.json','recovery-0.4.1.json'].includes(release))
+    throw fail('badpkg','未知的固件发布入口。');
+  const response=await fetcher(new URL('./'+release,baseURL),{cache:'no-store'});
   if(!response.ok)throw fail('download','无法读取固件信息（HTTP '+response.status+'）。');
   const meta=await response.json();
+  if(release==='recovery-0.4.1.json'&&meta?.version!=='0.4.1')
+    throw fail('badpkg','恢复固件版本与入口不一致。');
   if(!/^OpenIFW-FM1-\d+\.\d+\.\d+\.fwsc$/.test(meta?.file??''))
     throw fail('badpkg','固件文件名无效。');
   const url=new URL('../firmware/'+meta.file,baseURL);
@@ -68,6 +72,14 @@ export async function installFirmware(verified,access,onStep=()=>{}){
       return PRODUCT;
     }
     return await up.install(verified.image,PRODUCT,onStep);
+  }catch(e){
+    if(e?.code==='mismatch'){
+      let identity=e.detail;
+      // The vendor resume path omits the reported identity from its error.
+      if(!identity){const back=await up.find(id=>id.model==='FM-1');identity=back?.id.text;back?.link.close();}
+      if(identity==='FM-1_000')throw fail('rescue','设备已进入 USB RESCUE，正常固件没有通过启动确认。');
+    }
+    throw e;
   }finally{
     const ports=[...access.inputs.values(),...access.outputs.values()].filter(p=>PORT.test(p.name??''));
     await Promise.allSettled(ports.map(p=>{
@@ -86,6 +98,7 @@ export const ERROR_TEXT={
   noloader:'没有找到升级模式中的 FM-1。重新插拔 USB，再点 Install 重试。',
   noreturn:'写入后没有检测到设备重启。请重新接通设备电源，再确认设备状态。',
   mismatch:'设备重启后报告了不同的固件身份，安装没有通过最终确认。',
+  rescue:'设备进入了 USB RESCUE（FM-1_000），正常固件尚未启动。保持当前连接，可安装修复版，或使用本页的“回退到 0.4.1”入口恢复。',
   badreq:'设备请求的数据超出固件范围，传输已停止。',
 };
 export function errorText(e){return ERROR_TEXT[e?.code]??e?.message??'安装失败，请重试。';}

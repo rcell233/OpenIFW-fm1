@@ -13,23 +13,23 @@
 #endif
 static uint32_t opt_rng;
 #ifdef IFW_TARGET
-__attribute__((section(".ifw_target_test")))
+__attribute__((section(".text.ifw_target_test")))
 #endif
 static uint32_t opt_random(void) {
     opt_rng^=opt_rng<<13;opt_rng^=opt_rng>>17;opt_rng^=opt_rng<<5;return opt_rng;
 }
 #ifdef IFW_TARGET
-__attribute__((section(".ifw_target_test")))
+__attribute__((section(".text.ifw_target_test")))
 #endif
 static void opt_hash(uint32_t h[2],uint32_t x) {
     h[0]=(h[0]^x)*16777619u;h[1]=(h[1]+x+0x9e3779b9u)*2246822519u;
     h[1]=(h[1]<<13)|(h[1]>>19);
 }
 #ifdef IFW_TARGET
-__attribute__((noinline,section(".ifw_target_test")))
+__attribute__((noinline,section(".text.ifw_target_test")))
 #endif
 static void opt_regression(IFWFixedSynth *s,IFWFixedFxBuffers *b,uint32_t result[16]) {
-    /* The target-only test runs in RAM; preset loading is distant XIP code. */
+    /* Keep a full-address call in target test builds as well. */
 #ifdef IFW_TARGET
     void (*volatile load_preset)(IFWFixedPatch *,uint32_t)=make_preset;
 #else

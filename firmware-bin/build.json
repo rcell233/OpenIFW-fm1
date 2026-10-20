@@ -1,9 +1,9 @@
 {
-  "version": "0.4.2",
+  "version": "0.4.3",
   "identity": "FM-1_982",
-  "appBytes": 224784,
+  "appBytes": 224776,
   "packageBytes": 610110,
-  "sha256": "992328099d8f6ceb20f5ca6f75a091a7c1877b73badebc51dc49a274c8431a8f",
+  "sha256": "91c1bdb590b8d5b03a63d41703d8262f58d32b4249e20e2d0391516bfdd12d46",
   "hardwareTested": false,
   "ramDataBss": 31328,
   "poolBytes": 294216,
@@ -15,7 +15,9 @@
   "sampleRate": 44100,
   "framesPerBlock": 256,
   "cpuMeasured": false,
-  "ramCodeBytes": 18056,
-  "ramDspBytes": 15208,
+  "ramCodeBytes": 2848,
+  "ramDspBytes": 0,
+  "dspPlacement": "xip",
+  "linkerSha256": "6a9f41205e482fbdf2d24dc418416e45a3a8e1781d3e594279d751335af8942a",
   "outputLookaheadFrames": 256
 }

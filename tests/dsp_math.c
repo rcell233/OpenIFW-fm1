@@ -4,7 +4,7 @@
 __attribute__((noinline))
 #endif
 static unsigned opt_math_checks(void) {
-    /* Calls to RAM functions use full addresses in this XIP test routine. */
+    /* Exercise full-address calls in the target test routine as well. */
     uint32_t (*volatile ratio16)(uint32_t,uint32_t)=ifw_ratio16;
     void (*volatile waves20)(uint32_t,uint32_t,int,uint32_t,int32_t *,int32_t *,int32_t *)=ifw_waves20;
     unsigned errors=0;uint32_t seed=0x5a123456u;

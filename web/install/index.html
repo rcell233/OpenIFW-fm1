@@ -19,6 +19,7 @@
 <section class="card" aria-label="安装固件">
 <div class="release"><strong id="version">OpenIFW FM-1</strong><span class="badge">实验固件 · 尚未上板验证</span></div>
 <p class="notice">安装会替换设备当前固件，更换前请备份需要保留的音色与配置。写入期间请勿断电、拔线或关闭此页面。</p>
+<p id="recovery-note" class="notice" hidden>当前选择的是 0.4.1 恢复包：此前可启动，但原有声音问题仍然存在。该入口用于从 USB RESCUE 恢复设备。</p>
 <div class="action"><button id="install" type="button" disabled>正在校验固件…</button><a id="download" class="download" hidden download>下载 .fwsc</a></div>
 <p id="integrity" class="check">固件只从本站读取，验证通过后才能开始安装。</p>
 <p id="status" class="status" role="status" aria-live="polite">正在读取固件发布信息。</p>
@@ -27,8 +28,9 @@
 </section>
 <noscript>安装器需要启用 JavaScript。</noscript>
 <details><summary>更新后验证声音与性能</summary><p>进入 GLO 的 PERFORMANCE 页，或长按 HOME → SYS → PERFORMANCE。向右转第二旋钮 RESET，持续演奏并观察 MAX / XRUN / DMA；后两项应保持 0。第一旋钮可选 SINE / MUTE 帮助排查输出链路，退出此页自动恢复 SYNTH。</p><p><a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/docs/PERFORMANCE.md">性能评估与真机检查说明</a></p></details>
+<details open><summary>USB RESCUE / 恢复设备</summary><p>如果屏幕显示 OPENIFW FM1 USB RESCUE / CONNECT USB，保持此画面和 USB 连接，点击上方 Install 安装修复版；安装和重启时松开按键，尤其 OCT−。</p><p>也可 <a href="?recovery=0.4.1&amp;v=0.4.3">回退到 0.4.1</a>（此前能启动，仍有声音问题），或 <a href="./?v=0.4.3">返回最新版安装</a>。救援模式的固件身份是 FM-1_000，不会被当作正常安装成功。</p></details>
 <details><summary>连接失败或安装中断</summary><ul><li>确认使用能传输数据的 USB 线，并关闭占用 FM-1 MIDI 的 DAW、编辑器或其他网页。</li><li>如果连接了多台设备，请只保留要安装的那台 FM-1。</li><li>如果设备仍停在兼容的升级模式，重新接上 USB 后点 Install，会恢复写入。</li><li>如果当前固件无法正常启动，可尝试按住 OCT− 开机进入 USB 救援模式，再连接安装。</li><li>如果浏览器拒绝 MIDI 权限，请在地址栏的站点设置中允许 MIDI，然后重试。</li></ul><p>本页使用 FM-1 的 USB-MIDI 升级协议，只安装本项目发布的 OpenIFW 固件。只有型号确认通过的 FM-1 才会进入写入流程。</p></details>
 <details><summary>固件与安装日志</summary><p id="identity"></p><pre id="digest"></pre><pre id="log"></pre></details>
 <footer>升级传输沿用 Felucca（Leo Kuroshita / Hügelton Instruments）的 GPL-3.0 代码。<a href="../THIRD_PARTY_NOTICES.md">许可与归属</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/tree/main/firmware-bin">固件与构建信息</a><br>网页流程经过模拟设备测试，尚未连接实体 FM-1 进行刷写验证。</footer>
-<script type="module" src="./install.js"></script>
+<script type="module" src="./install.js?v=0.4.3"></script>
 </main></body></html>

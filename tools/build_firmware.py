@@ -5,8 +5,11 @@ from pathlib import Path
 R=Path(__file__).resolve().parents[1]
 V=R/'vendor/dinghy';STAGE=R/'build/target-source'
 STAGE.mkdir(parents=True,exist_ok=True)
-shutil.copytree(V/'firmware',STAGE/'firmware',dirs_exist_ok=True)
-shutil.copy2(R/'firmware/app.ld',STAGE/'firmware/app.ld')
+# Never retain generated sources/linker overrides from an earlier variant.
+if (STAGE/'firmware').exists():shutil.rmtree(STAGE/'firmware')
+shutil.copytree(V/'firmware',STAGE/'firmware',dirs_exist_ok=True,copy_function=shutil.copy)
+if (STAGE/'firmware/app.ld').read_bytes()!=(V/'firmware/app.ld').read_bytes():
+    raise SystemExit('Staged linker differs from the original platform')
 shutil.copytree(R/'firmware/hal',STAGE/'firmware/hal',dirs_exist_ok=True)
 for folder in ['fixed','control','ui']:shutil.copytree(R/'firmware/src'/folder,STAGE/'firmware/src'/folder,dirs_exist_ok=True)
 for name in ['panel_params.h','presets.h','audio_perf.h','audio_output.h','dsp.c']:shutil.copy2(R/'firmware/src'/name,STAGE/'firmware/src'/name)
@@ -16,7 +19,7 @@ spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py');b
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=R/'build/firmware';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
 # Tool paths must remain below SRC; the stage and output are siblings originally.
 b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.2'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.3'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -57,14 +60,6 @@ original_tc=b.tc
 def tc(tool,*args):
     if tool=='pi32v2/bin/ld' and any(str(x).endswith('dinghy.o') for x in args):
         args=(*args,*(b.OUT/(Path(name).stem+'.o') for name in dsp_files))
-    if tool=='common/bin/objcopy' and '-j' in args and '.ram_text' in args and not baseline_dir:
-        # JieLi's objcopy supports only one -j. Preserve the separate driver
-        # audit and concatenate its adjacent DSP load section explicitly.
-        result=original_tc(tool,*args)
-        dsp_out=b.OUT/'ramdsp.bin'
-        original_tc(tool,*(('.ram_dsp' if a=='.ram_text' else dsp_out if a==args[-1] else a) for a in args))
-        out=Path(args[-1]);out.write_bytes(out.read_bytes()+dsp_out.read_bytes())
-        return result
     return original_tc(tool,*args)
 b.tc_all=compile_all;b.tc=tc
 for rel,sha in b.SDK_SHA256.items():
@@ -87,10 +82,13 @@ if len(ramcode)!=sym('_rt_end')-sym('_rt_start') or sym('_rt_end')>0x01C06000:
     raise SystemExit('RAM code copy exceeds its reserved region or misses a section')
 if image[sym('_rt_load')-0x02000120:][:len(ramcode)]!=ramcode:
     raise SystemExit('Packaged RAM code differs from ELF load image')
-if not baseline_dir:
-    for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
-        if not sym('_rd_start')<=sym(name)<sym('_rt_end'):
-            raise SystemExit('DSP hot function is not inside copied/guarded RAM: '+name)
-result.update(ramCodeBytes=len(ramcode),ramDspBytes=sym('_rt_end')-sym('_rd_start'),
+for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
+    if not 0x02000120<=sym(name)<sym('_etext'):
+        raise SystemExit('DSP must remain in the original XIP layout: '+name)
+if (STAGE/'firmware/app.ld').read_bytes()!=(V/'firmware/app.ld').read_bytes():
+    raise SystemExit('The recovery release must use the unmodified platform linker')
+(dest/'linker.ld').write_bytes((STAGE/'firmware/app.ld').read_bytes())
+result.update(ramCodeBytes=len(ramcode),ramDspBytes=0,dspPlacement='xip',
+              linkerSha256=hashlib.sha256((V/'firmware/app.ld').read_bytes()).hexdigest(),
               outputLookaheadFrames=256)
 (dest/'build.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

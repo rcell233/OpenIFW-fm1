@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {loadFirmware,installFirmware,errorText} from './controller.js';
+import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.3';
 const $=id=>document.getElementById(id),button=$('install'),status=$('status'),bar=$('progress');
+const rollback=new URL(globalThis.location?.href??import.meta.url).searchParams.get('recovery')==='0.4.1';
 let verified=null,busy=false;
 const log=s=>{$('log').textContent+=(new Date().toLocaleTimeString()+' '+s+'\n');};
 const say=(s,state='')=>{status.textContent=s;status.className='status '+state;};
@@ -19,7 +20,7 @@ function step(k,a){
 async function prepare(){
   if(!isSecureContext){say('请通过 HTTPS 打开本页。','error');button.textContent='需要 HTTPS';return;}
   try{
-    verified=await loadFirmware(import.meta.url);
+    verified=await loadFirmware(import.meta.url,undefined,rollback?'recovery-0.4.1.json':'release.json');
     const m=verified.meta;
     $('version').textContent='OpenIFW FM-1 · '+m.version;
     $('identity').textContent=m.product+' · '+m.bytes.toLocaleString()+' bytes';
@@ -27,8 +28,10 @@ async function prepare(){
     $('integrity').textContent='SHA-256、固件身份和包内 CRC 校验已通过。';
     $('download').href=new URL('../firmware/'+m.file,import.meta.url).href;
     $('download').hidden=false;
+    $('recovery-note').hidden=!rollback;
     if(!navigator.requestMIDIAccess){say('这个浏览器无法执行网页安装，请使用桌面版 Chrome 或 Edge。','error');button.textContent='请使用 Chrome / Edge';return;}
-    button.textContent='Install '+m.version;button.disabled=false;say('固件已准备好。接上 FM-1 后，点 Install 开始。');
+    button.textContent='Install '+m.version;button.disabled=false;
+    say(rollback?'恢复包 0.4.1 已准备好。它是此前能启动的版本，原有声音问题仍需后续修复。':'固件已准备好。接上 FM-1 后，点 Install 开始。');
   }catch(e){button.textContent='重新读取固件';button.disabled=false;say(errorText(e),'error');log(e.message);}
 }
 button.addEventListener('click',async()=>{

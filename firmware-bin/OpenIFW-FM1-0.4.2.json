@@ -1,0 +1,23 @@
+{
+  "version": "0.4.2",
+  "identity": "FM-1_982",
+  "appBytes": 224784,
+  "packageBytes": 610110,
+  "sha256": "992328099d8f6ceb20f5ca6f75a091a7c1877b73badebc51dc49a274c8431a8f",
+  "hardwareTested": false,
+  "ramDataBss": 31328,
+  "poolBytes": 294216,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false,
+  "ramCodeBytes": 18056,
+  "ramDspBytes": 15208,
+  "outputLookaheadFrames": 256,
+  "withdrawn": true,
+  "reason": "User reports USB RESCUE and final identity mismatch after installation; superseded by 0.4.3 XIP recovery candidate."
+}
