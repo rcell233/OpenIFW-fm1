@@ -1,11 +1,11 @@
 {
   "baselineCommit": "4ce7b7dd632cb08b3346a29ce0551293f71831da",
-  "purpose": "Authorized 0.4.1 exact-output DSP performance optimization; original UI baseline remains immutable.",
+  "purpose": "Authorized 0.4.1/0.4.2 exact-output DSP performance optimizations; original UI baseline and PCM/state goldens remain immutable.",
   "optimizedSha256": {
-    "firmware/src/fixed/synth.c": "d6396e6b01178593e87b63456fe420feada0345ad2ab873394e84c041efcac3a",
+    "firmware/src/fixed/synth.c": "7f9d33cdfd2c9c12ca1bf35a8a421c4b218c9def6b2019129149d0cb26c8f2ab",
     "firmware/src/fixed/synth.h": "1ad5a9186a4d24831029be3613cd2fd7a7662d7461a53ea44f3b9fdac7584f91",
-    "firmware/src/fixed/effects.c": "077455c1fea90a060a800c7e33d301a5bc83da3016e8a04444d88635ea681e51",
-    "firmware/src/fixed/math.h": "808d2306ab4fe341dcc28a3d7db3c44e78074c02f5cb44d0dd2a7186d7bc4689",
+    "firmware/src/fixed/effects.c": "c490a3664be20ac39e6e63e218e556b481aa0e074f6139137b51cf843f609906",
+    "firmware/src/fixed/math.h": "7c5168b603f63917b1bdce9d09097f20aa511b36d27f95b917cac6c66cbda8a4",
     "firmware/src/fixed/math.c": "81b4c250952324445746fceed016dc2d5b912c3a1d68130db9fd9e4c8bb51290"
   },
   "frozenPcmAndState": {

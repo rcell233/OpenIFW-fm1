@@ -23,6 +23,40 @@ static void math_tests(void) {
     assert(ifw_wave20(0,0,4,1u<<31)==0);
     for(int i=-1000;i<=1000;i++) {int32_t v=i*1024;double x=v/1048576.;double expected=x/(1+.015*(x<0?-x:x));assert(__builtin_fabs(ifw_soft20(v)/1048576.-expected)<4e-5);}
 }
+static void render_tests(void) {
+    static uint16_t expected[240*240];
+    for(uint32_t p=0;p<UP_COUNT;p++) {
+        page=p;ui.menu=ui.confirm=ui.naming=ui.layer=0;
+        ui_palette();perf_snapshot();
+        /* The previous synchronous renderer is the pixel oracle at a frozen
+         * clock/state, including all clipping and canvas coordinate offsets. */
+        for(uint32_t y=0;y<240;y+=60) {
+            cv_begin(240,60,uc.bg);cv_oy=-(int32_t)y;
+            ui_header();ui_cards();ui_stage();ui_footer();
+            cv_oy=0;cv_blit(0,y);
+        }
+        memcpy(expected,fb,sizeof expected);memset(fb,0,sizeof fb);
+        draw_panel(1);unsigned turns=1;
+        while(ui_drawing && turns<20){draw_panel(0);turns++;}
+        assert(!ui_drawing && turns==15);
+        assert(!memcmp(expected,fb,sizeof expected));
+        /* A fresh main-loop turn can accept another knob event even while
+         * a full screen is incomplete. The renderer advances one band. */
+        draw_panel(1);assert(ui_drawing && ui_draw_y==16);
+        uint32_t before=qwrite;
+        host_enc[ENC_KNOB1]=1;dirty=0;fm1_ms+=1;app_step();
+        assert(host_enc[ENC_KNOB1]==0);
+        if(qwrite!=before)tick();
+        while(ui_drawing)draw_panel(0);
+    }
+    reset();page=UP_HOME;ui.menu=ui.confirm=ui.naming=ui.layer=0;
+    draw_panel(1);while(ui_drawing)draw_panel(0);
+    /* Identical partial refreshes must not alter even a single LCD pixel. */
+    memcpy(expected,fb,sizeof expected);
+    draw_panel(0);while(ui_drawing)draw_panel(0);
+    assert(!memcmp(expected,fb,sizeof expected));
+    puts("PASS display: all 57 pages match synchronous pixels; 16 rows per turn; controls remain serviced between bands");
+}
 int main(void) {
     math_tests();reset();
     midi_message(0x90,60,80);tick();assert(synth.note==60 && synth.mono.count==1);
@@ -45,6 +79,7 @@ int main(void) {
     reset();ifw_fixed_breath(&synth,INT32_MAX);ifw_fixed_note_on(&synth,69,INT32_MAX);tick();ifw_fixed_note_off(&synth,69);
     for(int i=0;i<1400;i++)tick();
     assert(meter.quiet);
+    render_tests();
     puts("PASS panel: MIDI/velocity-zero/sustain/stack, queue overflow panic, CRC storage, NRPN, all 237 controls, silent save gate");
     return 0;
 }

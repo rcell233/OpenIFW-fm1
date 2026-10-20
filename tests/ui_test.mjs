@@ -17,7 +17,7 @@ const patch=e=>Buffer.from(new Uint8Array(e.memory.buffer,e.web_patch(),916));
 const words=e=>new Int32Array(e.memory.buffer,e.web_patch(),229);
 function str(e,p){const b=new Uint8Array(e.memory.buffer);let s='';while(b[p])s+=String.fromCharCode(b[p++]);return s;}
 const screenNames=[];
-function shot(e,name){const b=Buffer.alloc(240*240*3),fb=new Uint16Array(e.memory.buffer,e.web_screen(),57600);for(let i=0;i<fb.length;i++){const v=fb[i],p=(v>>8|v<<8)&65535;b[i*3]=((p>>11)&31)*255/31;b[i*3+1]=((p>>5)&63)*255/63;b[i*3+2]=(p&31)*255/31;}writeFileSync(`${O}/${name}.ppm`,Buffer.concat([Buffer.from('P6\n240 240\n255\n'),b]));screenNames.push(name);}
+function shot(e,name){let turns=0;while(e.web_ui_draw_pending()&&turns++<32)e.web_render(256);assert.ok(!e.web_ui_draw_pending(),'display pass did not complete');const b=Buffer.alloc(240*240*3),fb=new Uint16Array(e.memory.buffer,e.web_screen(),57600);for(let i=0;i<fb.length;i++){const v=fb[i],p=(v>>8|v<<8)&65535;b[i*3]=((p>>11)&31)*255/31;b[i*3+1]=((p>>5)&63)*255/63;b[i*3+2]=(p&31)*255/31;}writeFileSync(`${O}/${name}.ppm`,Buffer.concat([Buffer.from('P6\n240 240\n255\n'),b]));screenNames.push(name);}
 const buttons={HOME:6,EDIT:4,ENV:2,LFO:3,MOD:9,FX:0,TUNE:1,AMP:8,GLOBAL:5,SAVE:7};
 function go(e,key){const p=pages[id(key)];if(p.group==='ADVANCED'){hold(e,6);release(e);enc(e,1,4);enc(e,2,1);enc(e,3,1);}else if(p.group==='PRESETS'){enc(e,2,e.web_preset()===5?-1:1);}else if(pages[e.web_page()].group!==p.group){tap(e,buttons[p.group]);}
  const list=pages.flatMap((p,i)=>p.group===pages[id(key)].group?[i]:[]),delta=list.indexOf(id(key))-list.indexOf(e.web_page());if(delta)enc(e,0,delta);eq(e.web_page(),id(key),key+' navigation');}

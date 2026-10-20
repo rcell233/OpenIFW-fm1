@@ -50,7 +50,7 @@ static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: MODULE";
 #include "ui/state.h"
-static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)meter.max_us;if(id==234)return (int32_t)meter.overruns;if(id==235)return FS;if(id==236)return 400;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
+static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)meter.max_us;if(id==234)return (int32_t)meter.overruns;if(id==235)return FS;if(id==236)return 402;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
     if(overflow)return;
@@ -218,9 +218,13 @@ static void format_value(char *text,uint32_t id) {
 #include "ui/draw.c"
 static void app_init(void) {
 #ifdef IFW_DSP_SELFTEST
-    uint32_t checks[16];opt_regression(&synth,&fx_buffers,checks);
+    /* Volatile indirect calls can reach the RAM self-test from any XIP
+     * address; pi32v2 direct branches have a limited displacement. */
+    void (*volatile regression)(IFWFixedSynth *,IFWFixedFxBuffers *,uint32_t *)=opt_regression;
+    unsigned (*volatile math_checks)(void)=opt_math_checks;
+    uint32_t checks[16];regression(&synth,&fx_buffers,checks);
     for(unsigned i=0;i<16;i++)dsp_check[i+2]=checks[i];
-    dsp_check[18]=opt_math_checks();dsp_check[19]=1;
+    dsp_check[18]=math_checks();dsp_check[19]=1;
     dsp_check[1]=20;dsp_check[0]=0x54535749u;
 #endif
     perf_mode=0;perf_phase=0;perf_reset();
@@ -241,6 +245,9 @@ static void app_init(void) {
 }
 /* One main-loop iteration, shared verbatim by the board and the WASM host. */
 static void app_step(void) {
+        uint32_t now=fm1_ms,gap=now-ui_poll_last;
+        if(ui_poll_turns && gap>ui_poll_max_gap)ui_poll_max_gap=gap;
+        ui_poll_last=now;ui_poll_turns++;
         uint32_t released=0,pressed=fm1_input_edges(&released);ui_poll(pressed,released);ui_encoders();
         uint32_t keys=fm1_in.notes,down=keys&~key_prev,up=key_prev&~keys;key_prev=keys;
         for(uint32_t k=0;k<27;k++) {
@@ -251,7 +258,7 @@ static void app_step(void) {
         }
         uint8_t st,a,b;while(midi_get(&st,&a,&b))midi_message(st,a,b);
         ui_tick();ui_leds();
-        if(dirty || fm1_ms-last_draw>=50) {draw_panel(dirty);dirty=0;last_draw=fm1_ms;}
+        if(dirty || ui_drawing || fm1_ms-last_draw>=50) {draw_panel(dirty);dirty=0;}
 }
 static void app_main(void) {
     app_init();

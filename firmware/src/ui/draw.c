@@ -681,7 +681,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.1", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.2", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -865,7 +865,8 @@ static void ui_stage(void) {
   }
 }
 static void ui_paint(void) {
-  ui_header();
+  int32_t top=-cv_oy,bottom=top+(int32_t)cv_h;
+  if(top<24)ui_header();
   if (ui.menu) {
     ui_draw_menu();
     if (ui.confirm)
@@ -876,37 +877,49 @@ static void ui_paint(void) {
     ui_name_screen();
     return;
   }
-  ui_cards();
-  ui_stage();
-  ui_footer();
+  if(top<76 && bottom>24)ui_cards();
+  if(top<204 && bottom>76)ui_stage();
+  if(bottom>204)ui_footer();
   if (ui.confirm)
     ui_dialog();
 }
 static void draw_panel(uint32_t full) {
   static uint32_t perf_draw_at;
-  if(page==UP_PERF) {
-    if(!full && fm1_ms-perf_draw_at<200u)return;
-    perf_draw_at=fm1_ms;perf_snapshot();full=1;
+  if (full || !ui_drawing) {
+    if(page==UP_PERF) {
+      if(!full && fm1_ms-perf_draw_at<200u){last_draw=fm1_ms;return;}
+      perf_draw_at=fm1_ms;perf_snapshot();full=1;
+    }
+    ui_palette();
+    if (!full && (ui.menu || ui.confirm || ui.naming || ui.layer ||
+                  page == UP_SAVE || page == UP_PRESETS)) {
+      last_draw=fm1_ms;return;
+    }
+    ui_draw_y=full?0:76;ui_draw_end=full?240:204;
+    ui_draw_header=full?0:1;ui_drawing=1;
+    /* Full redraws also follow direct LCD writes (boot, storage, OTA). */
+    if(full)memset(ui_row_valid,0,sizeof ui_row_valid);
   }
-  ui_palette();
-  if (!full && (ui.menu || ui.confirm || ui.naming || ui.layer ||
-                page == UP_SAVE || page == UP_PRESETS))
-    return;
-  uint32_t start = full ? 0 : 76, end = full ? 240 : 204;
-  for (uint32_t y = start; y < end; y += 60) {
-    uint32_t h = end - y;
-    if (h > 60)
-      h = 60;
-    cv_begin(240, h, uc.bg);
-    cv_oy = -(int32_t)y;
-    ui_paint();
-    cv_oy = 0;
-    cv_blit(0, y);
+  /* One 16-row transfer per main-loop turn: input/MIDI is serviced between
+   * bands instead of waiting through an entire 49–77 ms SPI screen pass. */
+  uint32_t y=ui_draw_y,h=ui_draw_end-y;
+  if(h>16)h=16;
+  cv_begin(240,h,uc.bg);cv_oy=-(int32_t)y;
+  if(ui_draw_header==2)ui_header();else ui_paint();
+  cv_oy=0;
+  uint32_t first=h,last=0;
+  for(uint32_t row=0;row<h;row++) {
+    uint32_t hash=2166136261u;
+    for(uint32_t x=0;x<240;x++)hash=(hash^cv_px[row*240+x])*16777619u;
+    if(!ui_row_valid[y+row] || ui_row_hash[y+row]!=hash) {
+      if(first==h)first=row;
+      last=row+1;ui_row_valid[y+row]=1;ui_row_hash[y+row]=hash;
+    }
   }
-  if (!full) {
-    cv_begin(240, 24, uc.bg);
-    cv_oy = 0;
-    ui_header();
-    cv_blit(0, 0);
+  if(first<h)lcd_blit(0,y+first,240,last-first,cv_px+first*240);
+  ui_draw_y+=h;
+  if(ui_draw_y==ui_draw_end) {
+    if(ui_draw_header==1){ui_draw_header=2;ui_draw_y=0;ui_draw_end=24;}
+    else {ui_drawing=0;last_draw=fm1_ms;}
   }
 }

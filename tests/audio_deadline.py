@@ -14,25 +14,36 @@ except ImportError:
     np=None
 
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'build/target-audit/dma';OUT.mkdir(parents=True,exist_ok=True)
+pipeline='--pipeline' in sys.argv
+OUT=ROOT/('build/target-audit/dma-pipeline' if pipeline else 'build/target-audit/dma');OUT.mkdir(parents=True,exist_ok=True)
 platform=(ROOT/'vendor/dinghy/firmware/src/platform.c').read_text()
 body=platform.split('void fm1_alnk0_irq(void)',1)[1].split('extern void isr_alnk0(void);',1)[0]
 body='void dut_irq(void)'+body
+if pipeline:
+    body='''
+#define IFW_HOST 1
+#include "firmware/src/audio_perf.h"
+static uint32_t fm1_ticks(void){return (uint32_t)(now*24000000./44100.);}
+#define fm1_alnk0_irq dut_irq
+#include "firmware/src/audio_output.h"
+'''
 source=r'''
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "math.h"
 #define HALF_FRAMES 256u
 #define HALF_WORDS 512u
 #define FM1_AUDIO_HALF 0x80u
 static int32_t abuf[1024],master_q12=4096;
 static uint8_t in_audio,pending;
-static uint32_t frame,rendered,phase,irqs;
+static uint32_t frame,rendered,phase,irqs,raw_dma_words;
 static double now,frame_cost;
 static FILE *pcm;
 static void advance(double until) {
     while((double)(frame+1)<=until) {
+        if(abuf[(frame%512u)*2u]%128)raw_dma_words++;
         int16_t v=(int16_t)(abuf[(frame%512u)*2u]/128);
         if(pcm)fwrite(&v,2,1,pcm);
         frame++;
@@ -61,12 +72,12 @@ int main(int argc,char **argv){
         else advance((double)((frame/256u+1u)*256u));
     }
     fclose(pcm);
-    printf("{\"ratio\":%.4f,\"playedFrames\":%u,\"synthFrames\":%u,\"irqs\":%u}",frame_cost,frame,rendered,irqs);
+    printf("{\"ratio\":%.4f,\"playedFrames\":%u,\"synthFrames\":%u,\"irqs\":%u,\"rawDmaWords\":%u}",frame_cost,frame,rendered,irqs,raw_dma_words);
     return 0;
 }
 '''
 (OUT/'harness.c').write_text(source)
-subprocess.run([os.environ.get('CC','cc'),'-O2','-std=c11','-Ifirmware/src/fixed',
+subprocess.run([os.environ.get('CC','cc'),'-O2','-std=c11','-I.','-Ifirmware/src/fixed',
  str(OUT/'harness.c'),'firmware/src/fixed/math.c','-o',str(OUT/'harness')],cwd=ROOT,check=True)
 results=[]
 def tone_fraction(samples,hz):
@@ -91,7 +102,12 @@ for ratio in [.75,.99,1.01,1.25,1.8]:
     result['effectiveSynthHz']=result['synthFrames']/result['playedFrames']*44100
     result['deadlineMs']=256/44100*1000
     result['injectedRenderMs']=ratio*result['deadlineMs']
-    if ratio<1:
+    if pipeline:
+        expected=44100/max(1,ratio)
+        assert abs(result['effectiveSynthHz']-expected)<120
+        assert result['rawDmaWords']==0,'DMA observed an intermediate Q15 sample'
+        if ratio<1:assert result['tone440EnergyFraction']>.99
+    elif ratio<1:
         assert abs(result['effectiveSynthHz']-44100)<100
         assert result['tone440EnergyFraction']>.99
     else:
@@ -100,9 +116,9 @@ for ratio in [.75,.99,1.01,1.25,1.8]:
     with wave.open(str(raw.with_suffix('.wav')),'wb') as wav:
         wav.setnchannels(1);wav.setsampwidth(2);wav.setframerate(44100);wav.writeframes(raw.read_bytes())
     results.append(result)
-report={'kind':'production-ISR-with-controlled-render-duration','hardwareMeasured':False,
- 'sourceSha256':hashlib.sha256(body.encode()).hexdigest(),
- 'assumptions':'sample-clocked fake DMA; injected constant render cost; Q15 stores and final Q24 conversion in the production ISR; no USB or bus contention',
+report={'kind':('pipelined' if pipeline else 'vendor')+'-production-ISR-with-controlled-render-duration','hardwareMeasured':False,
+ 'sourceSha256':hashlib.sha256((ROOT/'firmware/src/audio_output.h').read_bytes() if pipeline else body.encode()).hexdigest(),
+ 'assumptions':'sample-clocked fake DMA; injected constant render cost; no USB or bus contention; publication cost not simulated',
  'results':results}
 (OUT/'results.json').write_text(json.dumps(report,indent=2)+'\n')
 print(json.dumps(report,indent=2))

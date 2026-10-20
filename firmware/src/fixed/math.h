@@ -11,6 +11,17 @@
 #define IFW_PHASE_HALF 2147483648u
 #define IFW_MAX_STEP 1932735283u
 static inline int32_t ifw_clamp(int32_t x,int32_t lo,int32_t hi) { return x<lo?lo:x>hi?hi:x; }
+/* Exact C signed division: preserve truncation toward zero, including INT_MIN.
+ * The target compiler otherwise emits a divider even for these constants. */
+static inline int32_t ifw_shr0(int32_t x,unsigned n) {
+    return (x+(int32_t)((uint32_t)(x>>31)&((UINT32_C(1)<<n)-1u)))>>n;
+}
+static inline int32_t ifw_div5(int32_t x) {return (int32_t)(((int64_t)x*1717986919)>>33)+(int32_t)((uint32_t)x>>31);}
+static inline int32_t ifw_div10(int32_t x) {return (int32_t)(((int64_t)x*1717986919)>>34)+(int32_t)((uint32_t)x>>31);}
+static inline int32_t ifw_div20(int32_t x) {return (int32_t)(((int64_t)x*1717986919)>>35)+(int32_t)((uint32_t)x>>31);}
+static inline int32_t ifw_div100(int32_t x) {return (int32_t)(((int64_t)x*1374389535)>>37)+(int32_t)((uint32_t)x>>31);}
+static inline uint32_t ifw_udiv10(uint32_t x) {return (uint32_t)(((uint64_t)x*3435973837u)>>35);}
+static inline uint32_t ifw_udiv160(uint32_t x) {return (uint32_t)(((uint64_t)x*3435973837u)>>39);}
 static inline int32_t ifw_sat(int64_t x) {
     /* A signed 64-bit value fits iff its upper word is the lower word's sign
      * extension. Avoid two multiword relational comparisons on pi32v2. */

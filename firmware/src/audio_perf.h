@@ -34,19 +34,5 @@ static void perf_snapshot(void) {
 #endif
 }
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
-/* The vendor ISR body is included verbatim under this private name. Its ASM
- * entry still calls fm1_alnk0_irq, so the wrapper sees all audio work. */
-void fm1_alnk0_irq(void) {
-    uint32_t start=fm1_ticks(),pending=fm1_audio_pending();
-    uint32_t half=fm1_audio_free_half();
-    ifw_platform_alnk0_irq();
-    if(pending&FM1_AUDIO_HALF) {
-        uint32_t ticks=fm1_ticks()-start;
-        audio_perf.last_ticks=ticks;audio_perf.total_ticks+=ticks;audio_perf.blocks++;
-        if(ticks>audio_perf.max_ticks)audio_perf.max_ticks=ticks;
-        if(ticks>IFW_AUDIO_BUDGET_TICKS)audio_perf.overruns++;
-        /* Also catch renders spanning an even number of half-buffer flips. */
-        if(fm1_audio_free_half()!=half || ticks>IFW_AUDIO_BUDGET_TICKS)audio_perf.dma_late++;
-    }
-}
+#include "audio_output.h"
 #endif

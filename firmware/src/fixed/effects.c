@@ -21,9 +21,9 @@ static int32_t read16(const int16_t *b,uint32_t n,uint32_t head,uint32_t delay) 
 }
 /* Truncate toward zero: arithmetic right shift fed -1 back forever in Q15
  * delay/reverb lines, leaving an audible DC tail after all envelopes closed. */
-static int16_t q15(int32_t v) {return (int16_t)ifw_clamp(v/32,-32768,32767);}
+static int16_t q15(int32_t v) {return (int16_t)ifw_clamp(ifw_shr0(v,5),-32768,32767);}
 static uint32_t advance(uint32_t head,uint32_t n) {return head+1u==n?0:head+1u;}
-static int32_t cv20(int32_t v) {return ifw_sat((int64_t)(v/10)*16);}
+static int32_t cv20(int32_t v) {return ifw_sat((int64_t)ifw_div10(v)*16);}
 static int active(IFWFixedSynth *s,int i) {return !s->dry && !s->patch.fx[i][IFW_FX_Bypass] && !(s->patch.fx_bypass&(1u<<i));}
 static uint32_t time_cycles(IFWFixedEffects *e,int32_t rate) {
     uint32_t lo=(uint32_t)e->time_phase,hi=(uint32_t)(e->time_phase>>32);
@@ -37,8 +37,8 @@ void ifw_fixed_fx_reset(IFWFixedSynth *s) {
 void ifw_fixed_fx_mod_configure(IFWFixedSynth *s) {
     IFWFixedEffects *e=&s->effects;
     int32_t freq=ifw_addsat(V(ExciterFrequency),M(ExciterFrequency));
-    e->exciter_delay=(uint32_t)ifw_clamp(ifw_sat(21*65536-(int64_t)freq*2),65536,21*65536)*147u/160u;
-    e->exciter_gain=ifw_sat((int64_t)(ifw_addsat(V(ExciterMix),M(ExciterMix))/5)*16);
+    e->exciter_delay=ifw_udiv160((uint32_t)ifw_clamp(ifw_sat(21*65536-(int64_t)freq*2),65536,21*65536)*147u);
+    e->exciter_gain=ifw_sat((int64_t)ifw_div5(ifw_addsat(V(ExciterMix),M(ExciterMix)))*16);
     e->enhancer_mix=cv20(ifw_addsat(V(EnhancerMix),M(EnhancerMix)));
 }
 void ifw_fixed_fx_configure(IFWFixedSynth *s) {
@@ -52,8 +52,8 @@ void ifw_fixed_fx_configure(IFWFixedSynth *s) {
     /* log(Hz(12+10*CV)) = log(440)+(CV*10-57)*log(2)/12 */
     int32_t loghz=ifw_sat(398903+(((int64_t)(s->patch.fx[0][IFW_FX_Lowpass]-373555)*620217598)>>30));
     e->phaser_lowpass=ifw_filter_alpha30(loghz);
-    e->enhancer_delay[0]=(uint32_t)ifw_clamp(V(EnhancerDelayL),0,99*65536)*441u/10u;
-    e->enhancer_delay[1]=(uint32_t)ifw_clamp(V(EnhancerDelayR),0,99*65536)*441u/10u;
+    e->enhancer_delay[0]=ifw_udiv10((uint32_t)ifw_clamp(V(EnhancerDelayL),0,99*65536)*441u);
+    e->enhancer_delay[1]=ifw_udiv10((uint32_t)ifw_clamp(V(EnhancerDelayR),0,99*65536)*441u);
     const int32_t *ph=s->patch.fx[0],*ch=s->patch.fx[1],*rv=s->patch.fx[4];
     e->phaser_rate=ph[IFW_FX_Speed];e->phaser_wet=cv20(ph[IFW_FX_WetDry]);
     e->phaser_spread=(uint32_t)ph[IFW_FX_Stereo]*3276u;

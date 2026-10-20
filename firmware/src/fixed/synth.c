@@ -9,7 +9,7 @@
 #define F(i,k) (s->patch.v[P_Filter1##k+(i)*IFW_FILTER_STRIDE])
 #define E(i,k) (s->patch.v[P_Eg1##k+(i)*IFW_EG_STRIDE])
 #define L(i,k) (s->patch.v[P_Lfo1##k+(i)*IFW_LFO_STRIDE])
-static int32_t level20(int32_t x) {return ifw_clamp(x,0,655360)*16/10;}
+static int32_t level20(int32_t x) {return ifw_div10(ifw_clamp(x,0,655360)*16);}
 static void clear_mod(IFWFixedSynth *s) {
     /* The platform's general memset writes bytes. These are aligned words;
      * volatile prevents the compiler turning this back into a byte memset. */
@@ -41,14 +41,14 @@ static int32_t source_uncached(IFWFixedSynth *s,uint8_t code) {
         unsigned i=id-IFW_SRC_LFO;int type=L(i,Waveform);
         v=ifw_wave20(s->lfo_phase[i],0,type,IFW_PHASE_HALF);
         if(type==1)v=ifw_mul30(v,911108888); /* 1/1.1785 */
-        return b?v:(v+IFW_Q20)/2;
+        return b?v:ifw_shr0(v+IFW_Q20,1);
     }
     if(id>=IFW_SRC_SAW && id<IFW_SRC_WAVE) v=s->raw_saw[id-IFW_SRC_SAW];
     else if(id>=IFW_SRC_WAVE && id<IFW_SRC_PWM) v=s->secondary_cv[id-IFW_SRC_WAVE];
     else if(id>=IFW_SRC_PWM && id<IFW_SRC_NOISE) v=s->raw_pulse[id-IFW_SRC_PWM];
     else if(id==IFW_SRC_NOISE)v=s->noise_value;
     else return 0;
-    return b?v:(v+IFW_Q20)/2;
+    return b?v:ifw_shr0(v+IFW_Q20,1);
 }
 static int32_t source20(IFWFixedSynth *s,uint8_t code) {
     unsigned id=code&127u;
@@ -91,8 +91,8 @@ static void configure_filter3(IFWFixedSynth *s) {
     IFWFixedFilter3 *f=&s->filter3;
     f->enabled=(uint8_t)!!V(Filter3Enabled);
     f->stages=(uint8_t)ifw_clamp((V(Filter3Stage)+32768)>>16,2,24);
-    f->mix=ifw_sat((int64_t)(ifw_sat((int64_t)V(Filter3Mix)+s->mod[P_Filter3Mix])/10)*16);
-    f->feedback=ifw_clamp(ifw_sat((int64_t)(ifw_sat((int64_t)V(Filter3Resonance)+s->mod[P_Filter3Resonance])/10)*16),-1047527,1047527);
+    f->mix=ifw_sat((int64_t)(ifw_div10(ifw_sat((int64_t)V(Filter3Mix)+s->mod[P_Filter3Mix])))*16);
+    f->feedback=ifw_clamp(ifw_sat((int64_t)(ifw_div10(ifw_sat((int64_t)V(Filter3Resonance)+s->mod[P_Filter3Resonance])))*16),-1047527,1047527);
     int32_t frequency=ifw_sat((int64_t)V(Filter3Frequency)+s->mod[P_Filter3Frequency]);
     if(!s->filter3_valid || s->filter3_frequency!=frequency) {
         f->a=ifw_filter3_a30(frequency);s->filter3_frequency=frequency;s->filter3_valid=1;
@@ -121,7 +121,7 @@ static void update_controls(IFWFixedSynth *s) {
         int32_t v=ifw_sat(((int64_t)a*m->depth)>>20);
         s->mod[m->dest]=ifw_sat((int64_t)s->mod[m->dest]+v);
     }
-    int32_t note=ifw_sat((int64_t)s->pitch+V(Transpose)+(((int64_t)s->bend*V(PitchBendRange))>>31)+V(MasterTune)/100);
+    int32_t note=ifw_sat((int64_t)s->pitch+V(Transpose)+(((int64_t)s->bend*V(PitchBendRange))>>31)+ifw_div100(V(MasterTune)));
     s->master_step=cached_step(s,4,note);
     s->control_note=note;configure_oscillators(s,note);
     for(int i=0;i<2;i++) {
@@ -141,7 +141,7 @@ void ifw_fixed_patch_default(IFWFixedPatch *p) {
 void ifw_fixed_set_patch(IFWFixedSynth *s,const IFWFixedPatch *p) {
     if(p!=&s->patch)s->patch=*p;
     s->mod_count=0;clear_mod(s);memset(s->fm_count,0,sizeof s->fm_count);
-    int32_t master=V(MasterLevel)/10;s->master_gain=ifw_mul16(master,master);
+    int32_t master=ifw_div10(V(MasterLevel));s->master_gain=ifw_mul16(master,master);
     s->bend_k=ifw_smooth31(V(PitchBendSmoothTime));s->glide_k=ifw_smooth31(V(GlideSmoothTime));
     for(int i=0;i<4;i++)ifw_fixed_env_configure_cv(&s->env[i],E(i,Attack),E(i,Decay),
         ifw_udiv64((uint64_t)(uint32_t)ifw_clamp(E(i,Sustain),0,655360)*INT32_MAX,655360),E(i,Release),E(i,Retrigger));
@@ -223,11 +223,11 @@ static int32_t amp_gain(IFWFixedSynth *s,int i) {
     int id=P_Amp1Level+i*3;
     if(!s->patch.v[id] && !s->mod[id])return 0;
     int eg=s->patch.v[id+2];int32_t level=eg>=1&&eg<=4?s->env[eg-1].level:s->gate;
-    int32_t mod=(int32_t)(((int64_t)s->breath*level)>>31),depth=s->patch.v[id+1]/10;
+    int32_t mod=(int32_t)(((int64_t)s->breath*level)>>31),depth=ifw_div10(s->patch.v[id+1]);
     int32_t blend=ifw_sat((int64_t)s->gate+(((int64_t)(mod-s->gate)*depth)>>16));
     int32_t base=(int32_t)(((int64_t)s->patch.v[id]*blend)>>31);
-    int32_t extra=(int32_t)(((int64_t)(s->mod[id]/20)*level)>>31);
-    return ifw_sat((int64_t)(base/10)*16+(int64_t)extra*16);
+    int32_t extra=(int32_t)(((int64_t)(ifw_div20(s->mod[id]))*level)>>31);
+    return ifw_sat((int64_t)(ifw_div10(base))*16+(int64_t)extra*16);
 }
 static uint32_t elapsed16(uint64_t elapsed,uint64_t step) {
     while(step>UINT32_MAX) {elapsed>>=1;step>>=1;}
@@ -244,7 +244,7 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
         for(int i=0;i<4;i++) {
             int64_t fm=0;
             for(unsigned j=0;j<s->fm_count[i];j++) {IFWFixedMod *m=&s->mods[s->fm_index[i][j]];
-                fm+=ifw_sat(((int64_t)ifw_mul20(source20(s,m->a),source20(s,m->b))*m->depth)>>12)/10;}
+                fm+=ifw_div10(ifw_sat(((int64_t)ifw_mul20(source20(s,m->a),source20(s,m->b))*m->depth)>>12));}
             uint32_t step=s->step[i];before=s->phase[i];next=before+step;
             int wrap=before<IFW_PHASE_HALF && next>=IFW_PHASE_HALF;
             uint32_t elapsed=wrap?elapsed16(next-IFW_PHASE_HALF,step):0;

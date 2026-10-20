@@ -56,6 +56,7 @@ EXPORT float *web_out_l(void) {return emu_left;}
 EXPORT float *web_out_r(void) {return emu_right;}
 EXPORT uint16_t *web_screen(void) {return emu_fb;}
 EXPORT uint32_t web_screen_draws(void) {return emu_draws;}
+EXPORT uint32_t web_ui_draw_pending(void) {return dirty || ui_drawing;}
 EXPORT uint32_t web_sample_rate(void) {return FS;}
 EXPORT uint32_t web_now_ms(void) {return fm1_ms;}
 EXPORT uint32_t web_lit_keys(void) {uint32_t v=0;for(uint32_t i=0;i<27;i++)v|=(uint32_t)emu_led[14+i]<<i;return v;}

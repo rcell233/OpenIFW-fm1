@@ -39,6 +39,7 @@ hardware-path-test: build/dsp-irq-stream
 	build/dsp-irq-stream > build/target-audit/irq-native.json
 	python3 tests/irq_stream_test.py
 	python3 tests/audio_deadline.py
+	python3 tests/audio_deadline.py --pipeline
 panel-test:
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/panel_test.c $(FIXED) -o build/panel-test

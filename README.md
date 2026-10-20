@@ -1,12 +1,12 @@
 # OpenIFW-fm1
 
-OpenIFW 的 FM-1 专用单音合成器移植。**0.4.1 针对硬件爆音做保持输出一致的 DSP 优化，加入完整音频中断计时、XRUN / DMA 诊断和临时正弦音 / 静音测试。六个原始预设、矩阵、包络、单音 / Legato 的音频回归保持一致。性能模型与实机测量范围见 [性能报告](docs/PERFORMANCE.md)。**
+OpenIFW 的 FM-1 专用单音合成器移植。**0.4.2 是针对硬件异常声音与操作卡顿的修复候选：DMA 在入口确认事件，使用独立完成缓冲；消除高频常数除法并将热点 DSP 放入 RAM；LCD 按 16 行分块更新。原始预设、矩阵、包络和单音 / Legato 的音频回归保持一致。新增约 5.805 ms 固定输出延迟，尚待用户设备验证。见 [本版修复与证据](docs/HARDWARE_AUDIO_FIX_0.4.2.md)。**
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
 
-在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.1**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.2**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
@@ -50,11 +50,11 @@ export AC79_SDK=/absolute/path/to/ac79-sdk
 sh build.sh --firmware
 ```
 
-SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；保留的 Dinghy 平台、HAL、链接布局和升级 loader 源文件不改动；新增 HAL 算术适配只封装 pi32v2 饱和加减，不改设备寄存器或时钟。
+SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；Dinghy 平台、HAL 和升级 loader 的原始源码保留不动；本项目用独立 ISR 和链接脚本接入完成缓冲及 RAM DSP，构建检查加载镜像与地址范围。HAL 算术适配封装 pi32v2 饱和加减，不改设备寄存器或时钟。
 
-已编译的实验固件：[OpenIFW-FM1-0.4.1.fwsc](firmware-bin/OpenIFW-FM1-0.4.1.fwsc)，资源与 SHA-256 见同目录 build.json。
+已编译的实验固件：[OpenIFW-FM1-0.4.2.fwsc](firmware-bin/OpenIFW-FM1-0.4.2.fwsc)，资源与 SHA-256 见同目录 build.json。
 
-输出 `build/firmware/OpenIFW-FM1-0.4.1.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
+输出 `build/firmware/OpenIFW-FM1-0.4.2.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
 
 实际大小与预算记录于 `docs/evidence/firmware-build.json`；pool 294,216 B / 344,064 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 
