@@ -44,17 +44,21 @@ static void ui_frame(int x, int y, int w, int h, uint16_t c) {
 }
 static void ui_window(int x, int y, int w, int h, int b) {
   int border = b == 1 ? 1 : 3;
-  for (int j = y + border; j < y + h - border; j++) {
-    if (j + cv_oy < 0 || j + cv_oy >= (int)cv_h)
-      continue;
-    uint32_t ry = (uint32_t)j * 0x7F4Au;
-    for (int i = x + border; i < x + w - border; i++) {
-      uint32_t n = ((uint32_t)i * 0x9E37u) ^ ry;
-      cv_pset(i, j,
-              ui_prefs.style    ? uc.bg
-              : ((n >> 7) & 7u) ? uc.surf
-                                : uc.stone);
-    }
+  static uint8_t noise[240],noise_ready;
+  if(!noise_ready) {
+    for(uint32_t i=0;i<240;i++)noise[i]=(uint8_t)((i*0x9E37u>>7)&7u);
+    noise_ready=1;
+  }
+  int left=x+border,right=x+w-border,top=y+border,bottom=y+h-border;
+  if(left<0)left=0;
+  if(right>(int)cv_w)right=(int)cv_w;
+  if(top+cv_oy<0)top=-cv_oy;
+  if(bottom+cv_oy>(int)cv_h)bottom=(int)cv_h-cv_oy;
+  uint16_t bg=swap16(uc.bg),surf=swap16(uc.surf),stone=swap16(uc.stone);
+  for (int j=top;j<bottom;j++) {
+    uint16_t *row=cv_px+(uint32_t)(j+cv_oy)*cv_w;
+    uint32_t ry=((uint32_t)j*0x7F4Au>>7)&7u;
+    for(int i=left;i<right;i++)row[i]=ui_prefs.style?bg:noise[i]==ry?stone:surf;
   }
   if (border == 3) {
     ui_frame(x, y, w, h, uc.edge);
@@ -681,7 +685,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.4", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.5", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -786,16 +790,19 @@ static void ui_stage(void) {
     char a[32],b[32];
     str_cpy(a,"LAST ",32);ui_int(b,(int32_t)(perf_view.last_ticks/24u));ui_append(a,b,32);
     ui_append(a,"  AVG ",32);ui_int(b,perf_view.blocks?(int32_t)ifw_udiv64(perf_view.total_ticks,perf_view.blocks)/24:0);ui_append(a,b,32);
-    ui_center(7,108,226,&UI_S,a,uc.text);
+    ui_center(7,104,226,&UI_S,a,uc.text);
     str_cpy(a,"MAX ",32);ui_int(b,(int32_t)(perf_view.max_ticks/24u));ui_append(a,b,32);
     ui_append(a,"  DSP ",32);ui_int(b,(int32_t)(perf_view.dsp_max_ticks/24u));ui_append(a,b,32);
-    ui_center(7,132,226,&UI_S,a,uc.text);
+    ui_center(7,124,226,&UI_S,a,uc.text);
     str_cpy(a,"XRUN ",32);ui_int(b,(int32_t)perf_view.overruns);ui_append(a,b,32);
     ui_append(a,"  DMA ",32);ui_int(b,(int32_t)perf_view.dma_late);ui_append(a,b,32);
-    ui_center(7,156,226,&UI_S,a,(perf_view.overruns||perf_view.dma_late)?uc.accent:uc.theme);
+    ui_center(7,144,226,&UI_S,a,(perf_view.overruns||perf_view.dma_late)?uc.accent:uc.theme);
     str_cpy(a,"PEAK ",32);ui_int(b,(int32_t)perf_view.peak);ui_append(a,b,32);
     ui_append(a," CLIP ",32);ui_int(b,(int32_t)perf_view.clips);ui_append(a,b,32);
-    ui_center(7,180,226,&UI_S,a,uc.mid);
+    ui_center(7,164,226,&UI_S,a,uc.mid);
+    str_cpy(a,"MAIN ",32);ui_int(b,(int32_t)ui_poll_max_gap);ui_append(a,b,32);
+    ui_append(a,"ms YIELD ",32);ui_int(b,(int32_t)audio_yields);ui_append(a,b,32);
+    ui_center(7,184,226,&UI_S,a,uc.mid);
 #endif
     return;
   }
@@ -885,7 +892,16 @@ static void ui_paint(void) {
 }
 static void draw_panel(uint32_t full) {
   static uint32_t perf_draw_at;
-  if (full || !ui_drawing) {
+  /* A knob burst must not restart an incomplete frame at row zero. Coalesce
+   * requests and finish the current scan before applying the next full pass. */
+  if(full)ui_redraw_pending=1;
+#ifdef IFW_TARGET
+  /* Keep input, USB and watchdog service running while the previous strip's
+   * DMA owns cv_px. cv_begin()/lcd_sync() may finish it only after completion. */
+  if(lcd_busy && !ifw_display_ready())return;
+#endif
+  if (!ui_drawing) {
+    full=ui_redraw_pending;ui_redraw_pending=0;
     if(page==UP_PERF) {
       if(!full && fm1_ms-perf_draw_at<200u){last_draw=fm1_ms;return;}
       perf_draw_at=fm1_ms;perf_snapshot();full=1;
@@ -897,8 +913,8 @@ static void draw_panel(uint32_t full) {
     }
     ui_draw_y=full?0:76;ui_draw_end=full?240:204;
     ui_draw_header=full?0:1;ui_drawing=1;
-    /* Full redraws also follow direct LCD writes (boot, storage, OTA). */
-    if(full)memset(ui_row_valid,0,sizeof ui_row_valid);
+    /* Retain hashes across ordinary edits; only external LCD writes invalidate
+     * them. An unchanged row does not need another SPI transaction. */
   }
   /* One 16-row transfer per main-loop turn: input/MIDI is serviced between
    * bands instead of waiting through an entire 49–77 ms SPI screen pass. */
@@ -916,10 +932,20 @@ static void draw_panel(uint32_t full) {
       last=row+1;ui_row_valid[y+row]=1;ui_row_hash[y+row]=hash;
     }
   }
-  if(first<h)lcd_blit(0,y+first,240,last-first,cv_px+first*240);
+  if(first<h) {
+    lcd_blit(0,y+first,240,last-first,cv_px+first*240);
+    ui_lcd_pixels+=240u*(last-first);
+  }
   ui_draw_y+=h;
   if(ui_draw_y==ui_draw_end) {
     if(ui_draw_header==1){ui_draw_header=2;ui_draw_y=0;ui_draw_end=24;}
-    else {ui_drawing=0;last_draw=fm1_ms;}
+    else {
+      last_draw=fm1_ms;ui_frame_count++;
+      if(ui_redraw_pending) {
+        ui_redraw_pending=0;ui_draw_y=0;ui_draw_end=240;ui_draw_header=0;
+        ui_palette();
+        if(page==UP_PERF){perf_draw_at=fm1_ms;perf_snapshot();}
+      }else ui_drawing=0;
+    }
   }
 }

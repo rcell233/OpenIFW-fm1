@@ -60,6 +60,7 @@ const result={kind:'pi32v2-instruction-model-not-hardware',cycleAccurate:false,h
 if(syms.symbols.ui_poll_max_gap){const now=r32(syms.symbols.fm1_ms),last=r32(syms.symbols.ui_poll_last);
  result.uiService={maxGapMs:r32(syms.symbols.ui_poll_max_gap),turns:r32(syms.symbols.ui_poll_turns),nowMs:now,lastAtMs:last,sinceLastMs:(now-last)>>>0};}
 if(syms.symbols.audio_yields)result.overloadYields=r32(syms.symbols.audio_yields);
+if(syms.symbols.ui_frame_count)result.uiRender={completedScans:r32(syms.symbols.ui_frame_count),lcdPixels:r32(syms.symbols.ui_lcd_pixels)};
 if(process.env.IFW_SIM_MODE)result.diagnosticMode=process.env.IFW_SIM_MODE;
 if(process.env.IFW_SIM_PCM)writeFileSync(process.env.IFW_SIM_PCM,Buffer.concat(pcm));
 if(syms.symbols.dsp_check){const a=syms.symbols.dsp_check;result.targetRegression={complete:r32(a)===0x54535749,

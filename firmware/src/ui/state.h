@@ -32,8 +32,11 @@ static struct {
 static IFWFixedPatch ui_transfer;
 static volatile uint32_t ui_transfer_pending;
 static uint32_t ui_drawing,ui_draw_y,ui_draw_end,ui_draw_header;
+static uint32_t ui_redraw_pending;
+static volatile uint32_t ui_frame_count,ui_lcd_pixels;
 static uint32_t ui_row_hash[240];
 static uint8_t ui_row_valid[240];
+static void ui_display_invalidate(void) {memset(ui_row_valid,0,sizeof ui_row_valid);}
 /* Main-loop service latency, separate from the time to finish a whole screen. */
 static volatile uint32_t ui_poll_last,ui_poll_max_gap,ui_poll_turns;
 static uint32_t ui_control_id(uint32_t knob);

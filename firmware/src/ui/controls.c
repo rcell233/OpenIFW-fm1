@@ -456,7 +456,12 @@ static void ui_knob(uint32_t k, int32_t d) {
     return;
   }
   if (id == UC_PERFRESET) {
-    if(d>0)perf_reset();
+    if(d>0) {
+      perf_reset();ui_poll_max_gap=0;
+#ifdef IFW_TARGET
+      audio_yields=0;
+#endif
+    }
     dirty=1;return;
   }
   if (id == UC_PERFFREEZE) {

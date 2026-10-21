@@ -32,15 +32,16 @@ shutil.copy2(R/'firmware-bin/build.json',O/'firmware/build.json')
     product=release['identity'],file=filename,bytes=len(package),sha256=release['sha256'],
     hardwareTested=release['hardwareTested']),indent=2)+'\n')
 # The byte-identical previously bootable package remains available for rescue.
-recovery=json.loads((R/'firmware-bin/OpenIFW-FM1-0.4.1.json').read_text())
-recovery_file='OpenIFW-FM1-0.4.1.fwsc'
-recovery_bytes=(R/'firmware-bin'/recovery_file).read_bytes()
-if recovery['version']!='0.4.1' or recovery['identity']!='FM-1_982' or len(recovery_bytes)!=recovery['packageBytes'] or hashlib.sha256(recovery_bytes).hexdigest()!=recovery['sha256']:
-    raise SystemExit('Recovery package does not match the locked 0.4.1 metadata.')
-shutil.copy2(R/'firmware-bin'/recovery_file,O/'firmware'/recovery_file)
-(O/'install/recovery-0.4.1.json').write_text(json.dumps(dict(schema=1,version='0.4.1',
-    product=recovery['identity'],file=recovery_file,bytes=len(recovery_bytes),sha256=recovery['sha256'],
-    hardwareTested=recovery['hardwareTested']),indent=2)+'\n')
+for version in ['0.4.1','0.4.4']:
+    recovery=json.loads((R/f'firmware-bin/OpenIFW-FM1-{version}.json').read_text())
+    recovery_file=f'OpenIFW-FM1-{version}.fwsc'
+    recovery_bytes=(R/'firmware-bin'/recovery_file).read_bytes()
+    if recovery['version']!=version or recovery['identity']!='FM-1_982' or len(recovery_bytes)!=recovery['packageBytes'] or hashlib.sha256(recovery_bytes).hexdigest()!=recovery['sha256']:
+        raise SystemExit(f'Recovery package does not match the locked {version} metadata.')
+    shutil.copy2(R/'firmware-bin'/recovery_file,O/'firmware'/recovery_file)
+    (O/f'install/recovery-{version}.json').write_text(json.dumps(dict(schema=1,version=version,
+        product=recovery['identity'],file=recovery_file,bytes=len(recovery_bytes),sha256=recovery['sha256'],
+        hardwareTested=recovery['hardwareTested']),indent=2)+'\n')
 tmp=R/'build/tmp';tmp.mkdir(exist_ok=True)
 env=dict(os.environ,TMPDIR=str(tmp),LD_LIBRARY_PATH=str(sdk/'lib')+(':'+os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else ''))
 cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',

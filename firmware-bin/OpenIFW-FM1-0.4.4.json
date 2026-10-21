@@ -1,0 +1,25 @@
+{
+  "version": "0.4.4",
+  "identity": "FM-1_982",
+  "appBytes": 224872,
+  "packageBytes": 610110,
+  "sha256": "39fb0338e9c12394897edd62b19902af1f82b324c03628ee102c7d8c9ec1af8e",
+  "hardwareTested": false,
+  "ramDataBss": 31344,
+  "poolBytes": 294216,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false,
+  "ramCodeBytes": 2848,
+  "ramDspBytes": 0,
+  "dspPlacement": "xip",
+  "linkerSha256": "6a9f41205e482fbdf2d24dc418416e45a3a8e1781d3e594279d751335af8942a",
+  "outputLookaheadFrames": 256,
+  "hardwareBootConfirmed": true,
+  "hardwareFeedback": "User confirms boots and closest sound to web demo; slight distortion and about 1 fps UI remain. This is not a full hardware validation."
+}
