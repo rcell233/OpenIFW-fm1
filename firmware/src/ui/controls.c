@@ -860,11 +860,18 @@ static void ui_tick(void) {
   }
 }
 static void ui_leds(void) {
+  static uint32_t previous=UINT32_MAX;
+  uint32_t group=ui_group(),mask=(!ui.menu && group<10u)?1u<<group:0u;
+  if(learn_armed)mask|=1u<<10;
+  if(meter.held)mask|=1u<<11;
+  if(ui.confirm || ui.naming || page==UP_SAVE)mask|=1u<<12;
+  if(mask==previous)return;
+  previous=mask;
   static const uint8_t button[] = {BTN_HOME, BTN_EDIT, BTN_ENV, BTN_LFO,
                                    BTN_SEQ,  BTN_FX,   BTN_SEL, BTN_ARP,
                                    BTN_GLO,  BTN_SAVE};
   for (uint32_t i = 0; i < 10; i++)
-    ui_led(button[i], !ui.menu && ui_group() == i);
+    ui_led(button[i], (int)(mask>>i&1u));
   ui_led(BTN_REC, (int)learn_armed);
   ui_led(BTN_PLAY, meter.held != 0);
   ui_led(BTN_OCT_UP, ui.confirm || ui.naming || page == UP_SAVE);

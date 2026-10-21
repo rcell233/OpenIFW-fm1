@@ -23,6 +23,7 @@ SECTIONS
     .text : {
         KEEP(*(.text.crt0))
         KEEP(*(.text.audio_entry))
+        *dsp.o(.text.ifw_fixed_capture_sources)
         /* Shared UI math stays near XIP callers, within pi32v2's branch range.
          * Event/configuration code stays cold; per-sample DSP runs in RAM. */
         *dsp.o(.text.ifw_udiv64 .text.ifw_sdiv64 .text.ifw_sin20 .text.ifw_wave20
@@ -32,13 +33,24 @@ SECTIONS
                .text.ifw_fixed_env_configure_cv .text.ifw_mono_on .text.ifw_mono_off
                .text.ifw_mono_current .text.ifw_mono_clear)
         KEEP(*(.text.ifw_target_test))
-        *(EXCLUDE_FILE (*dsp.o) .text*) *(.rodata*) . = ALIGN(4); _etext = .;
+        *(EXCLUDE_FILE (*dsp.o) .text*)
+        /* Per-sample oscillator/phaser reads must not contend for Flash with
+         * the UI and input IRQ. These immutable tables use normal .data copy. */
+        *(EXCLUDE_FILE (*dsp.o) .rodata*)
+        *dsp.o(.rodata.ifw_eq_* .rodata.ifw_note_base .rodata.ifw_default_values
+               .rodata.ifw_semitone_fraction .rodata.ifw_octave_fraction
+               .rodata.ifw_glide_recip .rodata.attack_step_q31 .rodata.decay_step_q22
+               .rodata.rate_q18)
+        . = ALIGN(4); _etext = .;
     } > XIP
     .ram_text : { _rt_start = .; KEEP(*(.ram_text*)) . = ALIGN(4); } > RAMTEXT AT > XIP
     .audio_text : { _audio_start = .; *dsp.o(.text*) . = ALIGN(4); _rt_end = .; } > RAMTEXT AT > XIP
     _rt_load = LOADADDR(.ram_text);
     _audio_load = LOADADDR(.audio_text);
-    .data : { . = ALIGN(4); _data_start = .; *(.data*) *(.sdata*) . = ALIGN(4); _data_end = .; } > RAM AT > XIP
+    .data : { . = ALIGN(4); _data_start = .;
+        *dsp.o(.rodata.ifw_sine_table .rodata.ifw_ap_table .rodata.ifw_ap_half_table
+               .rodata.ifw_alpha_table .rodata.ifw_f3_table)
+        *(.rodata*) *(.data*) *(.sdata*) . = ALIGN(4); _data_end = .; } > RAM AT > XIP
     _data_load = LOADADDR(.data);
     .bss (NOLOAD) : { _bss_start = .; *(.bss*) *(.sbss*) *(COMMON) . = ALIGN(4); _bss_end = .; } > RAM
     .pool (NOLOAD) : { _pool_start = .; *(.pool*) . = ALIGN(4); _pool_end = .; } > POOL

@@ -70,7 +70,16 @@ typedef struct {
     int32_t step_pitch[5],step_tuning[5],filter_log[2],filter3_frequency,recip_speed,master_gain;
     uint64_t step_value[5],glide_recip;
     uint8_t step_valid[5],filter_valid[2],filter3_valid,recip_valid;
+    IFWFixedBlep blep[4];
+    int32_t amp_depth[2];
+    int32_t glide_static_speed;
+    /* Only pure waveform evaluations may be deferred. Save the exact old FM
+     * phase and shape so a patch edit can expose its previous CV immediately. */
+    struct {uint32_t phase;uint8_t missing;} last_wave[4];
+    int32_t wave_type[4];
+    uint8_t wave_sources[4],wave_needed[4];
 } IFWFixedSynth;
+void ifw_fixed_capture_sources(IFWFixedSynth *s);
 void ifw_fixed_patch_default(IFWFixedPatch *p);
 void ifw_fixed_init(IFWFixedSynth *s,const IFWFixedPatch *p,IFWFixedFxBuffers *buffers);
 void ifw_fixed_set_patch(IFWFixedSynth *s,const IFWFixedPatch *p);

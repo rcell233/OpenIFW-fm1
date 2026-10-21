@@ -68,6 +68,56 @@ void ifw_waves20(uint32_t p,uint32_t dt,int type,uint32_t width,
     else if(type==3)*secondary=(p<IFW_PHASE_HALF?IFW_Q20:-IFW_Q20)+edge-blep(p-IFW_PHASE_HALF,dt);
     else *secondary=ifw_wave20(p+(type<=1?IFW_PHASE_HALF:0),dt,type,IFW_PHASE_HALF);
 }
+void ifw_blep_configure(IFWFixedBlep *b,uint32_t step) {
+    b->step=step;
+    unsigned shift=step>65535u?16u-(unsigned)__builtin_clz(step):0u;
+    b->divisor=step>>shift;b->shift=16u-shift;
+    b->reciprocal=b->divisor>1u?ifw_udiv64(UINT64_C(4294967296),b->divisor):0u;
+}
+static int32_t blep_cached(uint32_t p,const IFWFixedBlep *b) {
+    uint32_t dt=b->step,n;
+    if(!dt || dt>=IFW_PHASE_HALF)return 0;
+    if(p<dt)n=p;
+    else if(p>0u-dt)n=0u-p;
+    else return 0;
+    n<<=b->shift;
+    /* floor(2^32/d) gives a quotient at most one below n/d. A single
+     * remainder check makes this exactly the original integer division. */
+    uint32_t q=b->divisor==1u?n:(uint32_t)(((uint64_t)n*b->reciprocal)>>32);
+    if(b->divisor>1u && n-q*b->divisor>=b->divisor)q++;
+    int32_t u=(int32_t)q*16;
+    if(p<dt)return u+u-ifw_mul20_bounded(u,u)-IFW_Q20;
+    u=IFW_Q20-u;return ifw_mul20_bounded(u,u);
+}
+void ifw_waves20_masked(uint32_t p,int type,uint32_t width,const IFWFixedBlep *b,
+                        unsigned mask,int32_t *saw,int32_t *secondary,int32_t *pulse) {
+    int32_t edge=((mask&5u) || ((mask&2u) && (type==2 || type==3)))?blep_cached(p,b):0;
+    int32_t ramp=(int32_t)(p>>11)-IFW_Q20-edge;
+    if(mask&1u)*saw=ramp;
+    if(mask&4u) {
+        uint32_t shifted=p+width;
+        *pulse=(shifted<width?IFW_Q20:-IFW_Q20)-((int32_t)(width>>11)-IFW_Q20)+blep_cached(shifted,b)-edge;
+    }
+    if(mask&2u) {
+        if(type==2)*secondary=ramp;
+        else if(type==3)*secondary=(p<IFW_PHASE_HALF?IFW_Q20:-IFW_Q20)+edge-blep_cached(p-IFW_PHASE_HALF,b);
+        else if(type==0)*secondary=ifw_mul30_bounded(ifw_sin20(p+IFW_PHASE_HALF),1265404740);
+        else if(type==1)*secondary=ifw_mul30_bounded(ifw_triangle20(p+IFW_PHASE_HALF),1265404740);
+        else *secondary=0;
+    }
+}
+void ifw_waves20_cached(uint32_t p,int type,uint32_t width,const IFWFixedBlep *b,
+                        int32_t *saw,int32_t *secondary,int32_t *pulse) {
+    int32_t edge=blep_cached(p,b);
+    *saw=(int32_t)(p>>11)-IFW_Q20-edge;
+    uint32_t shifted=p+width;
+    *pulse=(shifted<width?IFW_Q20:-IFW_Q20)-((int32_t)(width>>11)-IFW_Q20)+blep_cached(shifted,b)-edge;
+    if(type==2)*secondary=*saw;
+    else if(type==3)*secondary=(p<IFW_PHASE_HALF?IFW_Q20:-IFW_Q20)+edge-blep_cached(p-IFW_PHASE_HALF,b);
+    else if(type==0)*secondary=ifw_mul30_bounded(ifw_sin20(p+IFW_PHASE_HALF),1265404740);
+    else if(type==1)*secondary=ifw_mul30_bounded(ifw_triangle20(p+IFW_PHASE_HALF),1265404740);
+    else *secondary=0;
+}
 uint64_t ifw_note_step(int32_t note,int32_t tuning) {
     int32_t semitone=note>>16,frac=note-semitone*65536;
     int octave=semitone/12,degree=semitone%12;

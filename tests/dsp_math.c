@@ -7,6 +7,9 @@ static unsigned opt_math_checks(void) {
     /* Exercise full-address calls in the target test routine as well. */
     uint32_t (*volatile ratio16)(uint32_t,uint32_t)=ifw_ratio16;
     void (*volatile waves20)(uint32_t,uint32_t,int,uint32_t,int32_t *,int32_t *,int32_t *)=ifw_waves20;
+    void (*volatile configure_blep)(IFWFixedBlep *,uint32_t)=ifw_blep_configure;
+    void (*volatile cached_waves)(uint32_t,int,uint32_t,const IFWFixedBlep *,int32_t *,int32_t *,int32_t *)=ifw_waves20_cached;
+    void (*volatile masked_waves)(uint32_t,int,uint32_t,const IFWFixedBlep *,unsigned,int32_t *,int32_t *,int32_t *)=ifw_waves20_masked;
     unsigned errors=0;uint32_t seed=0x5a123456u;
     if(ifw_udiv64(0,0)!=UINT32_MAX || ifw_udiv64(UINT64_MAX,UINT32_MAX)!=UINT32_MAX ||
        ifw_udiv64(UINT64_C(4294967296),2)!=2147483648u || ifw_udiv64(127,127)!=1)errors++;
@@ -33,6 +36,9 @@ static unsigned opt_math_checks(void) {
         int32_t alpha=(int32_t)(step%1073741825u),from=(int32_t)phase,to=(int32_t)width;
         int32_t interpolated=(int32_t)((int64_t)from+((((int64_t)to-from)*alpha)>>30));
         if(ifw_lerp30(from,to,alpha)!=interpolated)errors++;
+        uint32_t frac=step&65535u;
+        interpolated=(int32_t)((int64_t)from+((((int64_t)to-from)*frac)>>16));
+        if(ifw_lerp16(from,to,frac)!=interpolated)errors++;
         /* The bare-metal build has no compiler-rt signed 64-bit divide. Its
          * existing software divider is independently checked by host tests. */
 #ifdef IFW_TARGET
@@ -48,6 +54,13 @@ static unsigned opt_math_checks(void) {
         uint32_t ratio=!step?0:phase>=step?65536u:(phase<<(16-shift))/den;
         if(ratio16(phase,step)!=ratio)errors++;
         waves20(phase,step,type,width,&a,&b,&c);
+        IFWFixedBlep cache;configure_blep(&cache,step);
+        int32_t ca,cb,cc;
+        cached_waves(phase,type,width,&cache,&ca,&cb,&cc);
+        if(a!=ca || b!=cb || c!=cc)errors++;
+        unsigned mask=i%8u;ca=cb=cc=12345;
+        masked_waves(phase,type,width,&cache,mask,&ca,&cb,&cc);
+        if(ca!=((mask&1u)?a:12345) || cb!=((mask&2u)?b:12345) || cc!=((mask&4u)?c:12345))errors++;
         if(a!=ifw_wave20(phase,step,2,IFW_PHASE_HALF))errors++;
         if(b!=ifw_wave20(phase+(type<=1?IFW_PHASE_HALF:0),step,type,IFW_PHASE_HALF))errors++;
         if(c!=ifw_wave20(phase+width,step,3,width))errors++;

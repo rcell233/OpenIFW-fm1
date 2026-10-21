@@ -32,7 +32,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.6-rc1'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.6-rc2'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -73,7 +73,7 @@ commands=[('cc','-c',b.FW/'crt0.S','-o',b.OUT/'crt0.o'),
 objects=[b.OUT/n for n in ['crt0.o','fm1_vec.o','fm1_isr.o','dinghy.o']]
 for name in dsp_files:
     obj=b.OUT/(Path(name).stem+'.o');objects.append(obj)
-    commands.append(('cc',*common,'-Os' if baseline_dir else '-O3','-c',b.FW/'src'/name,'-o',obj))
+    commands.append(('cc',*common,'-fdata-sections','-Os' if baseline_dir else '-O3','-c',b.FW/'src'/name,'-o',obj))
 b.tc_all(*commands)
 elf=b.OUT/'dinghy.elf'
 b.tc('pi32v2/bin/ld','--gc-sections','-e','_start','-T',b.FW/'app.ld',*objects,'-o',elf)
@@ -107,6 +107,11 @@ if ram_audio and (sym('_audio_start')!=sym('_rt_start')+len(blobs['.ram_text']) 
 for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
     if ram_audio and not sym('_audio_start')<=sym(name)<sym('_rt_end'):
         raise SystemExit('Hot DSP escaped the audio RAM section: '+name)
+hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31']
+if ram_audio:
+    for name in hot_tables:
+        if not sym('_data_start')<=sym(name)<sym('_data_end'):
+            raise SystemExit('DSP table escaped the standard RAM data copy: '+name)
 errors,notes=b.check(image,syms,dis,rt)
 errors+=b.mmio_check()
 for note in notes:print('  ok   ',note)
@@ -124,6 +129,7 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     cpuMeasured=False,ramCodeBytes=len(ramcode),ramFlashDriverBytes=len(blobs['.ram_text']),
     ramDspBytes=len(blobs.get('.audio_text',b'')),dspPlacement='ram' if ram_audio else 'xip',
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
+    ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
     audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
     experimental=True,stage='release-candidate')
 (dest/'build.json').write_text(json.dumps(result,indent=2)+'\n')

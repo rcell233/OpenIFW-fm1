@@ -58,6 +58,19 @@ static inline int32_t ifw_lerp30(int32_t a,int32_t b,int32_t alpha) {
     if(((a^b)&(b^d))<0)return (int32_t)((int64_t)a+((((int64_t)b-a)*alpha)>>30));
     return a+(int32_t)(((int64_t)d*alpha)>>30);
 }
+/* Convex delay interpolation has no output saturation: the result is between
+ * the two stored samples. Keep a wide fallback for opposite full-scale ends. */
+static inline int32_t ifw_lerp16(int32_t a,int32_t b,uint32_t alpha) {
+    int32_t d=(int32_t)((uint32_t)b-(uint32_t)a);
+    if(((a^b)&(b^d))<0)return (int32_t)((int64_t)a+((((int64_t)b-a)*alpha)>>16));
+    return a+(int32_t)(((int64_t)d*alpha)>>16);
+}
+typedef struct {uint32_t step,divisor,reciprocal,shift;} IFWFixedBlep;
+void ifw_blep_configure(IFWFixedBlep *b,uint32_t step);
+void ifw_waves20_cached(uint32_t phase,int type,uint32_t width,const IFWFixedBlep *b,
+                        int32_t *saw,int32_t *secondary,int32_t *pulse);
+void ifw_waves20_masked(uint32_t phase,int type,uint32_t width,const IFWFixedBlep *b,
+                        unsigned mask,int32_t *saw,int32_t *secondary,int32_t *pulse);
 /* Exact software 64/32 division with a 32-bit quotient. Configuration/events only. */
 uint32_t ifw_udiv64(uint64_t n,uint32_t d);
 int32_t ifw_sdiv64(int64_t n,uint32_t d);

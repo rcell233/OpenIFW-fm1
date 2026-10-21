@@ -34,9 +34,12 @@ static volatile uint32_t ui_transfer_pending;
 /* Dirty widgets, in screen order: header, knob cards, stage, footer. */
 static uint32_t ui_drawing,ui_widgets,ui_widget_cursor,ui_force_redraw=1;
 static uint32_t ui_priority_widgets,ui_priority_at;
+/* The home plot and EG meters have separate small damage rectangles. */
+#define UI_WIDGET_COUNT 6u
 static volatile uint32_t ui_frame_count,ui_lcd_pixels;
-static uint32_t ui_widget_updates[4];
-static volatile uint32_t ui_widget_max_ticks[4];
+static uint32_t ui_widget_updates[UI_WIDGET_COUNT];
+static volatile uint32_t ui_widget_max_ticks[UI_WIDGET_COUNT];
+static uint32_t ui_widget_draw_at[UI_WIDGET_COUNT];
 static void ui_display_invalidate(void) {ui_force_redraw=1;}
 /* Main-loop service latency, separate from the time to finish a whole screen. */
 static volatile uint32_t ui_poll_last,ui_poll_max_gap,ui_poll_turns;

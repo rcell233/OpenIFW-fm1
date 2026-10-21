@@ -1,18 +1,18 @@
 # OpenIFW-fm1
 
-OpenIFW 的 FM-1 专用单音合成器移植。**0.4.5 实机仍有严重卡顿和爆音，本次已撤掉其中的中断丢块与逐行扫描设计。0.4.6-rc1 改为主循环分段合成、有限 DMA 中断、按区域重绘及非阻塞 USB / ADC，并将热路径放入 RAM。音色与单音 / Legato 规则通过冻结数据验证。它是待实机验收的候选版，详见 [重做说明](docs/REWORK_0.4.6.md)。**
+OpenIFW 的 FM-1 专用单音合成器移植。**0.4.6-rc1 实机音色基本正确，但仍破音且首页波形停止更新。0.4.6-rc2 修复波形调度，减少无效绘图与振荡器计算，并将热查表迁入 RAM。预设、调制、包络与单音 / Legato 通过冻结数据验证。它仍是未通过实机验收的候选版，详见 [优化说明](docs/OPTIMIZATION_0.4.6-rc2.md)。**
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
 
-在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/?v=0.4.6-rc1)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.6-rc1**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+在桌面版 Chrome / Edge 打开 [安装页](https://rcell233.github.io/OpenIFW-fm1/install/?v=0.4.6-rc2)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.6-rc2**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
 网页安装协议已通过模拟设备测试。0.4.4 已确认可以启动；0.4.5 的后续实机反馈仍有严重问题。当前候选版只报告软件回归与目标指令测试结果，不把它们当作设备声音、帧率或安装成功的证明。
 
-如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认按钮为 **Install 0.4.6-rc1** 后安装。也可 [回退到 0.4.4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.4&v=0.4.6-rc1) 恢复本次已确认能启动的原包；它仍有卡顿和少量破音。更早的 [0.4.1 恢复包](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.1&v=0.4.6-rc1) 也保留。救援身份 FM-1_000 不会被当作安装成功。
+如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认按钮为 **Install 0.4.6-rc2** 后安装。也可 [回退到 0.4.4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.4&v=0.4.6-rc2) 恢复本次已确认能启动的原包；它仍有卡顿和少量破音。更早的 [0.4.1 恢复包](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.1&v=0.4.6-rc2) 也保留。救援身份 FM-1_000 不会被当作安装成功。
 
 ## 保留的合成行为
 
@@ -54,9 +54,9 @@ sh build.sh --firmware
 
 SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；Dinghy 平台、HAL 和升级 loader 的原始源码保留不动；本项目用独立 ISR 接入完成缓冲；链接脚本、启动代码、RAM Flash driver 与原平台一致，DSP 留在 XIP。构建重新创建暂存源码并检查链接布局、复制镜像与 DSP 地址。HAL 算术适配封装 pi32v2 饱和加减，不改设备寄存器或时钟。
 
-已编译的实验固件：[OpenIFW-FM1-0.4.6-rc1.fwsc](firmware-bin/OpenIFW-FM1-0.4.6-rc1.fwsc)，资源与 SHA-256 见同目录 build.json。
+已编译的实验固件：[OpenIFW-FM1-0.4.6-rc2.fwsc](firmware-bin/OpenIFW-FM1-0.4.6-rc2.fwsc)，资源与 SHA-256 见同目录 build.json。
 
-输出 `build/firmware/OpenIFW-FM1-0.4.6-rc1.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
+输出 `build/firmware/OpenIFW-FM1-0.4.6-rc2.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
 
 实际大小与预算记录于 `docs/evidence/firmware-build.json`；pool 294,216 B / 344,064 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 

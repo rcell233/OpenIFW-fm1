@@ -10,7 +10,7 @@ static int32_t read32(const int32_t *b,uint32_t n,uint32_t head,uint32_t delay) 
     uint32_t d=delay>>16,f=delay&65535u,i=head+n-d;
     if(i>=n)i-=n;
     uint32_t j=i?i-1u:n-1u;
-    return ifw_sat((int64_t)b[i]+((((int64_t)b[j]-b[i])*f)>>16));
+    return ifw_lerp16(b[i],b[j],f);
 }
 static int32_t read16(const int16_t *b,uint32_t n,uint32_t head,uint32_t delay) {
     uint32_t max=(n-2u)<<16;if(delay<65536)delay=65536;if(delay>max)delay=max;
@@ -93,7 +93,7 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
     int32_t center=read32(b->exciter[0],25,e->exciter_head[0],delay),end=read32(b->exciter[1],25,e->exciter_head[1],delay);
     b->exciter[0][e->exciter_head[0]]=input;b->exciter[1][e->exciter_head[1]]=center;
     for(int i=0;i<2;i++)e->exciter_head[i]=advance(e->exciter_head[i],25);
-    int32_t x=ifw_sat((int64_t)center+ifw_mul20(ifw_sat((int64_t)center*2-input-end),g));
+    int32_t x=ifw_addsat(center,ifw_mul20(ifw_sat((int64_t)center*2-input-end),g));
     int32_t l=x,r=x,mix=e->enhancer_mix;
     if(mix) {
         uint32_t dl=e->enhancer_delay[0],dr=e->enhancer_delay[1];
@@ -108,7 +108,9 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
         int32_t wet=e->phaser_wet;uint32_t phase=time_cycles(e,e->phaser_rate);
         for(int ch=0;ch<2;ch++) {
             uint32_t spread=e->phaser_spread;
-            int32_t hz=1450*65536+ifw_mul16(ifw_sin20(phase+(ch?spread:0))>>4,1250*65536);
+            /* sin20 >> 4 is in [-65536,65536]; cancelling the Q16 scale
+             * makes this an exact bounded 32-bit product, without a divide. */
+            int32_t hz=1450*65536+(ifw_sin20(phase+(ch?spread:0))>>4)*1250;
             int32_t a=ifw_allpass_a30(hz,0),y=ifw_addsat(ch?r:l,ifw_mul20(e->phaser_fb[ch],e->phaser_feedback));
             for(int k=0;k<6;k++) {int i=ch*6+k;int32_t v=ifw_subsat(e->phaser[i],ifw_mul30_bounded(y,a));
                 e->phaser[i]=ifw_addsat(y,ifw_mul30_bounded(v,a));y=v;}
@@ -135,11 +137,11 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
         if(e->delay_half[k]) {
             for(int ch=0;ch<2;ch++) {
                 int i=k*2+ch;int32_t v=read16(b->delay[k][ch],IFW_DELAY_SAMPLES,e->delay_head[k],d);
-                int32_t t=ifw_mul20_bounded(ifw_sat((int64_t)v-e->delay_lp[i]),e->delay_lp_coeff[k]);
+                int32_t t=ifw_mul20_bounded(ifw_subsat(v,e->delay_lp[i]),e->delay_lp_coeff[k]);
                 int32_t low=ifw_addsat(t,e->delay_lp[i]);e->delay_lp[i]=ifw_addsat(low,t);
-                t=ifw_mul20_bounded(ifw_sat((int64_t)low-e->delay_hp[i]),e->delay_hp_coeff[k]);
+                t=ifw_mul20_bounded(ifw_subsat(low,e->delay_hp[i]),e->delay_hp_coeff[k]);
                 int32_t hlo=ifw_addsat(t,e->delay_hp[i]);e->delay_hp[i]=ifw_addsat(hlo,t);
-                e->delay_wet[i]=ifw_sat((int64_t)low-hlo);
+                e->delay_wet[i]=ifw_subsat(low,hlo);
                 b->delay[k][ch][e->delay_head[k]]=q15(ifw_addsat(ifw_half(e->delay_acc[k][ch]),ifw_mul20_bounded(ifw_soft20(e->delay_wet[i]),fb)));
                 e->delay_acc[k][ch]=0;
             }

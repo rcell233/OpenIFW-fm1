@@ -1,5 +1,5 @@
 diff --git a/crates/fm1-core/src/lib.rs b/crates/fm1-core/src/lib.rs
-index d69aa41..26e109a 100644
+index d69aa41..093e8ce 100644
 --- a/crates/fm1-core/src/lib.rs
 +++ b/crates/fm1-core/src/lib.rs
 @@ -220,6 +220,9 @@ pub struct Cpu {
@@ -92,6 +92,38 @@ index d69aa41..26e109a 100644
                          let q = ((raw >> 21) & 7) as usize;
                          let x = (self.regs[2 * q + 1] as u64) << 32 | self.regs[2 * q] as u64;
                          let b = self.regs[((raw >> 24) & 0xf) as usize];
+@@ -3400,6 +3415,8 @@ fn decode_alu4(raw: u64) -> Option<Alu4> {
+                 (0x64, 0) => Op::Or,
+                 (0x64, 1) => Op::Xor,
+                 (0x64, 2) => Op::And,
++                // JieLi objdump: `64 e8 03 08` [r0+0] &= ~r8.
++                (0x64, 3) => Op::AndNot,
+                 (0x68, 0) => Op::Add,
+                 (0x68, 2) => Op::Sub,
+                 _ => return None,
+@@ -3724,6 +3741,22 @@ mod tests {
+         assert_eq!(cpu.pc, 16);
+     }
+
++    #[test]
++    fn ifw_memory_and_not_register() {
++        // Captured from the production HOME-key handler, checked with JieLi
++        // objdump. Base r0, mask r8, word offset zero. Preserve other bits.
++        let mut mem = vec![0u8; 0x100];
++        mem[..4].copy_from_slice(&[0x64, 0xe8, 0x03, 0x08]);
++        mem[0x40..0x44].copy_from_slice(&0xa55a_3cc3u32.to_le_bytes());
++        let mut ram = FlatRam::new(mem);
++        let mut cpu = Cpu::new(0);
++        cpu.regs[0] = 0x40;
++        cpu.regs[8] = 0x00f0_00f0;
++        cpu.step(&mut ram).unwrap();
++        assert_eq!(ram.read32(0x40), 0xa55a_3cc3 & !0x00f0_00f0);
++        assert_eq!(cpu.pc, 4);
++    }
++
+     #[test]
+     fn carry_flags_64bit_add_sub() {
+         // clang's 64-bit add / subtract (compiler-rt's soft double depends on them):
 diff --git a/crates/fm1-isa/src/lib.rs b/crates/fm1-isa/src/lib.rs
 index 2674079..61c8a75 100644
 --- a/crates/fm1-isa/src/lib.rs

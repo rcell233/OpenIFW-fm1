@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.6-rc1';
+import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.6-rc2';
 const $=id=>document.getElementById(id),button=$('install'),status=$('status'),bar=$('progress');
 const requestedRecovery=new URL(globalThis.location?.href??import.meta.url).searchParams.get('recovery');
 const rollback=['0.4.1','0.4.4'].includes(requestedRecovery)?requestedRecovery:null;

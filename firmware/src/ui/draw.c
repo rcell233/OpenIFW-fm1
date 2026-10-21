@@ -435,6 +435,8 @@ static void ui_torch(int x, int y, uint32_t frame) {
   cv_rect(x + 2 + (int)(frame % 3), y + 6, 2, 3, uc.theme);
 }
 static void ui_scope(void) {
+  int32_t top=-cv_oy,bottom=top+(int32_t)cv_h;
+  if(top<184 && bottom>96) {
   cv_line(25, 139, 215, 139, uc.line);
   int32_t peak = 1024;
   for (uint32_t i = 0; i < 96; i++) {
@@ -455,6 +457,7 @@ static void ui_scope(void) {
   if (ui_prefs.animate) {
     ui_torch(8, 109, fm1_ms / 125);
     ui_torch(220, 109, 2 + fm1_ms / 125);
+  }
   }
   for (int i = 0; i < 4; i++) {
     int w = (meter.env[i] >> 24) * 42 / 127;
@@ -896,7 +899,7 @@ static int ui_same_text(const char *a,const char *b) {
   while(*a && *a==*b){a++;b++;}return *a==*b;
 }
 static void draw_panel(uint32_t full) {
-  static uint32_t initialized,perf_draw_at;
+  static uint32_t initialized,perf_draw_at,model_at,pending_full;
   static uint32_t old_layout[16],old_header[5],old_hot,old_learn,old_anim;
   static uint32_t old_gauge[4],old_id[4];
   static char old_value[4][32],old_name[13],old_footer[32],old_notice[64];
@@ -904,6 +907,16 @@ static void draw_panel(uint32_t full) {
   static IFWUiPrefs old_prefs;
   static int32_t old_env[4];
   static int16_t old_scope[96];
+  pending_full|=full;
+  if(pending_full)ui_drawing=1;
+#if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
+  /* A pending input invalidation survives a busy DMA. Do no formatting or
+   * patch comparisons until the canvas can actually be used. */
+  if(lcd_busy && !ifw_display_ready())return;
+#endif
+  full=pending_full;pending_full=0;
+  if(!initialized || full || ui_force_redraw || fm1_ms-model_at>=20u) {
+  model_at=fm1_ms;
   uint32_t layout[16]={page,preset,ui.menu,ui.layer,ui.naming,ui.confirm,
       ui.mod_slot,ui.menu_tab,ui.menu_row,ui.slot,ui.action,ui.layer_locked,ui.name_pos,saved.wind,saved.channel,saved.octave};
   uint32_t header[5]={meter.held,(uint32_t)meter.note,patch_dirty,
@@ -937,11 +950,12 @@ static void draw_panel(uint32_t full) {
   if(!ui.menu && !ui.naming && !ui.confirm && !ui.layer) {
     for(uint32_t i=0;i<4;i++) {
       int32_t env=meter.env[i];
-      if(old_env[i]!=env && (page==UP_HOME || ui_pages[page].kind==UK_ENV))ui_widgets|=4u;
+      if(old_env[i]!=env && page==UP_HOME)ui_widgets|=32u;
+      else if(old_env[i]!=env && ui_pages[page].kind==UK_ENV)ui_widgets|=4u;
       old_env[i]=env;
     }
     if(page==UP_HOME) {
-      if((ui_prefs.scope<2 && memcmp((const void *)scope,old_scope,sizeof old_scope)) || old_anim!=anim)ui_widgets|=4u;
+      if((ui_prefs.scope<2 && memcmp((const void *)scope,old_scope,sizeof old_scope)) || old_anim!=anim)ui_widgets|=16u;
       memcpy(old_scope,(const void *)scope,sizeof old_scope);
     }
   }
@@ -953,18 +967,31 @@ static void draw_panel(uint32_t full) {
     if(!ui_priority_widgets)ui_priority_at=fm1_ms;
     ui_priority_widgets|=ui_widgets;
   }
+  } /* model sampling: at most 50 Hz unless an input changes the screen */
+  /* A full stage includes both home damage rectangles. It always supersedes
+   * them, including when a menu opens while animation is waiting. */
+  if(ui_widgets&4u) {ui_widgets&=~48u;ui_priority_widgets&=~48u;}
   ui_drawing=ui_widgets!=0;
   if(!ui_widgets){last_draw=fm1_ms;return;}
-#ifdef IFW_TARGET
+#if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
   /* Audio has priority in the cooperative scheduler. With two queued blocks
    * the next widget may render while DMA continues playing those blocks. */
-  if(lcd_busy && !ifw_display_ready())return;
   uint32_t eligible=ui_widgets;
+  /* A changing scope cannot monopolize the SPI bus at audio-slice rate. */
+  for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
+    if(fm1_ms-ui_widget_draw_at[i]<50u)eligible&=~(1u<<i);
+  if(!eligible)return;
   if(!audio_can_draw()) {
     /* Background animation waits for audio headroom. Explicit controls retain
      * service under sustained overload so the user can navigate and diagnose. */
     if(fm1_ms-ui_priority_at<50u)return;
     eligible&=ui_priority_widgets;
+    /* Bounded fairness: keep the waveform alive with one completed block in
+     * reserve. Coalesce to 10 Hz; never draw into an empty audio queue. */
+    if(audio_queued()) {
+      for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
+        if(fm1_ms-ui_widget_draw_at[i]>=100u)eligible|=ui_widgets&(1u<<i);
+    }
     if(!eligible)return;
   }
 #else
@@ -972,8 +999,8 @@ static void draw_panel(uint32_t full) {
 #endif
   ui_palette();
   uint32_t widget=ui_widget_cursor;
-  for(uint32_t i=0;i<4;i++,widget=(widget+1u)&3u)if(eligible&(1u<<widget))break;
-  static const uint16_t y[4]={0,24,76,204},h[4]={24,52,128,36};
+  for(uint32_t i=0;i<UI_WIDGET_COUNT;i++,widget=(widget+1u)%UI_WIDGET_COUNT)if(eligible&(1u<<widget))break;
+  static const uint16_t y[UI_WIDGET_COUNT]={0,24,76,204,96,187},h[UI_WIDGET_COUNT]={24,52,128,36,88,3};
 #ifdef IFW_TARGET
   uint32_t draw_start=fm1_ticks();
 #endif
@@ -986,7 +1013,9 @@ static void draw_panel(uint32_t full) {
   if(draw_ticks>ui_widget_max_ticks[widget])ui_widget_max_ticks[widget]=draw_ticks;
 #endif
   ui_widgets&=~(1u<<widget);ui_priority_widgets&=~(1u<<widget);
-  ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)&3u;
+  ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
+  ui_widget_draw_at[widget]=fm1_ms;
+  if(widget==2)ui_widget_draw_at[4]=ui_widget_draw_at[5]=fm1_ms;
   ui_drawing=ui_widgets!=0;
   if(!ui_drawing){last_draw=fm1_ms;ui_frame_count++;}
 }

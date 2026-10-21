@@ -100,8 +100,9 @@ static void configure_filter3(IFWFixedSynth *s) {
 }
 static void configure_oscillators(IFWFixedSynth *s,int32_t note) {
     for(int i=0;i<4;i++) {
-        int32_t pitch=ifw_sat((int64_t)note+O(i,Semi)+O(i,Tune)/100+((int64_t)s->mod[IFW_MOD_PITCH+i]*157286>>16));
+        int32_t pitch=ifw_sat((int64_t)note+O(i,Semi)+ifw_div100(O(i,Tune))+((int64_t)s->mod[IFW_MOD_PITCH+i]*157286>>16));
         uint64_t step=cached_step(s,(unsigned)i,pitch);s->step[i]=(uint32_t)(step>IFW_MAX_STEP?IFW_MAX_STEP:step);
+        if(s->blep[i].step!=s->step[i])ifw_blep_configure(&s->blep[i],s->step[i]);
         int32_t width=ifw_clamp((int32_t)(((int64_t)O(i,PwmWidth)*1677722)>>16),83886,16693330);
         width=ifw_clamp(ifw_sat((int64_t)width+(((int64_t)s->mod[P_Osc1PwmWidth+i*IFW_OSC_STRIDE]*1677722)>>16)),83886,16693330);
         s->width[i]=(uint32_t)width<<8;
@@ -109,6 +110,13 @@ static void configure_oscillators(IFWFixedSynth *s,int32_t note) {
         s->wave_level[i]=level20(ifw_sat((int64_t)O(i,TriLevel)+s->mod[P_Osc1TriLevel+i*IFW_OSC_STRIDE]));
         s->pulse_level[i]=level20(ifw_sat((int64_t)O(i,PwmLevel)+s->mod[P_Osc1PwmLevel+i*IFW_OSC_STRIDE]));
         s->noise_level[i]=level20(ifw_sat((int64_t)O(i,NoiseLevel)+s->mod[P_Osc1NoiseLevel+i*IFW_OSC_STRIDE]));
+        unsigned mask=s->wave_sources[i];
+        if(O(i,Output1) || O(i,Output2)) {
+            if(s->saw_level[i])mask|=1u;
+            if(s->wave_level[i])mask|=2u;
+            if(s->pulse_level[i])mask|=4u;
+        }
+        s->wave_needed[i]=(uint8_t)mask;
     }
 }
 static void update_controls(IFWFixedSynth *s) {
@@ -140,10 +148,36 @@ static void update_controls(IFWFixedSynth *s) {
 void ifw_fixed_patch_default(IFWFixedPatch *p) {
     memcpy(p,ifw_default_values,sizeof *p);
 }
+#ifdef IFW_TARGET
+__attribute__((noinline))
+#endif
+void ifw_fixed_capture_sources(IFWFixedSynth *s) {
+    /* Call before the old step coefficients are replaced. No phase, RNG or
+     * envelope is advanced: these are the unevaluated old sample's pure CVs. */
+    for(unsigned i=0;i<4;i++)if(s->last_wave[i].missing) {
+        unsigned mask=s->last_wave[i].missing;
+        ifw_waves20_masked(s->last_wave[i].phase,s->wave_type[i],s->width[i],
+            &s->blep[i],mask,&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
+        if(mask&2u)s->secondary_cv[i]=s->wave_type[i]<=1?
+            ifw_mul30_bounded(s->secondary[i],911108888):s->secondary[i];
+        s->last_wave[i].missing=0;
+    }
+}
+static void require_source(IFWFixedSynth *s,uint8_t code) {
+    unsigned id=code&127u;
+    if(id>=IFW_SRC_SAW && id<IFW_SRC_WAVE)s->wave_sources[id-IFW_SRC_SAW]|=1u;
+    else if(id>=IFW_SRC_WAVE && id<IFW_SRC_PWM)s->wave_sources[id-IFW_SRC_WAVE]|=2u;
+    else if(id>=IFW_SRC_PWM && id<IFW_SRC_NOISE)s->wave_sources[id-IFW_SRC_PWM]|=4u;
+}
 void ifw_fixed_set_patch(IFWFixedSynth *s,const IFWFixedPatch *p) {
+    ifw_fixed_capture_sources(s);
     if(p!=&s->patch)s->patch=*p;
     s->mod_count=0;clear_mod(s);memset(s->fm_count,0,sizeof s->fm_count);
+    memset(s->wave_sources,0,sizeof s->wave_sources);
     int32_t master=ifw_div10(V(MasterLevel));s->master_gain=ifw_mul16(master,master);
+    for(int i=0;i<2;i++)s->amp_depth[i]=ifw_div10(s->patch.v[P_Amp1Level+i*3+1]);
+    for(int i=0;i<4;i++)s->wave_type[i]=O(i,Waveform2);
+    s->glide_static_speed=ifw_sat(((int64_t)V(GlideMinimumSpeed)+V(GlideSpeed))*256);
     s->bend_k=ifw_smooth31(V(PitchBendSmoothTime));s->glide_k=ifw_smooth31(V(GlideSmoothTime));
     for(int i=0;i<4;i++)ifw_fixed_env_configure_cv(&s->env[i],E(i,Attack),E(i,Decay),
         ifw_udiv64((uint64_t)(uint32_t)ifw_clamp(E(i,Sustain),0,655360)*INT32_MAX,655360),E(i,Release),E(i,Retrigger));
@@ -152,6 +186,7 @@ void ifw_fixed_set_patch(IFWFixedSynth *s,const IFWFixedPatch *p) {
         if(source && dest>=0 && dest<IFW_MOD_COUNT && s->patch.v[id+3]) {
             IFWFixedMod *m=&s->mods[s->mod_count++];m->a=(uint8_t)source;m->b=(uint8_t)s->patch.v[id+1];
             m->dest=(int16_t)dest;m->depth=s->patch.v[id+3];
+            require_source(s,m->a);require_source(s,m->b);
             if(dest>=IFW_MOD_FM && dest<IFW_MOD_PITCH) {
                 unsigned osc=(unsigned)(dest-IFW_MOD_FM);
                 s->fm_index[osc][s->fm_count[osc]++]=(uint8_t)(s->mod_count-1u);
@@ -203,7 +238,7 @@ void ifw_fixed_panic(IFWFixedSynth *s) {
     ifw_fixed_fx_reset(s);ifw_fixed_fx_configure(s);
 }
 static int32_t filter_tick(IFWFixedFilter *f,int32_t input) {
-    int32_t x=f->res?ifw_soft20(ifw_sat((int64_t)input-ifw_mul20(f->last,f->res))):input,y=0;
+    int32_t x=f->res?ifw_soft20(ifw_subsat(input,ifw_mul20(f->last,f->res))):input,y=0;
     for(int i=0;i<(f->type==0?4:2);i++) {
         /* alpha is in 0..Q30: interpolation stays between x and z. */
         y=ifw_lerp30(f->z[i],x,f->alpha);f->z[i]=y;
@@ -225,10 +260,12 @@ static int32_t amp_gain(IFWFixedSynth *s,int i) {
     int id=P_Amp1Level+i*3;
     if(!s->patch.v[id] && !s->mod[id])return 0;
     int eg=s->patch.v[id+2];int32_t level=eg>=1&&eg<=4?s->env[eg-1].level:s->gate;
-    int32_t mod=(int32_t)(((int64_t)s->breath*level)>>31),depth=ifw_div10(s->patch.v[id+1]);
-    int32_t blend=ifw_sat((int64_t)s->gate+(((int64_t)(mod-s->gate)*depth)>>16));
+    if(!level && !s->gate)return 0;
+    int32_t mod=(int32_t)(((int64_t)s->breath*level)>>31),depth=s->amp_depth[i];
+    int32_t blend=depth==IFW_Q16?mod:!depth?s->gate:
+        ifw_sat((int64_t)s->gate+(((int64_t)(mod-s->gate)*depth)>>16));
     int32_t base=(int32_t)(((int64_t)s->patch.v[id]*blend)>>31);
-    int32_t extra=(int32_t)(((int64_t)(ifw_div20(s->mod[id]))*level)>>31);
+    int32_t extra=s->mod[id]?(int32_t)(((int64_t)(ifw_div20(s->mod[id]))*level)>>31):0;
     return ifw_sat((int64_t)(ifw_div10(base))*16+(int64_t)extra*16);
 }
 static uint32_t elapsed16(uint64_t elapsed,uint64_t step) {
@@ -243,6 +280,11 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
         int master_wrap=before<IFW_PHASE_HALF && next>=IFW_PHASE_HALF;
         uint32_t master_elapsed=master_wrap?elapsed16(next-IFW_PHASE_HALF,s->master_step):0;
         s->master_phase=(uint32_t)next;
+#if defined(IFW_TARGET) && defined(__clang__)
+        /* Four fixed oscillators: expose constant offsets and the last-only
+         * held-noise branch to the target optimizer. Execution order is kept. */
+#pragma clang loop unroll(full)
+#endif
         for(int i=0;i<4;i++) {
             int64_t fm=0;
             for(unsigned j=0;j<s->fm_count[i];j++) {IFWFixedMod *m=&s->mods[s->fm_index[i][j]];
@@ -255,9 +297,13 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
                 elapsed=i==0?master_elapsed:previous_elapsed;
                 s->phase[i]=IFW_PHASE_HALF+(uint32_t)(((uint64_t)step*elapsed)>>16);wrap=1;
             }
-            uint32_t phase=s->phase[i]+(uint32_t)fm*256u;int type=O(i,Waveform2);
-            ifw_waves20(phase,step,type,s->width[i],&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
-            s->secondary_cv[i]=type<=1?ifw_mul30(s->secondary[i],911108888):s->secondary[i];
+            uint32_t phase=s->phase[i]+(uint32_t)fm*256u;int type=s->wave_type[i];
+            unsigned mask=s->wave_needed[i];
+            if(mask==7u)ifw_waves20_cached(phase,type,s->width[i],&s->blep[i],&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
+            else if(mask)ifw_waves20_masked(phase,type,s->width[i],&s->blep[i],mask,&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
+            if(mask&2u)s->secondary_cv[i]=type<=1?ifw_mul30_bounded(s->secondary[i],911108888):s->secondary[i];
+            if(mask!=7u)s->last_wave[i].phase=phase;
+            s->last_wave[i].missing=(uint8_t)(7u^mask);
             s->seed^=s->seed<<13;s->seed^=s->seed>>17;s->seed^=s->seed<<5;
             s->noise_value=(int32_t)(s->seed>>11)-IFW_Q20;s->noise_ready=1;
             if(i==3) {if(s->noise_counter--<=0) {s->noise_held=s->noise_value;int32_t lofi=ifw_clamp(O(i,NoiseLoFi),0,655360);
@@ -267,30 +313,33 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
             /* Levels are clamped to 0..Q20; bandlimited waves are <4*Q20
              * and noise <Q20. All four terms sum to <16*Q20, inside int32. */
             int32_t signal=0;
+            if(O(i,Output1) || O(i,Output2)) {
             if(s->saw_level[i])signal+=ifw_mul20_bounded(s->raw_saw[i],s->saw_level[i]);
             if(s->wave_level[i])signal+=ifw_mul20_bounded(s->secondary[i],s->wave_level[i]);
             if(s->pulse_level[i])signal+=ifw_mul20_bounded(s->raw_pulse[i],s->pulse_level[i]);
             if(s->noise_level[i])signal+=ifw_mul20_bounded(ifw_mul20_bounded(s->noise_value,828375),s->noise_level[i]);
             if(O(i,Output1))bus1=ifw_addsat(bus1,signal);
             if(O(i,Output2))bus2=ifw_addsat(bus2,signal);
+            }
             previous_wrap=wrap;previous_elapsed=elapsed;
         }
         total1+=bus1;total2+=bus2;
     }
     int32_t bus1=ifw_half(total1),bus2=ifw_half(total2),a=0,b=0;
     if(V(FilterConnection)==1)a=filter_tick(&s->filter[1],filter_tick(&s->filter[0],ifw_addsat(bus1,bus2)));
-    else if(V(FilterConnection)==2)a=ifw_sat((int64_t)filter_tick(&s->filter[0],bus1)+filter_tick(&s->filter[1],bus2));
+    else if(V(FilterConnection)==2)a=ifw_addsat(filter_tick(&s->filter[0],bus1),filter_tick(&s->filter[1],bus2));
     else {a=filter_tick(&s->filter[0],bus1);b=filter_tick(&s->filter[1],bus2);}
-    return ifw_mul30(ifw_sat((int64_t)ifw_mul20(filter3_tick(&s->filter3,a),amp_gain(s,0))+
+    return ifw_mul30_bounded(ifw_addsat(ifw_mul20(filter3_tick(&s->filter3,a),amp_gain(s,0)),
         ifw_mul20(b,amp_gain(s,1))),39728447);
 }
 void ifw_fixed_sample(IFWFixedSynth *s,int32_t *left,int32_t *right) {
     s->source_valid=0;
     if(s->breath_left) {s->breath+=s->breath_step;if(!--s->breath_left)s->breath=s->breath_target;}
-    s->bend=ifw_sat((int64_t)s->bend+(((int64_t)s->bend_target-s->bend)*s->bend_k>>31));
-    s->gate=s->gate_target?ifw_sat((int64_t)s->gate+s->gate_step):ifw_clamp(s->gate-s->gate_step,0,INT32_MAX);
-    s->glide_smoothed=ifw_sat((int64_t)s->glide_smoothed+(((int64_t)s->glide-s->glide_smoothed)*s->glide_k>>31));
-    int32_t speed=ifw_sat((int64_t)V(GlideMinimumSpeed)*256+(V(GlideMidiEnabled)?((int64_t)s->glide_smoothed*V(GlideSpeed)>>23):(int64_t)V(GlideSpeed)*256));
+    if(s->bend!=s->bend_target)s->bend=ifw_sat((int64_t)s->bend+(((int64_t)s->bend_target-s->bend)*s->bend_k>>31));
+    s->gate=s->gate_target?ifw_addsat(s->gate,s->gate_step):ifw_clamp(s->gate-s->gate_step,0,INT32_MAX);
+    if(s->glide_smoothed!=s->glide)s->glide_smoothed=ifw_sat((int64_t)s->glide_smoothed+(((int64_t)s->glide-s->glide_smoothed)*s->glide_k>>31));
+    int32_t speed=V(GlideMidiEnabled)?ifw_sat((int64_t)V(GlideMinimumSpeed)*256+
+        ((int64_t)s->glide_smoothed*V(GlideSpeed)>>23)):s->glide_static_speed;
     s->glide_elapsed++;
     if(speed>0) {
         /* Q39 retains sub-LSB timing over a held glide; Q31 rounded the speed
