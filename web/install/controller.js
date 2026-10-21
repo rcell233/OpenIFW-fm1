@@ -8,11 +8,12 @@ const PORT=/fm-1|felucca|ota|composite|sinco|usb-midi/i;
 function fail(code,message){return Object.assign(new Error(message),{code});}
 
 export async function verifyFirmware(bytes,meta){
-  if(meta?.schema!==1||meta.product!==PRODUCT||!/^\d+\.\d+\.\d+$/.test(meta.version)||
+  if(meta?.schema!==1||meta.product!==PRODUCT||!/^\d+\.\d+\.\d+(?:-rc[1-9]\d*)?$/.test(meta.version)||
       !/^[a-f0-9]{64}$/.test(meta.sha256)||!Number.isSafeInteger(meta.bytes)||
       meta.bytes<960||meta.bytes>2*1024*1024||
       meta.file!=='OpenIFW-FM1-'+meta.version+'.fwsc')
     throw fail('badpkg','固件发布信息不完整，请刷新页面。');
+  if(meta.version.includes('-rc')&&meta.experimental!==true)throw fail('badpkg','候选固件缺少实验版标记。');
   if(bytes.length!==meta.bytes||await sha256hex(bytes)!==meta.sha256)
     throw fail('badpkg','固件下载不完整或校验不符；没有开始写入，请刷新重试。');
   if(productOf(bytes)!==PRODUCT)
@@ -39,7 +40,7 @@ export async function loadFirmware(baseURL,fetcher=fetch,release='release.json')
   const meta=await response.json();
   if(release!=='release.json'&&release!==`recovery-${meta?.version}.json`)
     throw fail('badpkg','恢复固件版本与入口不一致。');
-  if(!/^OpenIFW-FM1-\d+\.\d+\.\d+\.fwsc$/.test(meta?.file??''))
+  if(!/^OpenIFW-FM1-\d+\.\d+\.\d+(?:-rc[1-9]\d*)?\.fwsc$/.test(meta?.file??''))
     throw fail('badpkg','固件文件名无效。');
   const url=new URL('../firmware/'+meta.file,baseURL);
   const binary=await fetcher(url,{cache:'no-store'});

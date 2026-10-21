@@ -34,5 +34,6 @@ static void perf_snapshot(void) {
 #endif
 }
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
+#include "ifw_audio.h"
 #include "audio_output.h"
 #endif

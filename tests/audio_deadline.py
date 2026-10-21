@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the production ISR body against a sample-clocked fake DMA.
+"""Reproduce the historical IRQ renderers against a sample-clocked fake DMA.
 
 Render duration is an injected input, not a hardware performance estimate.
 This isolates pending-bit clearing, DMA ownership, and synth-clock progression
@@ -17,7 +17,7 @@ ROOT=Path(__file__).resolve().parents[1]
 unprotected='--pipeline-042' in sys.argv
 pipeline='--pipeline' in sys.argv or unprotected
 OUT=ROOT/('build/target-audit/dma-042-starvation' if unprotected else 'build/target-audit/dma-pipeline' if pipeline else 'build/target-audit/dma');OUT.mkdir(parents=True,exist_ok=True)
-header=ROOT/('tests/audio_output_042.h' if unprotected else 'firmware/src/audio_output.h')
+header=ROOT/('tests/audio_output_042.h' if unprotected else 'tests/audio_output_044.h')
 if unprotected:assert hashlib.sha256(header.read_bytes()).hexdigest()=='5214b276e5214b7bfbeba8b88f74148163874a08f8902857cf7bdfa1721bb0ae'
 platform=(ROOT/'vendor/dinghy/firmware/src/platform.c').read_text()
 body=platform.split('void fm1_alnk0_irq(void)',1)[1].split('extern void isr_alnk0(void);',1)[0]

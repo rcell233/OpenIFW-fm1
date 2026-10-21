@@ -82,11 +82,11 @@ static void render_tests(void) {
         memcpy(expected,fb,sizeof expected);memset(fb,0,sizeof fb);ui_display_invalidate();
         draw_panel(1);unsigned turns=1;
         while(ui_drawing && turns<20){draw_panel(0);turns++;}
-        assert(!ui_drawing && turns==15);
+        assert(!ui_drawing && turns<=4);
         assert(!memcmp(expected,fb,sizeof expected));
         /* A fresh main-loop turn can accept another knob event even while
          * a full screen is incomplete. The renderer advances one band. */
-        draw_panel(1);assert(ui_drawing && ui_draw_y==16);
+        ui_display_invalidate();draw_panel(1);assert(ui_drawing);
         uint32_t before=qwrite;
         host_enc[ENC_KNOB1]=1;dirty=0;fm1_ms+=1;app_step();
         assert(host_enc[ENC_KNOB1]==0);
@@ -102,25 +102,39 @@ static void render_tests(void) {
     uint32_t pixels=ui_lcd_pixels;
     draw_panel(1);while(ui_drawing)draw_panel(0);
     assert(ui_lcd_pixels==pixels); /* an identical full request sends no rows */
-    /* Continuous edits used to restart row zero forever, leaving the knob
-     * cards stale. More than five complete scans must finish during a burst. */
-    page=UP_OSC1;ui.hot=0;ui_drawing=ui_redraw_pending=0;
-    unsigned completed=0;
+    /* Continuous edits may invalidate cards/stage repeatedly. Round-robin widget
+     * scheduling must still finish updates and never restart a scanline pass. */
+    page=UP_OSC1;ui.hot=0;ui_drawing=ui_widgets=0;
+    unsigned completed=0;uint32_t cards=ui_widget_updates[1],stage=ui_widget_updates[2];
     for(unsigned i=0;i<100;i++) {
         fm1_ms++;host_enc[ENC_KNOB1]=(i&1)?-1:1;
         uint32_t at=last_draw;app_step();tick();
         if(last_draw!=at)completed++;
     }
-    assert(completed>=5);
+    (void)completed;assert(ui_widget_updates[1]-cards>=40 && ui_widget_updates[2]-stage>=40);
     while(ui_drawing)draw_panel(0);
-    /* Palette changes in an uninterrupted burst apply on the queued scan. */
+    /* Palette changes invalidate all widgets during an uninterrupted burst. */
     draw_panel(1);
     ui_prefs.palette=1;
     for(unsigned i=0;i<32;i++)draw_panel(1);
     assert(fb[0]==RGB(255,214,92));
     while(ui_drawing)draw_panel(0);
     ui_prefs.palette=0;
-    puts("PASS display: all 57 pages match synchronous pixels; continuous knob edits finish frames; 16 rows per turn");
+    /* Menu row zero and the name text cross the cards/stage boundary. Editing
+     * them must invalidate both widgets, so no half-old glyph can remain. */
+    for(unsigned overlay=0;overlay<2;overlay++) {
+        reset();page=UP_HOME;ui.menu=!overlay;ui.naming=(uint8_t)overlay;
+        ui.menu_tab=1;ui.menu_row=0;ui.name_pos=0;str_cpy(ui.name,"ALPHA",13);
+        ui_display_invalidate();draw_panel(1);while(ui_drawing)draw_panel(0);
+        if(overlay)str_cpy(ui.name,"ZLPHA",13);else ui_prefs.hold++;
+        draw_panel(1);while(ui_drawing)draw_panel(0);
+        memcpy(expected,fb,sizeof expected);
+        for(uint32_t y=0;y<240;y+=60) {
+            cv_begin(240,60,uc.bg);cv_oy=-(int32_t)y;ui_paint();cv_oy=0;cv_blit(0,y);
+        }
+        assert(!memcmp(expected,fb,sizeof expected));
+    }
+    puts("PASS display: all 57 pages match synchronous pixels; continuous knob edits finish frames; four dirty widgets, no scanline hashing");
 }
 int main(void) {
     math_tests();reset();

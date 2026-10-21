@@ -31,12 +31,13 @@ static struct {
 } ui;
 static IFWFixedPatch ui_transfer;
 static volatile uint32_t ui_transfer_pending;
-static uint32_t ui_drawing,ui_draw_y,ui_draw_end,ui_draw_header;
-static uint32_t ui_redraw_pending;
+/* Dirty widgets, in screen order: header, knob cards, stage, footer. */
+static uint32_t ui_drawing,ui_widgets,ui_widget_cursor,ui_force_redraw=1;
+static uint32_t ui_priority_widgets,ui_priority_at;
 static volatile uint32_t ui_frame_count,ui_lcd_pixels;
-static uint32_t ui_row_hash[240];
-static uint8_t ui_row_valid[240];
-static void ui_display_invalidate(void) {memset(ui_row_valid,0,sizeof ui_row_valid);}
+static uint32_t ui_widget_updates[4];
+static volatile uint32_t ui_widget_max_ticks[4];
+static void ui_display_invalidate(void) {ui_force_redraw=1;}
 /* Main-loop service latency, separate from the time to finish a whole screen. */
 static volatile uint32_t ui_poll_last,ui_poll_max_gap,ui_poll_turns;
 static uint32_t ui_control_id(uint32_t knob);
@@ -53,3 +54,10 @@ static void ui_init(void);
 static void ui_message(const char *s);
 static void draw_panel(uint32_t full);
 static const char *ui_preset_name(uint32_t n);
+
+static void ui_led(uint32_t id,int on) {
+    static uint8_t value[41],valid[41];
+    if(id<41u && (!valid[id] || value[id]!=(uint8_t)!!on)) {
+        valid[id]=1;value[id]=(uint8_t)!!on;fm1_led_key(id,on);
+    }
+}

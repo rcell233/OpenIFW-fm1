@@ -112,7 +112,9 @@ static void configure_oscillators(IFWFixedSynth *s,int32_t note) {
     }
 }
 static void update_controls(IFWFixedSynth *s) {
-    clear_mod(s);
+    /* Only routed destinations can have been written by the previous update.
+     * set_patch clears the whole array before replacing the routing list. */
+    for(unsigned i=0;i<s->mod_count;i++)s->mod[s->mods[i].dest]=0;
     for(unsigned i=0;i<s->mod_count;i++) {
         IFWFixedMod *m=&s->mods[i];if(m->dest>=IFW_MOD_FM && m->dest<IFW_MOD_PITCH)continue;
         /* An uninitialised upstream noise CV is treated as an absent contribution. */
@@ -204,7 +206,7 @@ static int32_t filter_tick(IFWFixedFilter *f,int32_t input) {
     int32_t x=f->res?ifw_soft20(ifw_sat((int64_t)input-ifw_mul20(f->last,f->res))):input,y=0;
     for(int i=0;i<(f->type==0?4:2);i++) {
         /* alpha is in 0..Q30: interpolation stays between x and z. */
-        y=(int32_t)((int64_t)f->z[i]+((((int64_t)x-f->z[i])*f->alpha)>>30));f->z[i]=y;
+        y=ifw_lerp30(f->z[i],x,f->alpha);f->z[i]=y;
         x=f->type==2?x-y:y;
     }
     f->last=y;return f->type==3?ifw_sat(((int64_t)f->z[0]-y)*2):x;

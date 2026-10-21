@@ -6,7 +6,7 @@ The DSP algorithms and the unchanged JavaScript oracle derive from OpenIFW by rc
 
 The unchanged Dinghy reference platform is GPL-3.0-only, including work by Leo Kuroshita / Hügelton Instruments, SLOOP (isod89), and zvenson. See `vendor/dinghy/LICENSE` and `vendor/dinghy/LICENSING.md` for exact attribution. Terminus font material retains its SIL OFL notice under `vendor/dinghy/assets/fonts/`.
 
-Dinghy's designburg logo and the upstream screenshot containing it are excluded from this distribution. OpenIFW-FM1 uses its own code-drawn interface and wave icon. The retained platform, HAL, loader, font and build/packaging source files are unchanged and pinned in sources.lock.json.
+Dinghy's designburg logo and the upstream screenshot containing it are excluded from this distribution. OpenIFW-FM1 uses its own code-drawn interface and wave icon. The reference platform, HAL, loader, font and build/packaging files in vendor/ remain unchanged and pinned in sources.lock.json. OpenIFW's explicit platform/USB fork and HAL adaptations live under firmware/: foreground PCM production, asynchronous USB retry and ADC polling, bounded SIE timeouts, and a DMA memory fence. Original attribution is preserved there; the loader and package format remain derived from Dinghy/Felucca.
 
 The JieLi toolchain and SDK source checkout are not bundled. Firmware packages include the SDK's uboot.boot, cfg_tool.bin and eq_cfg_hw.bin from AC79NN_SDK_V1.2.1_2023-12-13 (commit d179b4484759423312073f5fbb232501aa491047), under Apache-2.0. The full license is retained in licenses/JieLi-SDK-Apache-2.0.txt. The build verifies the three file hashes before packaging.
 

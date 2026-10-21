@@ -1,25 +1,38 @@
 #!/usr/bin/env python3
-"""Build using an isolated, unmodified Dinghy platform and its audited packer."""
-import importlib.util,json,os,shutil,sys,hashlib,re
+"""Build OpenIFW explicitly; reuse Dinghy's verified loader and package format.
+
+No compiler/linker/objcopy function is monkey-patched. The audio RAM section has
+its own VMA/LMA, is assembled by its actual load address, and is checked against
+crt0's contiguous copy range. The flash-off driver retains its no-XIP-call audit.
+"""
+import hashlib
+import fcntl
+import importlib.util
+import json
+import os
 from pathlib import Path
+import re
+import shutil
+import sys
+
 R=Path(__file__).resolve().parents[1]
-V=R/'vendor/dinghy';STAGE=R/'build/target-source'
+V=R/'vendor/dinghy'
+STAGE=R/'build/target-source'
 STAGE.mkdir(parents=True,exist_ok=True)
-# Never retain generated sources/linker overrides from an earlier variant.
+# Variants share a staging tree and must never compile over each other.
+build_lock=(R/'build/firmware-build.lock').open('w')
+fcntl.flock(build_lock.fileno(),fcntl.LOCK_EX)
 if (STAGE/'firmware').exists():shutil.rmtree(STAGE/'firmware')
-shutil.copytree(V/'firmware',STAGE/'firmware',dirs_exist_ok=True,copy_function=shutil.copy)
-if (STAGE/'firmware/app.ld').read_bytes()!=(V/'firmware/app.ld').read_bytes():
-    raise SystemExit('Staged linker differs from the original platform')
-shutil.copytree(R/'firmware/hal',STAGE/'firmware/hal',dirs_exist_ok=True)
-for folder in ['fixed','control','ui']:shutil.copytree(R/'firmware/src'/folder,STAGE/'firmware/src'/folder,dirs_exist_ok=True)
-for name in ['panel_params.h','presets.h','audio_perf.h','audio_output.h','dsp.c']:shutil.copy2(R/'firmware/src'/name,STAGE/'firmware/src'/name)
+shutil.copytree(V/'firmware',STAGE/'firmware')
+shutil.copytree(R/'firmware',STAGE/'firmware',dirs_exist_ok=True)
 shutil.copy2(R/'firmware/src/app.c',STAGE/'firmware/src/dinghy.c')
+if os.environ.get('IFW_DSP_XIP')=='1':
+    shutil.copy2(V/'firmware/app.ld',STAGE/'firmware/app.ld')
 sys.path.insert(0,str(V/'tools'))
-spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py');b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
-b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=R/'build/firmware';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-# Tool paths must remain below SRC; the stage and output are siblings originally.
-b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.5'
+spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
+b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
+b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.6-rc1'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -31,64 +44,87 @@ if baseline_dir:
         if hashlib.sha256(data).hexdigest()!=sha:raise SystemExit('Invalid 0.4.0 baseline: '+path)
         shutil.copy2(baseline_dir/rel,STAGE/'firmware/src'/rel)
     b.VERSION='0.4.0-perf';b.CFLAGS.append('-DIFW_DSP_BASELINE')
+    shutil.copy2(V/'firmware/app.ld',STAGE/'firmware/app.ld')
 dsp_files=['fixed/synth.c','fixed/effects.c','fixed/math.c','fixed/envelope.c','control/mono.c'] if baseline_dir else ['dsp.c']
-dsp_opt='-Os' if baseline_dir else '-O3'
-if os.environ.get('IFW_DSP_STRESS')=='1':
-    b.VERSION+='-stress';b.CFLAGS.append('-DIFW_DSP_STRESS')
-    shutil.copy2(R/'tests/stress_patch.h',STAGE/'firmware/src/dsp_stress.h')
-if os.environ.get('IFW_DSP_SELFTEST')=='1':
-    b.VERSION+='-test';b.CFLAGS.append('-DIFW_DSP_SELFTEST')
-    for source,name in [('dsp_optimization.c','dsp_selftest.h'),('dsp_math.c','dsp_math_test.h')]:
-        shutil.copy2(R/'tests'/source,STAGE/'firmware/src'/name)
-    b.CFLAGS.extend(['-Ifirmware/src/fixed'])
-if os.environ.get('IFW_DSP_ISR_TEST')=='1':
-    b.VERSION+='-irqtest';b.CFLAGS.append('-DIFW_DSP_ISR_TEST')
-    shutil.copy2(R/'tests/dsp_irq_stream.c',STAGE/'firmware/src/dsp_irq_stream.h')
-    b.CFLAGS.append('-Ifirmware/src/fixed')
-tmp=R/'build/tmp';tmp.mkdir(exist_ok=True);os.environ['TMPDIR']=str(tmp)
-original_tc_all=b.tc_all
-def compile_all(*cmds):
-    expanded=[]
-    for c in cmds:
-        expanded.append(c)
-        if c[0]=='cc' and any(str(x).endswith('src/dinghy.c') for x in c):
-            for name in dsp_files:
-                out=b.OUT/(Path(name).stem+'.o')
-                expanded.append(('cc',*b.CFLAGS,dsp_opt,'-Ifirmware/hal','-Ifirmware/src','-Ifirmware/gen','-c',b.FW/'src'/name,'-o',out))
-    return original_tc_all(*expanded)
-original_tc=b.tc
-def tc(tool,*args):
-    if tool=='pi32v2/bin/ld' and any(str(x).endswith('dinghy.o') for x in args):
-        args=(*args,*(b.OUT/(Path(name).stem+'.o') for name in dsp_files))
-    return original_tc(tool,*args)
-b.tc_all=compile_all;b.tc=tc
+for flag,suffix,files in [
+    ('IFW_DSP_STRESS','-stress',[('stress_patch.h','dsp_stress.h')]),
+    ('IFW_DSP_SELFTEST','-test',[('dsp_optimization.c','dsp_selftest.h'),('dsp_math.c','dsp_math_test.h')]),
+    ('IFW_DSP_ISR_TEST','-irqtest',[('dsp_irq_stream.c','dsp_irq_stream.h')])]:
+    if os.environ.get(flag)=='1':
+        b.VERSION+=suffix;b.CFLAGS.append('-D'+flag)
+        for source,name in files:shutil.copy2(R/'tests'/source,STAGE/'firmware/src'/name)
+        b.CFLAGS.append('-Ifirmware/src/fixed')
+if os.environ.get('IFW_DSP_XIP')=='1':b.VERSION+='-xip'
 for rel,sha in b.SDK_SHA256.items():
     if hashlib.sha256(b.fm1pkg_make.sdk_file(rel)).hexdigest()!=sha:raise SystemExit('SDK checksum mismatch: '+rel)
 for f in (R/'firmware/src').rglob('*'):
     if f.suffix not in ['.h','.c']:continue
-    text=re.sub(r'/\*.*?\*/|//[^\n]*','',f.read_text(),flags=re.S)
-    if any(rx.search(text) for rx in [b.MMIO_LIT,b.MMIO_CAST,b.MMIO_ASM]):raise SystemExit('Hardware access outside HAL: '+str(f))
-sys.argv=[sys.argv[0]]
-b.main()
-dest=R/'build/firmware';dest.mkdir(exist_ok=True)
-for source,name in [('dinghy.fwsc',f'OpenIFW-FM1-{b.VERSION}.fwsc'),('dinghy.bin','openifw.bin'),('dinghy.elf','openifw.elf'),('dinghy.dis','openifw.dis')]:shutil.copy2(b.OUT/source,dest/name)
-image=(dest/'openifw.bin').read_bytes();package=(dest/f'OpenIFW-FM1-{b.VERSION}.fwsc').read_bytes()
-result={'version':b.VERSION,'identity':b.PRODUCT,'appBytes':len(image),'packageBytes':len(package),'sha256':hashlib.sha256(package).hexdigest(),'hardwareTested':False}
-symbols=b.tc('common/bin/objdump','-t',b.OUT/'dinghy.elf')
-def sym(name):return int(re.search(r'^([0-9a-f]+) .*\s'+name+r'$',symbols,re.M)[1],16)
-result.update(ramDataBss=sym('_bss_end')-0x01C08000,poolBytes=sym('_pool_end')-0x01C20000,limits={'app':581564,'ram':98304,'pool':344064},sampleRate=44100,framesPerBlock=256,cpuMeasured=False)
-ramcode=(b.OUT/'ramtext.bin').read_bytes()
+    source=re.sub(r'/\*.*?\*/|//[^\n]*','',f.read_text(),flags=re.S)
+    if any(rx.search(source) for rx in [b.MMIO_LIT,b.MMIO_CAST,b.MMIO_ASM]):raise SystemExit('Hardware access outside HAL: '+str(f))
+tmp=R/'build/tmp';tmp.mkdir(exist_ok=True);os.environ['TMPDIR']=str(tmp)
+b.OUT.mkdir(exist_ok=True)
+ota=b.build_loader()
+common=[*b.CFLAGS,'-Ifirmware/hal','-Ifirmware/src','-Ifirmware/gen',
+        f'-DFELUCCA_ID="{b.PRODUCT}"',f'-DAPP_VER="{b.VERSION}"']
+commands=[('cc','-c',b.FW/'crt0.S','-o',b.OUT/'crt0.o'),
+          ('cc','-c',b.FW/'hal/fm1_vec.S','-o',b.OUT/'fm1_vec.o'),
+          ('cc','-c',b.FW/'hal/fm1_isr.S','-o',b.OUT/'fm1_isr.o'),
+          ('cc',*common,'-O2','-c',b.FW/'src/dinghy.c','-o',b.OUT/'dinghy.o')]
+objects=[b.OUT/n for n in ['crt0.o','fm1_vec.o','fm1_isr.o','dinghy.o']]
+for name in dsp_files:
+    obj=b.OUT/(Path(name).stem+'.o');objects.append(obj)
+    commands.append(('cc',*common,'-Os' if baseline_dir else '-O3','-c',b.FW/'src'/name,'-o',obj))
+b.tc_all(*commands)
+elf=b.OUT/'dinghy.elf'
+b.tc('pi32v2/bin/ld','--gc-sections','-e','_start','-T',b.FW/'app.ld',*objects,'-o',elf)
+syms,dis,rt=b.tc_all(('common/bin/objdump','-t',elf),('common/bin/objdump','-d',elf),
+                    ('common/bin/objdump','-d','-j','.ram_text',elf))
+def sym(name):
+    m=re.search(r'^([0-9a-f]+) .*\s'+re.escape(name)+r'$',syms,re.M)
+    if not m:raise SystemExit('Missing linker symbol: '+name)
+    return int(m[1],16)
+sections=[('.text',0x02000120),('.ram_text',sym('_rt_load'))]
+ram_audio='_audio_start' in syms
+if ram_audio:sections.append(('.audio_text',sym('_audio_load')))
+sections.append(('.data',sym('_data_load')))
+image=bytearray();blobs={}
+for section,load in sections:
+    path=b.OUT/(section[1:]+'.bin')
+    b.tc('common/bin/objcopy','-O','binary','-j',section,elf,path)
+    data=path.read_bytes();blobs[section]=data
+    offset=load-0x02000120
+    if load%4 or offset<len(image):raise SystemExit('Invalid/overlapping load section: '+section)
+    image.extend(b'\xff'*(offset-len(image)));image.extend(data)
+image.extend(b'\xff'*(-len(image)%4))
+ramcode=blobs['.ram_text']+blobs.get('.audio_text',b'')
 if len(ramcode)!=sym('_rt_end')-sym('_rt_start') or sym('_rt_end')>0x01C06000:
-    raise SystemExit('RAM code copy exceeds its reserved region or misses a section')
+    raise SystemExit('RAM copy length/range differs from crt0')
 if image[sym('_rt_load')-0x02000120:][:len(ramcode)]!=ramcode:
-    raise SystemExit('Packaged RAM code differs from ELF load image')
+    raise SystemExit('RAM load image is not the contiguous crt0 copy')
+if ram_audio and (sym('_audio_start')!=sym('_rt_start')+len(blobs['.ram_text']) or
+                  sym('_audio_load')!=sym('_rt_load')+len(blobs['.ram_text'])):
+    raise SystemExit('Audio section run/load addresses are not adjacent to the driver')
 for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
-    if not 0x02000120<=sym(name)<sym('_etext'):
-        raise SystemExit('DSP must remain in the original XIP layout: '+name)
-if (STAGE/'firmware/app.ld').read_bytes()!=(V/'firmware/app.ld').read_bytes():
-    raise SystemExit('The recovery release must use the unmodified platform linker')
-(dest/'linker.ld').write_bytes((STAGE/'firmware/app.ld').read_bytes())
-result.update(ramCodeBytes=len(ramcode),ramDspBytes=0,dspPlacement='xip',
-              linkerSha256=hashlib.sha256((V/'firmware/app.ld').read_bytes()).hexdigest(),
-              outputLookaheadFrames=256)
-(dest/'build.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+    if ram_audio and not sym('_audio_start')<=sym(name)<sym('_rt_end'):
+        raise SystemExit('Hot DSP escaped the audio RAM section: '+name)
+errors,notes=b.check(image,syms,dis,rt)
+errors+=b.mmio_check()
+for note in notes:print('  ok   ',note)
+if errors:raise SystemExit('\n'.join(errors))
+package=b.fm1pkg_make.ufw(b.fm1pkg_make.flash_image(bytes(image),b.fm1pkg_make.KEY),ota,b.PRODUCT)
+dest=R/'build/firmware';dest.mkdir(exist_ok=True)
+for name,data in [('openifw.bin',image),(f'OpenIFW-FM1-{b.VERSION}.fwsc',package)]:
+    (dest/name).write_bytes(data)
+shutil.copy2(elf,dest/'openifw.elf');(dest/'openifw.dis').write_text(dis)
+(dest/'linker.ld').write_bytes((b.FW/'app.ld').read_bytes())
+result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageBytes=len(package),
+    sha256=hashlib.sha256(package).hexdigest(),hardwareTested=False,
+    ramDataBss=sym('_bss_end')-0x01C08000,poolBytes=sym('_pool_end')-0x01C20000,
+    limits=dict(app=581564,ram=98304,pool=344064),sampleRate=44100,framesPerBlock=256,
+    cpuMeasured=False,ramCodeBytes=len(ramcode),ramFlashDriverBytes=len(blobs['.ram_text']),
+    ramDspBytes=len(blobs.get('.audio_text',b'')),dspPlacement='ram' if ram_audio else 'xip',
+    linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
+    audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
+    experimental=True,stage='release-candidate')
+(dest/'build.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))

@@ -154,7 +154,7 @@ static void ui_value(uint32_t id, char *s, int compact) {
 #if defined(IFW_HOST) || defined(IFW_EMU)
     str_cpy(s,"N/A",32);
 #else
-    str_cpy(s,(perf_view.overruns||perf_view.dma_late)?"LATE":"OK",32);
+    str_cpy(s,(perf_view.overruns||perf_view.dma_late||audio_underruns)?"LATE":"OK",32);
 #endif
     return;
   }
@@ -685,7 +685,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.5", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.6-rc1", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -781,18 +781,18 @@ static void ui_stage(void) {
   }
   uint32_t kind = ui_pages[page].kind;
   if (kind == UK_PERF) {
-    ui_center(7,84,226,&UI_S,"AUDIO IRQ BUDGET: 5804 us",uc.theme);
+    ui_center(7,84,226,&UI_S,"DSP BLOCK BUDGET: 5805 us",uc.theme);
 #if defined(IFW_HOST) || defined(IFW_EMU)
     ui_center(7,115,226,&UI_S,"TIMING: DEVICE ONLY",uc.mid);
     ui_center(7,140,226,&UI_S,"SINE / MUTE TEST AVAILABLE",uc.mid);
     ui_center(7,170,226,&UI_S,"HOST CPU IS NOT FM-1 CPU",uc.dim);
 #else
     char a[32],b[32];
-    str_cpy(a,"LAST ",32);ui_int(b,(int32_t)(perf_view.last_ticks/24u));ui_append(a,b,32);
-    ui_append(a,"  AVG ",32);ui_int(b,perf_view.blocks?(int32_t)ifw_udiv64(perf_view.total_ticks,perf_view.blocks)/24:0);ui_append(a,b,32);
+    str_cpy(a,"DSP ",32);ui_int(b,(int32_t)(perf_view.dsp_ticks/24u));ui_append(a,b,32);
+    ui_append(a," MAX ",32);ui_int(b,(int32_t)(perf_view.dsp_max_ticks/24u));ui_append(a,b,32);
     ui_center(7,104,226,&UI_S,a,uc.text);
-    str_cpy(a,"MAX ",32);ui_int(b,(int32_t)(perf_view.max_ticks/24u));ui_append(a,b,32);
-    ui_append(a,"  DSP ",32);ui_int(b,(int32_t)(perf_view.dsp_max_ticks/24u));ui_append(a,b,32);
+    str_cpy(a,"IRQ ",32);ui_int(b,(int32_t)(perf_view.last_ticks/24u));ui_append(a,b,32);
+    ui_append(a," MAX ",32);ui_int(b,(int32_t)(perf_view.max_ticks/24u));ui_append(a,b,32);
     ui_center(7,124,226,&UI_S,a,uc.text);
     str_cpy(a,"XRUN ",32);ui_int(b,(int32_t)perf_view.overruns);ui_append(a,b,32);
     ui_append(a,"  DMA ",32);ui_int(b,(int32_t)perf_view.dma_late);ui_append(a,b,32);
@@ -801,7 +801,7 @@ static void ui_stage(void) {
     ui_append(a," CLIP ",32);ui_int(b,(int32_t)perf_view.clips);ui_append(a,b,32);
     ui_center(7,164,226,&UI_S,a,uc.mid);
     str_cpy(a,"MAIN ",32);ui_int(b,(int32_t)ui_poll_max_gap);ui_append(a,b,32);
-    ui_append(a,"ms YIELD ",32);ui_int(b,(int32_t)audio_yields);ui_append(a,b,32);
+    ui_append(a,"ms UND ",32);ui_int(b,(int32_t)audio_underruns);ui_append(a,b,32);
     ui_center(7,184,226,&UI_S,a,uc.mid);
 #endif
     return;
@@ -890,62 +890,103 @@ static void ui_paint(void) {
   if (ui.confirm)
     ui_dialog();
 }
+/* Cache the displayed model, not a hash of every pixel in every scanline.
+ * A changed model invalidates its widget. DMA owns the canvas until complete. */
+static int ui_same_text(const char *a,const char *b) {
+  while(*a && *a==*b){a++;b++;}return *a==*b;
+}
 static void draw_panel(uint32_t full) {
-  static uint32_t perf_draw_at;
-  /* A knob burst must not restart an incomplete frame at row zero. Coalesce
-   * requests and finish the current scan before applying the next full pass. */
-  if(full)ui_redraw_pending=1;
+  static uint32_t initialized,perf_draw_at;
+  static uint32_t old_layout[16],old_header[5],old_hot,old_learn,old_anim;
+  static uint32_t old_gauge[4],old_id[4];
+  static char old_value[4][32],old_name[13],old_footer[32],old_notice[64];
+  static IFWFixedPatch old_patch;
+  static IFWUiPrefs old_prefs;
+  static int32_t old_env[4];
+  static int16_t old_scope[96];
+  uint32_t layout[16]={page,preset,ui.menu,ui.layer,ui.naming,ui.confirm,
+      ui.mod_slot,ui.menu_tab,ui.menu_row,ui.slot,ui.action,ui.layer_locked,ui.name_pos,saved.wind,saved.channel,saved.octave};
+  uint32_t header[5]={meter.held,(uint32_t)meter.note,patch_dirty,
+      !!ui.notice_until,ui_prefs.names};
+  uint32_t hot=ui.hot+(ui.hot_until?16u:0u);
+  uint32_t anim=ui_prefs.animate?fm1_ms/125u:0u;
+  if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||
+     ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {
+    ui_widgets=15u;ui_widget_cursor=0;
+    memcpy(old_layout,layout,sizeof layout);ui_force_redraw=0;
+  }
+  if(memcmp(header,old_header,sizeof header) || !ui_same_text(notice,old_notice))ui_widgets|=1u;
+  str_cpy(old_notice,notice,sizeof old_notice);
+  memcpy(old_header,header,sizeof header);
+  for(uint32_t i=0;i<4;i++) {
+    uint32_t id=control_id(i),gauge=ui_gauge(id);char value[32]={0};
+    ui_value(id,value,1);
+    if(id!=old_id[i] || gauge!=old_gauge[i] || !ui_same_text(value,old_value[i]))ui_widgets|=2u;
+    old_id[i]=id;old_gauge[i]=gauge;memcpy(old_value[i],value,sizeof value);
+  }
+  if(hot!=old_hot)ui_widgets|=6u;
+  old_hot=hot;
+  if(memcmp(&edit_patch,&old_patch,sizeof old_patch) ||
+     memcmp(&ui_prefs,&old_prefs,sizeof old_prefs) || learn_armed!=old_learn ||
+     memcmp(ui.name,old_name,sizeof old_name))ui_widgets|=(ui.menu || ui.naming)?14u:4u;
+  old_patch=edit_patch;old_prefs=ui_prefs;old_learn=learn_armed;
+  memcpy(old_name,ui.name,sizeof old_name);
+  const char *footer=ui_preset_name(preset);
+  if(!ui_same_text(footer,old_footer))ui_widgets|=8u;
+  str_cpy(old_footer,footer,sizeof old_footer);
+  if(!ui.menu && !ui.naming && !ui.confirm && !ui.layer) {
+    for(uint32_t i=0;i<4;i++) {
+      int32_t env=meter.env[i];
+      if(old_env[i]!=env && (page==UP_HOME || ui_pages[page].kind==UK_ENV))ui_widgets|=4u;
+      old_env[i]=env;
+    }
+    if(page==UP_HOME) {
+      if((ui_prefs.scope<2 && memcmp((const void *)scope,old_scope,sizeof old_scope)) || old_anim!=anim)ui_widgets|=4u;
+      memcpy(old_scope,(const void *)scope,sizeof old_scope);
+    }
+  }
+  old_anim=anim;initialized=1;
+  if(page==UP_PERF && fm1_ms-perf_draw_at>=200u) {
+    perf_snapshot();perf_draw_at=fm1_ms;ui_widgets|=6u;
+  }
+  if(full && ui_widgets) {
+    if(!ui_priority_widgets)ui_priority_at=fm1_ms;
+    ui_priority_widgets|=ui_widgets;
+  }
+  ui_drawing=ui_widgets!=0;
+  if(!ui_widgets){last_draw=fm1_ms;return;}
 #ifdef IFW_TARGET
-  /* Keep input, USB and watchdog service running while the previous strip's
-   * DMA owns cv_px. cv_begin()/lcd_sync() may finish it only after completion. */
+  /* Audio has priority in the cooperative scheduler. With two queued blocks
+   * the next widget may render while DMA continues playing those blocks. */
   if(lcd_busy && !ifw_display_ready())return;
+  uint32_t eligible=ui_widgets;
+  if(!audio_can_draw()) {
+    /* Background animation waits for audio headroom. Explicit controls retain
+     * service under sustained overload so the user can navigate and diagnose. */
+    if(fm1_ms-ui_priority_at<50u)return;
+    eligible&=ui_priority_widgets;
+    if(!eligible)return;
+  }
+#else
+  uint32_t eligible=ui_widgets;
 #endif
-  if (!ui_drawing) {
-    full=ui_redraw_pending;ui_redraw_pending=0;
-    if(page==UP_PERF) {
-      if(!full && fm1_ms-perf_draw_at<200u){last_draw=fm1_ms;return;}
-      perf_draw_at=fm1_ms;perf_snapshot();full=1;
-    }
-    ui_palette();
-    if (!full && (ui.menu || ui.confirm || ui.naming || ui.layer ||
-                  page == UP_SAVE || page == UP_PRESETS)) {
-      last_draw=fm1_ms;return;
-    }
-    ui_draw_y=full?0:76;ui_draw_end=full?240:204;
-    ui_draw_header=full?0:1;ui_drawing=1;
-    /* Retain hashes across ordinary edits; only external LCD writes invalidate
-     * them. An unchanged row does not need another SPI transaction. */
-  }
-  /* One 16-row transfer per main-loop turn: input/MIDI is serviced between
-   * bands instead of waiting through an entire 49–77 ms SPI screen pass. */
-  uint32_t y=ui_draw_y,h=ui_draw_end-y;
-  if(h>16)h=16;
-  cv_begin(240,h,uc.bg);cv_oy=-(int32_t)y;
-  if(ui_draw_header==2)ui_header();else ui_paint();
-  cv_oy=0;
-  uint32_t first=h,last=0;
-  for(uint32_t row=0;row<h;row++) {
-    uint32_t hash=2166136261u;
-    for(uint32_t x=0;x<240;x++)hash=(hash^cv_px[row*240+x])*16777619u;
-    if(!ui_row_valid[y+row] || ui_row_hash[y+row]!=hash) {
-      if(first==h)first=row;
-      last=row+1;ui_row_valid[y+row]=1;ui_row_hash[y+row]=hash;
-    }
-  }
-  if(first<h) {
-    lcd_blit(0,y+first,240,last-first,cv_px+first*240);
-    ui_lcd_pixels+=240u*(last-first);
-  }
-  ui_draw_y+=h;
-  if(ui_draw_y==ui_draw_end) {
-    if(ui_draw_header==1){ui_draw_header=2;ui_draw_y=0;ui_draw_end=24;}
-    else {
-      last_draw=fm1_ms;ui_frame_count++;
-      if(ui_redraw_pending) {
-        ui_redraw_pending=0;ui_draw_y=0;ui_draw_end=240;ui_draw_header=0;
-        ui_palette();
-        if(page==UP_PERF){perf_draw_at=fm1_ms;perf_snapshot();}
-      }else ui_drawing=0;
-    }
-  }
+  ui_palette();
+  uint32_t widget=ui_widget_cursor;
+  for(uint32_t i=0;i<4;i++,widget=(widget+1u)&3u)if(eligible&(1u<<widget))break;
+  static const uint16_t y[4]={0,24,76,204},h[4]={24,52,128,36};
+#ifdef IFW_TARGET
+  uint32_t draw_start=fm1_ticks();
+#endif
+  cv_begin(240,h[widget],uc.bg);cv_oy=-(int32_t)y[widget];
+  ui_paint();cv_oy=0;
+  lcd_blit(0,y[widget],240,h[widget],cv_px);
+  ui_lcd_pixels+=240u*h[widget];ui_widget_updates[widget]++;
+#ifdef IFW_TARGET
+  uint32_t draw_ticks=fm1_ticks()-draw_start;
+  if(draw_ticks>ui_widget_max_ticks[widget])ui_widget_max_ticks[widget]=draw_ticks;
+#endif
+  ui_widgets&=~(1u<<widget);ui_priority_widgets&=~(1u<<widget);
+  ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)&3u;
+  ui_drawing=ui_widgets!=0;
+  if(!ui_drawing){last_draw=fm1_ms;ui_frame_count++;}
 }

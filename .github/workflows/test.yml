@@ -27,6 +27,7 @@ jobs:
             build/emu/results.json
             build/installer/results.json
             build/target-audit/irq-native.json
+            build/target-audit/scheduler.json
             build/target-audit/dma/results.json
             build/target-audit/dma-pipeline/results.json
             build/target-audit/dma-042-starvation/results.json

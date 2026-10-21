@@ -30,6 +30,9 @@ static unsigned opt_math_checks(void) {
         seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;uint32_t step=seed;
         seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;uint32_t width=seed;
         int32_t v=(int32_t)phase;unsigned n=i%32;
+        int32_t alpha=(int32_t)(step%1073741825u),from=(int32_t)phase,to=(int32_t)width;
+        int32_t interpolated=(int32_t)((int64_t)from+((((int64_t)to-from)*alpha)>>30));
+        if(ifw_lerp30(from,to,alpha)!=interpolated)errors++;
         /* The bare-metal build has no compiler-rt signed 64-bit divide. Its
          * existing software divider is independently checked by host tests. */
 #ifdef IFW_TARGET

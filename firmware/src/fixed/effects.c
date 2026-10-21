@@ -112,7 +112,7 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
             int32_t a=ifw_allpass_a30(hz,0),y=ifw_addsat(ch?r:l,ifw_mul20(e->phaser_fb[ch],e->phaser_feedback));
             for(int k=0;k<6;k++) {int i=ch*6+k;int32_t v=ifw_subsat(e->phaser[i],ifw_mul30_bounded(y,a));
                 e->phaser[i]=ifw_addsat(y,ifw_mul30_bounded(v,a));y=v;}
-            e->phaser_low[ch]=ifw_sat((int64_t)e->phaser_low[ch]+((((int64_t)y-e->phaser_low[ch])*e->phaser_lowpass)>>30));
+            e->phaser_low[ch]=ifw_lerp30(e->phaser_low[ch],y,e->phaser_lowpass);
             y=e->phaser_low[ch];e->phaser_fb[ch]=ifw_soft20(y);
             if(ch)r=ifw_addsat(r,ifw_mul20(y,wet));else l=ifw_addsat(l,ifw_mul20(y,wet));
         }

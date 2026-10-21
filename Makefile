@@ -34,10 +34,16 @@ performance-test: build/dsp-regression build/dsp-regression-unity
 build/dsp-irq-stream: tests/dsp_irq_stream.c $(FIXED) $(wildcard firmware/src/fixed/*.h) firmware/src/presets.h
 	mkdir -p build
 	$(CC) $(CFLAGS) -DIFW_IRQ_STREAM_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_irq_stream.c $(FIXED) -o $@
-hardware-path-test: build/dsp-irq-stream
+build/audio-scheduler: tests/audio_scheduler.c firmware/src/audio_output.h firmware/src/audio_perf.h
+	mkdir -p build
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler.c -o $@
+hardware-path-test: build/dsp-irq-stream build/audio-scheduler
 	mkdir -p build/target-audit
+	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler > build/target-audit/scheduler.json
 	build/dsp-irq-stream > build/target-audit/irq-native.json
 	python3 tests/irq_stream_test.py
+	python3 tests/usb_retry_test.py
+	python3 tests/usb_sie_deadline.py
 	python3 tests/audio_deadline.py
 	python3 tests/audio_deadline.py --pipeline
 	python3 tests/audio_deadline.py --pipeline-042

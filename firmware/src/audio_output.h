@@ -1,64 +1,77 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * One-block lookahead. DMA only receives completed, final-format samples;
- * expensive synthesis never writes into a buffer that DMA can start reading.
- * Requires the platform's audio HAL, abuf, master_q12 and app_audio().
+ * Single-producer/single-consumer PCM queue. The foreground owns a slot until
+ * all 256 stereo frames are rendered and scaled. The ALNK interrupt owns it
+ * from acquire until the complete copy and USB tap finish. DMA never reads a
+ * producer slot, and synthesis never runs in an interrupt.
  */
-static int32_t audio_next[HALF_WORDS];
-static uint32_t audio_next_ready;
-/* Bound back-to-back late renders so main can service UI, USB and watchdog.
- * Otherwise ACK-at-entry can monopolise the CPU indefinitely under overload. */
-#define IFW_AUDIO_MAX_BUSY 8u
-static uint32_t audio_busy_run,audio_yield_pending;
-static volatile uint32_t audio_yields;
+#define AUDIO_SLOTS 4u
+#define AUDIO_SLICE 32u
+#define AUDIO_TARGET_BLOCKS 2u /* keep latency bounded; one slot may be in production */
+static int32_t audio_pcm[AUDIO_SLOTS][HALF_WORDS];
+static volatile uint32_t audio_write,audio_read,audio_started;
+static uint32_t audio_offset,audio_render_ticks;
+static volatile uint32_t audio_underruns;
+static uint32_t audio_queued(void) {return audio_write-audio_read;}
+static int audio_can_draw(void) {return audio_queued()>=2u;}
+
+/* One bounded unit of foreground work. Input, USB, watchdog and display
+ * scheduling run between slices. Events still enter the engine once a block. */
+static void audio_service(void) {
+    uint32_t w=audio_write;
+    if(w-audio_read>=AUDIO_TARGET_BLOCKS)return;
+    int32_t *out=audio_pcm[w&(AUDIO_SLOTS-1u)];
+    uint32_t t0=fm1_ticks();
+    if(!audio_offset) {audio_render_ticks=0;app_audio_begin();}
+    app_audio_render(out+2u*audio_offset,AUDIO_SLICE);
+    audio_offset+=AUDIO_SLICE;
+    if(audio_offset==HALF_FRAMES) {
+        app_audio_finish(out,HALF_FRAMES);
+        int32_t master=master_q12;
+        for(uint32_t i=0;i<HALF_WORDS;i++) {
+            /* Q15 * Q12 fits signed 32 bits (MASTER is clamped to 4096). */
+            int32_t v=(out[i]*master)>>12;
+            out[i]=v>32767?32767:v< -32767? -32767:v;
+        }
+    }
+    audio_render_ticks+=fm1_ticks()-t0;
+    if(audio_offset==HALF_FRAMES) {
+        audio_perf.dsp_ticks=audio_render_ticks;
+        if(audio_render_ticks>audio_perf.dsp_max_ticks)audio_perf.dsp_max_ticks=audio_render_ticks;
+        if(audio_render_ticks>IFW_AUDIO_BUDGET_TICKS)audio_perf.overruns++;
+        audio_offset=0;
+        ifw_audio_release();
+        audio_write=w+1u;
+        if(!audio_started && audio_queued()>=2u)audio_started=1;
+    }
+}
+
 void fm1_alnk0_irq(void) {
     uint32_t start=fm1_ticks(),pending=fm1_audio_pending();
     in_audio=1;
     fm1_audio_ack_aux((uint8_t)pending);
     if(pending&FM1_AUDIO_HALF) {
-        uint32_t half=fm1_audio_free_half(),missed=0;
-        uint32_t yield=audio_yield_pending;audio_yield_pending=0;
-        /* Acknowledge this event BEFORE rendering. A later boundary must stay
-         * pending, so a slow render cannot erase the next audio interrupt. */
+        uint32_t half=fm1_audio_free_half(),r=audio_read;
         fm1_audio_ack_half();
-        if(audio_next_ready) {
-            int32_t *dst=abuf+half*HALF_WORDS;
-            for(uint32_t i=0;i<HALF_FRAMES;i++) {
-                /* Stop a late publication at the boundary. Even the prefix
-                 * already published consists entirely of valid Q24 samples. */
-                if(fm1_audio_free_half()!=half){missed=1;break;}
-                dst[i*2]=audio_next[i*2]*128;
-                dst[i*2+1]=audio_next[i*2+1]*128;
-            }
+        int32_t *dst=abuf+half*HALF_WORDS;
+        if(audio_started && r!=audio_write) {
+            ifw_audio_acquire();
+            const int32_t *src=audio_pcm[r&(AUDIO_SLOTS-1u)];
+            for(uint32_t i=0;i<HALF_WORDS;i++)dst[i]=src[i]*128;
             uac_render_start();
-            for(uint32_t b=0;b<HALF_FRAMES;b+=32u)
-                uac_tap(audio_next+2u*b,32u);
-            audio_next_ready=0;
-        }
-        if(yield) {
-            /* Publish the completed block, acknowledge this boundary, then
-             * return without more DSP. The next real boundary resumes work.
-             * DMA keeps valid old samples when no new block is available. */
-            audio_yields++;
+            for(uint32_t b=0;b<HALF_FRAMES;b+=32u)uac_tap(src+2u*b,32u);
+            ifw_audio_release();
+            audio_read=r+1u;
         }else {
-            for(uint32_t i=0;i<HALF_WORDS;i++)audio_next[i]=0;
-            app_audio(audio_next,HALF_FRAMES);
-            int32_t master=master_q12;
-            for(uint32_t i=0;i<HALF_WORDS;i++) {
-                int32_t v=(int32_t)(((int64_t)audio_next[i]*master)>>12);
-                audio_next[i]=v>32767?32767:v< -32767? -32767:v;
-            }
-            audio_next_ready=1;
+            /* Conventional underrun: silence, count it, keep rendering every
+             * synthesis sample in order. Never skip a DSP block to feed UI. */
+            for(uint32_t i=0;i<HALF_WORDS;i++)dst[i]=0;
+            if(audio_started)audio_underruns++;
         }
+        ifw_audio_release();
         uint32_t ticks=fm1_ticks()-start;
         audio_perf.last_ticks=ticks;audio_perf.total_ticks+=ticks;audio_perf.blocks++;
         if(ticks>audio_perf.max_ticks)audio_perf.max_ticks=ticks;
-        if(ticks>IFW_AUDIO_BUDGET_TICKS)audio_perf.overruns++;
-        uint32_t late=missed || fm1_audio_free_half()!=half ||
-           (fm1_audio_pending()&FM1_AUDIO_HALF) || ticks>IFW_AUDIO_BUDGET_TICKS;
-        if(late) {
-            audio_perf.dma_late++;
-            if(++audio_busy_run>=IFW_AUDIO_MAX_BUSY){audio_busy_run=0;audio_yield_pending=1;}
-        }else audio_busy_run=0;
+        if(fm1_audio_free_half()!=half || (fm1_audio_pending()&FM1_AUDIO_HALF))audio_perf.dma_late++;
     }
     in_audio=0;
 }

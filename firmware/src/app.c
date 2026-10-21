@@ -7,9 +7,7 @@
 #elif defined(IFW_HOST)
 #include "../../tests/panel_host.c"
 #else
-#define fm1_alnk0_irq ifw_platform_alnk0_irq
 #include "platform.c"
-#undef fm1_alnk0_irq
 #endif
 #undef cv_text
 #undef cv_line
@@ -58,7 +56,7 @@ static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: MODULE";
 #include "ui/state.h"
-static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)meter.max_us;if(id==234)return (int32_t)meter.overruns;if(id==235)return FS;if(id==236)return 405;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
+static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 406;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
     if(overflow)return;
@@ -66,14 +64,9 @@ static void enqueue(uint32_t type,int32_t a,int32_t b) {
     queue[w&(QSIZE-1)]=(AudioEvent){type,a,b};RING_PUBLISH();qwrite=w+1;
 }
 static int32_t midi31(uint32_t v) {return (int32_t)(v*16909320u);}
-static void app_audio(int32_t *out,uint32_t n) {
-    if(!ready)return;
-#ifdef IFW_DSP_ISR_TEST
-    irq_stream_render(&synth,out,n);return;
-#endif
-#if !defined(IFW_HOST) && !defined(IFW_EMU)
-    uint32_t start=fm1_ticks();
-#endif
+/* Events are consumed once per 256-frame block, as in the released engine.
+ * The hardware scheduler renders that block in bounded 32-frame slices. */
+static void app_audio_begin(void) {
     uint32_t changed=0;
     if(overflow) {qread=qwrite;ifw_fixed_panic(&synth);ui_transfer_pending=0;RING_PUBLISH();overflow=0;}
     while(qread!=qwrite) {
@@ -90,6 +83,19 @@ static void app_audio(int32_t *out,uint32_t n) {
         }
     }
     if(changed)ifw_fixed_set_patch(&synth,&synth.patch);
+#ifdef IFW_DSP_ISR_TEST
+    irq_stream_begin(&synth);
+#endif
+ }
+#ifdef IFW_TARGET
+/* Keep the Flash/RAM call boundary within pi32v2's relative branch range.
+ * The linker places this small non-inlined entry immediately after crt0. */
+__attribute__((noinline,section(".text.audio_entry")))
+#endif
+static void app_audio_render(int32_t *out,uint32_t n) {
+#ifdef IFW_DSP_ISR_TEST
+    irq_stream_part(&synth,out,n);return;
+#endif
     if(perf_mode) {
         for(uint32_t i=0;i<n;i++) {
             int32_t sample=perf_mode==1?ifw_sin20(perf_phase)/128:0;
@@ -97,6 +103,11 @@ static void app_audio(int32_t *out,uint32_t n) {
             out[2*i]=out[2*i+1]=sample;
         }
     }else ifw_fixed_process(&synth,out,n);
+ }
+static void app_audio_finish(int32_t *out,uint32_t n) {
+#ifdef IFW_DSP_ISR_TEST
+    irq_stream_end(&synth);
+#endif
     if(n>=96)for(uint32_t i=0;i<96;i++)scope[i]=(int16_t)ifw_clamp(out[(i*n/96)*2],-32767,32767);
     meter.note=synth.note;meter.held=synth.mono.count;meter.breath=synth.breath;meter.gate=synth.gate;
     uint32_t quiet=!synth.gate_target && !synth.gate;
@@ -111,13 +122,10 @@ static void app_audio(int32_t *out,uint32_t n) {
     audio_perf.clips+=clips;
     quiet_frames=quiet?quiet_frames+n:0;if(quiet_frames>FS*2)quiet_frames=FS*2;
     meter.quiet=quiet_frames>=FS;
-#if !defined(IFW_HOST) && !defined(IFW_EMU)
-    uint32_t ticks=fm1_ticks()-start,us=ticks/FM1_TICKS_PER_US;
-    audio_perf.dsp_ticks=ticks;
-    if(ticks>audio_perf.dsp_max_ticks)audio_perf.dsp_max_ticks=ticks;
-    if(us>meter.max_us)meter.max_us=us;
-    if(us>5804)meter.overruns++;
-#endif
+ }
+static void app_audio(int32_t *out,uint32_t n) {
+    if(!ready)return;
+    app_audio_begin();app_audio_render(out,n);app_audio_finish(out,n);
 }
 static uint32_t app_crc(const void *data,uint32_t n) {
     const uint8_t *p=data;uint32_t c=UINT32_MAX;
@@ -261,11 +269,11 @@ static void app_step(void) {
             if((down&(1u<<k))&&!ui_key(k)) {int32_t note=(int32_t)k+53+((int32_t)saved.octave-3)*12;key_notes[k]=(uint8_t)ifw_clamp(note,0,127);
                 note_start(key_notes[k],110);midi_send(0x90,key_notes[k],110);}
             if((up&(1u<<k)) && key_notes[k]<128) {enqueue(1,key_notes[k],0);midi_send(0x80,key_notes[k],0);key_notes[k]=255;}
-            fm1_led_key(KEY_LED(k),(int)(keys>>k&1u));
+            if((down|up)&(1u<<k))ui_led(KEY_LED(k),(int)(keys>>k&1u));
         }
         uint8_t st,a,b;while(midi_get(&st,&a,&b))midi_message(st,a,b);
         ui_tick();ui_leds();
-        if(dirty || ui_drawing || ui_redraw_pending || fm1_ms-last_draw>=50) {draw_panel(dirty);dirty=0;}
+        if(dirty || ui_drawing || fm1_ms-last_draw>=50) {draw_panel(dirty);dirty=0;}
 }
 static void app_main(void) {
     app_init();
@@ -274,6 +282,10 @@ static void app_main(void) {
         /* A rejected/cancelled OTA can return after drawing its own screen. */
         if(usb.ota_req || usb.uboot_req){ui_display_invalidate();dirty=1;}
 #endif
-        platform_poll();app_step();
+        platform_poll();
+#if !defined(IFW_HOST) && !defined(IFW_EMU)
+        audio_service();
+#endif
+        app_step();
     }
 }

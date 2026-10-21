@@ -22,8 +22,8 @@ static void irq_hash_word(uint32_t x) {
     irq_hash[1]=(irq_hash[1]+x+0x9e3779b9u)*2246822519u;
     irq_hash[1]=(irq_hash[1]<<13)|(irq_hash[1]>>19);
 }
-static void irq_stream_render(IFWFixedSynth *s,int32_t *out,uint32_t n) {
-    if(irq_check.done) {for(uint32_t i=0;i<n*2;i++)out[i]=0;return;}
+static void irq_stream_begin(IFWFixedSynth *s) {
+    if(irq_check.done)return;
     uint32_t root=60u+irq_case;
     if(!irq_block) {
         IFWFixedPatch p;make_preset(&p,irq_case%6u);
@@ -35,16 +35,29 @@ static void irq_stream_render(IFWFixedSynth *s,int32_t *out,uint32_t n) {
     if(irq_block==24)ifw_fixed_breath(s,1073741824);
     if(irq_block==32)ifw_fixed_note_off(s,root+4u);
     if(irq_block==48)ifw_fixed_note_off(s,root);
+}
+#ifdef IFW_TARGET
+__attribute__((noinline,section(".text.audio_entry")))
+#endif
+static void irq_stream_part(IFWFixedSynth *s,int32_t *out,uint32_t n) {
+    if(irq_check.done){for(uint32_t i=0;i<n*2;i++)out[i]=0;return;}
     ifw_fixed_process(s,out,n);
     for(uint32_t i=0;i<n*2;i++)irq_hash_word((uint32_t)out[i]);
+    irq_check.frames+=n;
+}
+static void irq_stream_end(IFWFixedSynth *s) {
+    if(irq_check.done)return;
     irq_hash_word((uint32_t)s->pitch);irq_hash_word(s->master_phase);
     for(unsigned i=0;i<4;i++){irq_hash_word(s->phase[i]);irq_hash_word((uint32_t)s->env[i].level);}
-    irq_check.frames+=n;irq_check.blocks++;
+    irq_check.blocks++;
     if(++irq_block==64u) {
         irq_check.hashes[irq_case*2u]=irq_hash[0];
         irq_check.hashes[irq_case*2u+1u]=irq_hash[1];
         irq_block=0;if(++irq_case==12u)irq_check.done=1;
     }
+}
+static void irq_stream_render(IFWFixedSynth *s,int32_t *out,uint32_t n) {
+    irq_stream_begin(s);irq_stream_part(s,out,n);irq_stream_end(s);
 }
 #ifdef IFW_IRQ_STREAM_MAIN
 #include <stdio.h>

@@ -7,8 +7,9 @@ const [emulator,firmware,symbolFile,out]=process.argv.slice(2);
 if(!out)throw Error('emulator.wasm firmware.fwsc symbols.json result.json');
 const wasm=readFileSync(emulator),fw=readFileSync(firmware),syms=JSON.parse(readFileSync(symbolFile)).symbols;
 const sha=b=>createHash('sha256').update(b).digest('hex');
+const ram=syms.ifw_fixed_sample<0x02000000;
 for(const n of ['ifw_fixed_sample','ifw_fixed_process','ifw_fixed_fx_tick'])
- assert.ok(syms[n]>=0x02000120&&syms[n]<0x0208e0dc,n+' must execute in original XIP region');
+ assert.ok(ram?syms[n]>=syms._audio_start&&syms[n]<syms._rt_end:syms[n]>=0x02000120&&syms[n]<0x0208e0dc,n+' placement');
 async function run(script){
  const x=(await WebAssembly.instantiate(wasm,{env:{fm1_jit_compile:()=>0}})).instance.exports;
  x.fm1_jit(0,0);
@@ -20,6 +21,8 @@ async function run(script){
  let frames=0;const start=performance.now();
  while(x.fm1_ms()<2000){frames+=x.fm1_render(128,4800000);assert.equal(x.fm1_halted(),0);if(performance.now()-start>120000)throw Error('boot test timed out');}
  const r32=a=>x.fm1_target_read32(a)>>>0;
+ if(ram)for(let i=0;i<syms._rt_end-syms._rt_start;i+=4)
+   assert.equal(r32(syms._rt_start+i),r32(syms._rt_load+i),'RAM load/run copy at '+i);
  return {emulatedMs:x.fm1_ms(),ready:r32(syms.ready),rescue:r32(syms.recovery_active)&255,
    blocks:r32(syms.audio_perf+8),audioFrames:frames,halted:x.fm1_halted()};
 }

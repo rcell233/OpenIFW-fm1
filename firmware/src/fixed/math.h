@@ -51,6 +51,13 @@ static inline int32_t ifw_mul30(int32_t a,int32_t b) { return ifw_sat(((int64_t)
 /* Only for a proven bounded product (e.g. |b| <= Q20). */
 static inline int32_t ifw_mul20_bounded(int32_t a,int32_t b) { return (int32_t)(((int64_t)a*b)>>20); }
 static inline int32_t ifw_mul30_bounded(int32_t a,int32_t b) { return (int32_t)(((int64_t)a*b)>>30); }
+/* Exact convex interpolation. The common 32-bit difference uses one 32x32
+ * multiply; the overflow case retains the original wide calculation. */
+static inline int32_t ifw_lerp30(int32_t a,int32_t b,int32_t alpha) {
+    int32_t d=(int32_t)((uint32_t)b-(uint32_t)a);
+    if(((a^b)&(b^d))<0)return (int32_t)((int64_t)a+((((int64_t)b-a)*alpha)>>30));
+    return a+(int32_t)(((int64_t)d*alpha)>>30);
+}
 /* Exact software 64/32 division with a 32-bit quotient. Configuration/events only. */
 uint32_t ifw_udiv64(uint64_t n,uint32_t d);
 int32_t ifw_sdiv64(int64_t n,uint32_t d);

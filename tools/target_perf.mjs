@@ -29,7 +29,7 @@ function perf(){
    dspLastUs:a[7]/24,dspMaxUs:a[8]/24,peak:a[9],clips:a[10],meanUs:a[2]?(a[11]+a[12]*4294967296)/a[2]/24:0};
 }
 const measured=[],dsp=[],audioHash=createHash('sha256');let lastBlock=0,short=0,frames=0;
-const pcm=[],drawIntervals=[];let modeSet=false,lastDraw=0;
+const pcm=[],drawIntervals=[],underrunAt=[];let oldUnderruns=0;let modeSet=false,lastDraw=0;
 const start=performance.now();
 while(x.fm1_ms()<duration){
  const got=x.fm1_render(128,Math.ceil(mhz*1e6*.02));frames+=got;if(got<128)short++;
@@ -40,6 +40,7 @@ while(x.fm1_ms()<duration){
   const ep=x.fm1_last_error?.(),mem=new Uint8Array(x.memory.buffer);
   throw Error(`CPU halted at ${x.fm1_ms()} ms: ${ep?new TextDecoder().decode(mem.subarray(ep,mem.indexOf(0,ep))):''}`);
  }
+ if(syms.symbols.audio_underruns){const u=r32(syms.symbols.audio_underruns);if(u!==oldUnderruns){underrunAt.push([x.fm1_ms(),u]);oldUnderruns=u;}}
  const v=perf();if(v.ready&&v.blocks!==lastBlock){lastBlock=v.blocks;if(x.fm1_ms()>=1000){measured.push(v.lastUs);dsp.push(v.dspLastUs);}}
  if(v.ready&&!modeSet&&process.env.IFW_SIM_MODE){if(!x.fm1_target_write32)throw Error('Audit emulator write export required');
   const mode={sine:1,mute:2}[process.env.IFW_SIM_MODE];if(!mode)throw Error('Unknown diagnostic mode');
@@ -60,6 +61,9 @@ const result={kind:'pi32v2-instruction-model-not-hardware',cycleAccurate:false,h
 if(syms.symbols.ui_poll_max_gap){const now=r32(syms.symbols.fm1_ms),last=r32(syms.symbols.ui_poll_last);
  result.uiService={maxGapMs:r32(syms.symbols.ui_poll_max_gap),turns:r32(syms.symbols.ui_poll_turns),nowMs:now,lastAtMs:last,sinceLastMs:(now-last)>>>0};}
 if(syms.symbols.audio_yields)result.overloadYields=r32(syms.symbols.audio_yields);
+if(syms.symbols.audio_underruns){result.underruns=r32(syms.symbols.audio_underruns);result.underrunAt=underrunAt;}
+if(syms.symbols.ui_widget_max_ticks)result.widgetMaxUs=Array.from({length:4},(_,i)=>r32(syms.symbols.ui_widget_max_ticks+i*4)/24);
+if(syms.symbols.audio_write)result.audioQueue={produced:r32(syms.symbols.audio_write),consumed:r32(syms.symbols.audio_read),partialFrames:r32(syms.symbols.audio_offset)};
 if(syms.symbols.ui_frame_count)result.uiRender={completedScans:r32(syms.symbols.ui_frame_count),lcdPixels:r32(syms.symbols.ui_lcd_pixels)};
 if(process.env.IFW_SIM_MODE)result.diagnosticMode=process.env.IFW_SIM_MODE;
 if(process.env.IFW_SIM_PCM)writeFileSync(process.env.IFW_SIM_PCM,Buffer.concat(pcm));

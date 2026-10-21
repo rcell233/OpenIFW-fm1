@@ -1,0 +1,936 @@
+{
+  "version": "0.4.6-rc1",
+  "hardwareMeasured": false,
+  "release": {
+    "version": "0.4.6-rc1",
+    "identity": "FM-1_982",
+    "appBytes": 262032,
+    "packageBytes": 610161,
+    "sha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+    "hardwareTested": false,
+    "ramDataBss": 38528,
+    "poolBytes": 324936,
+    "limits": {
+      "app": 581564,
+      "ram": 98304,
+      "pool": 344064
+    },
+    "sampleRate": 44100,
+    "framesPerBlock": 256,
+    "cpuMeasured": false,
+    "ramCodeBytes": 18204,
+    "ramFlashDriverBytes": 2848,
+    "ramDspBytes": 15356,
+    "dspPlacement": "ram",
+    "linkerSha256": "237a521c9fb2555764a1e0692b23f5f2f85d1da48b4c1978bbd4be15dc9807c9",
+    "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+    "experimental": true,
+    "stage": "release-candidate"
+  },
+  "sourceBase": "9d8c8cc204c1b049290f8ad9ef6f03280ae54a0d",
+  "firmwareSourceSha256": {
+    "firmware/app.ld": "237a521c9fb2555764a1e0692b23f5f2f85d1da48b4c1978bbd4be15dc9807c9",
+    "firmware/hal/fm1_lcd_hw.h": "58eb287555445b8f5aaa4c5268afece0dc90013ce40a1eb204071d4b174adbd3",
+    "firmware/hal/ifw_adc.h": "f19e34142150f7b398552052b0d0ff3583a56ac92efeb1374df429832efb1340",
+    "firmware/hal/ifw_audio.h": "82a156b4b0b5cd7760899a4bbcedc5f88a5bd6824b2fe3fa04de5d933945f769",
+    "firmware/hal/ifw_display.h": "14ad7e60ad9f221fc1e3b494bc1cbfa4693cd666b858c24c569304d3048de32d",
+    "firmware/hal/ifw_dsp.h": "f4fa49f1c49f4abecabecd450c545c82589518de5580013300425a236d2e262d",
+    "firmware/src/app.c": "6a7b5a59fec9cf1bbe101ef9325feb6c4a3f36e6ff2d08cf85c4934496490a7c",
+    "firmware/src/audio_output.h": "d25a8d66c786f7547f0b710dad341b8ad272800b43782c2749737c01eb6727c2",
+    "firmware/src/audio_perf.h": "65cf1a0b2e0102310048b002fdb8fc70a59844e77d632df0394a6e6aec4eaf57",
+    "firmware/src/control/mono.c": "5d25e9bdec273f5192f4566742661ab8bf9c29b4049bc967d30ec2a250d395b7",
+    "firmware/src/control/mono.h": "e7294a660a2f6484732702f5b1769e60a23e0ca671e0778aa92119965ebf6cc1",
+    "firmware/src/dsp.c": "b87ee2f721da6e2ca917e18ade2cafc56296fef2770f2347b271d8b8c004b905",
+    "firmware/src/fixed/decay_curve_q31.h": "d71024ea5b18a5398b73325922fe12d6ba3182cbde9fd67c5ac89e4440623b9e",
+    "firmware/src/fixed/effects.c": "bd2d7076bd3e4ac9185d3fba4260b5a32be101f2446e8c87185f577b59c2b7ac",
+    "firmware/src/fixed/envelope.c": "e28205f6c2c7541ce77f719e9223576c5a9871ac780bb3a46d9f089890090d69",
+    "firmware/src/fixed/envelope.h": "2f653f9671596d2eaa7e6b80fee1be298760894bb3e0272f5b8fcd097ae59ccd",
+    "firmware/src/fixed/envelope_tables.h": "c9af965d14ea7e57db6a457730036d48da9f6644c498eea1bd38be420c0a7d4d",
+    "firmware/src/fixed/math.c": "e40d45e3cef74ba9a7c1d26581d451c07c86b10caa0a3b2be119ee41f911f4b0",
+    "firmware/src/fixed/math.h": "42b6d3ec9baee7b4464b3a541ad8a0810ffd1c6a95d7b10384aedb4132b12a89",
+    "firmware/src/fixed/math_tables.h": "c714ad54ad364e4d3ee80d2fe134f614f5ecd57d58f9c95376c40ea575711331",
+    "firmware/src/fixed/memory.h": "dd4f1cc9c473f6c0b721e1dcf371ee5e3bbdddcc631c5dce41d7afac993ca35c",
+    "firmware/src/fixed/param_ids.h": "cd622cebcb5daf6bb6ee74c8a236e277b1ce63162f9b4dd71ea6e0f54fc3bf58",
+    "firmware/src/fixed/patch_defaults.h": "4abe309bb88a91ee63e86bd0eb6a717f3f72bca38394d3b4058f63720ea1e27f",
+    "firmware/src/fixed/synth.c": "73582c9a8af82bf5dab911352c9869d1348c5c40ca16e198044d32494a87dfdb",
+    "firmware/src/fixed/synth.h": "1ad5a9186a4d24831029be3613cd2fd7a7662d7461a53ea44f3b9fdac7584f91",
+    "firmware/src/panel_params.h": "c08563cd33f988331e657f4fd2ccfdc665eae3c2a1f5f9f29ba273bf89ebf380",
+    "firmware/src/platform.c": "5eb6d69834bcf3d1159677d797bcf4f3176daf204c06c853b6ba9ce46e140f47",
+    "firmware/src/presets.h": "a81c5019d3c3fe4336fded7560aab5e7f1e81c3fca0f2651709f2bb17f335228",
+    "firmware/src/ui/controls.c": "40c0b06c85e42f1037580f38e1536f7ce7e9854daf4fef6f7cc8ae95cce65c0d",
+    "firmware/src/ui/draw.c": "c96947ef6eab159d1daefb967bf957d20c095c4abab3e9283a83e2861d353fcc",
+    "firmware/src/ui/font.h": "1b4dd692a2d2f145a2f0713c2f614b2f6a50e95bcae12cbc6b626cc8a30e24d9",
+    "firmware/src/ui/pages.h": "27ebc8cc996eb03cc6f3a2b8f22e4f2cab44530cbe8647e01c6f763e48c0e4ed",
+    "firmware/src/ui/raster.h": "ff3924f8f08e356a0cb18f2dc947ae6e19b2abb5fb96e6a0a9fe6496357d7f3f",
+    "firmware/src/ui/state.h": "d05add4b86b0bd4290a4bde984950f5eb9bebe6d2cd9393fd6b8e850cf9249d7",
+    "firmware/src/usb.c": "7426196c620be651bcadf6fbb995683013361d27f4399cd3e7bc29107667c74a",
+    "firmware/src/usb_retry.h": "de495fd9c44dd05dc7251cc2d3e43a8e6cfd212cd0d6ae232a8920e6c9ce7870"
+  },
+  "checks": {
+    "makeTest": "passed",
+    "makeSanitize": "passed",
+    "panelWebHardwareChecks": "passed",
+    "frozenPcmStateFiles": 332,
+    "frozenScenarios": 166,
+    "frozenWebStereoFrames": 1228800,
+    "liveEditFrames": 32768,
+    "livePatchChanges": 1024,
+    "rasterComparisons": 8120,
+    "pages": 57,
+    "uiChecks": 1170,
+    "installerChecks": 98
+  },
+  "scheduler": {
+    "kind": "functional-scheduler-model-not-hardware-performance",
+    "cases": [
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 0,
+        "produced": 517,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 0.546,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.99,
+        "stallFrames": 0,
+        "produced": 516,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 0.721,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.01,
+        "stallFrames": 0,
+        "produced": 509,
+        "consumed": 508,
+        "underruns": 6,
+        "maxMainGapMs": 0.735,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.25,
+        "stallFrames": 0,
+        "produced": 412,
+        "consumed": 411,
+        "underruns": 103,
+        "maxMainGapMs": 0.909,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.8,
+        "stallFrames": 0,
+        "produced": 286,
+        "consumed": 285,
+        "underruns": 228,
+        "maxMainGapMs": 1.308,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 88,
+        "produced": 517,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 2.542,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 1764,
+        "produced": 343,
+        "consumed": 341,
+        "underruns": 174,
+        "maxMainGapMs": 40.546,
+        "invalidDmaWords": 0
+      }
+    ]
+  },
+  "factoryInstructionModels": [
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 0,
+      "actualPreset": 0,
+      "script": "1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 710,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 4376.166666666667,
+        "dspMaxUs": 4688.583333333333,
+        "peak": 4071,
+        "clips": 0,
+        "meanUs": 11.25968309859155
+      },
+      "steady": {
+        "blocks": 511,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.916666666666666
+      },
+      "dspSteady": {
+        "blocks": 511,
+        "p50Us": 4502.708333333333,
+        "p95Us": 4575.583333333333,
+        "p99Us": 4580.583333333333,
+        "maxUs": 4688.583333333333
+      },
+      "audioFrames": 182912,
+      "audioSha256": "a18e63731b0aba52149ff2d42b588f765edb1b7b28a7a894de9e02d4a20f33fa",
+      "shortQuanta": 15,
+      "wallSeconds": 120.17880887,
+      "drawIntervalsMs": {
+        "count": 65,
+        "p50": 52,
+        "p95": 64,
+        "max": 65
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 205326,
+        "nowMs": 4503,
+        "lastAtMs": 4502,
+        "sinceLastMs": 1
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        1720.9583333333333,
+        534.3333333333334
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 695,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 65,
+        "lcdPixels": 2046720
+      }
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 1,
+      "actualPreset": 1,
+      "script": "500:e6:1,1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 710,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 3745.9166666666665,
+        "dspMaxUs": 4385.958333333333,
+        "peak": 6612,
+        "clips": 0,
+        "meanUs": 11.259565727699531
+      },
+      "steady": {
+        "blocks": 596,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.958333333333334
+      },
+      "dspSteady": {
+        "blocks": 596,
+        "p50Us": 3747.9166666666665,
+        "p95Us": 3939.4583333333335,
+        "p99Us": 3945.4166666666665,
+        "maxUs": 3948
+      },
+      "audioFrames": 182912,
+      "audioSha256": "387272c0bd6b5e8701f136f7185f8807897e03f86e460cd1e544bfed426e0d54",
+      "shortQuanta": 15,
+      "wallSeconds": 100.12388805200001,
+      "drawIntervalsMs": {
+        "count": 69,
+        "p50": 50,
+        "p95": 50,
+        "max": 54
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 361322,
+        "nowMs": 4503,
+        "lastAtMs": 4503,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        2065.7916666666665,
+        462.1666666666667
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 695,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 5,
+        "lcdPixels": 129600
+      }
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 2,
+      "actualPreset": 2,
+      "script": "500:e6:2,1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 709,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 4104.791666666667,
+        "dspMaxUs": 4386.416666666667,
+        "peak": 4853,
+        "clips": 0,
+        "meanUs": 11.259755524212506
+      },
+      "steady": {
+        "blocks": 528,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.916666666666666
+      },
+      "dspSteady": {
+        "blocks": 528,
+        "p50Us": 4101.875,
+        "p95Us": 4132.5,
+        "p99Us": 4189.5,
+        "maxUs": 4283.5
+      },
+      "audioFrames": 182912,
+      "audioSha256": "611ce86238d56a191f5726fccf276ed8622491f5e93d649dd725408e1835e5e7",
+      "shortQuanta": 15,
+      "wallSeconds": 112.052203151,
+      "drawIntervalsMs": {
+        "count": 69,
+        "p50": 50,
+        "p95": 50,
+        "max": 54
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 303710,
+        "nowMs": 4503,
+        "lastAtMs": 4503,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        2067.625,
+        524.2916666666666
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 694,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 5,
+        "lcdPixels": 129600
+      }
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 3,
+      "actualPreset": 3,
+      "script": "500:e6:3,1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 710,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 4540.583333333333,
+        "dspMaxUs": 4749.75,
+        "peak": 11713,
+        "clips": 0,
+        "meanUs": 11.25962441314554
+      },
+      "steady": {
+        "blocks": 525,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.916666666666666
+      },
+      "dspSteady": {
+        "blocks": 525,
+        "p50Us": 4544.083333333333,
+        "p95Us": 4669.083333333333,
+        "p99Us": 4672.291666666667,
+        "maxUs": 4749.75
+      },
+      "audioFrames": 182912,
+      "audioSha256": "ca65a382aa084d0bd7a5c5ede636b348d2fbcc9e3a721371709ec842911aadb2",
+      "shortQuanta": 15,
+      "wallSeconds": 125.24547120099999,
+      "drawIntervalsMs": {
+        "count": 69,
+        "p50": 50,
+        "p95": 50,
+        "max": 55
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 221095,
+        "nowMs": 4504,
+        "lastAtMs": 4503,
+        "sinceLastMs": 1
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        2066,
+        501.625
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 695,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 5,
+        "lcdPixels": 129600
+      }
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 4,
+      "actualPreset": 4,
+      "script": "500:e6:4,1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 710,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 3908.25,
+        "dspMaxUs": 4456.5,
+        "peak": 9973,
+        "clips": 0,
+        "meanUs": 11.259800469483567
+      },
+      "steady": {
+        "blocks": 554,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.916666666666666
+      },
+      "dspSteady": {
+        "blocks": 554,
+        "p50Us": 3905.1666666666665,
+        "p95Us": 4100.375,
+        "p99Us": 4103.583333333333,
+        "maxUs": 4105.125
+      },
+      "audioFrames": 182912,
+      "audioSha256": "2db8cd78283157320d24f1bd4717e49658e312662cd1c570bf71c74bbb353203",
+      "shortQuanta": 15,
+      "wallSeconds": 172.306522054,
+      "drawIntervalsMs": {
+        "count": 69,
+        "p50": 50,
+        "p95": 50,
+        "max": 54
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 333792,
+        "nowMs": 4504,
+        "lastAtMs": 4503,
+        "sinceLastMs": 1
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        2065.7916666666665,
+        542.2083333333334
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 695,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 5,
+        "lcdPixels": 129600
+      }
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+      "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+      "mhz": 240,
+      "preset": 5,
+      "actualPreset": 5,
+      "script": "500:e6:5,1200:C4,1800:E4,2300:E4^,2700:C4^",
+      "requestedMs": 4500,
+      "emulatedMs": 4504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 710,
+        "lastUs": 11.166666666666666,
+        "maxUs": 13.958333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 3863.7916666666665,
+        "dspMaxUs": 4456.416666666667,
+        "peak": 7628,
+        "clips": 0,
+        "meanUs": 11.259741784037558
+      },
+      "steady": {
+        "blocks": 589,
+        "p50Us": 11.166666666666666,
+        "p95Us": 12.916666666666666,
+        "p99Us": 12.958333333333334,
+        "maxUs": 13.916666666666666
+      },
+      "dspSteady": {
+        "blocks": 589,
+        "p50Us": 3861.75,
+        "p95Us": 4016.25,
+        "p99Us": 4073.4583333333335,
+        "maxUs": 4075.1666666666665
+      },
+      "audioFrames": 182912,
+      "audioSha256": "c277bd2cb0d6a49813c36da2723a1f014e01c44190e40255eb76fe3054bdd03d",
+      "shortQuanta": 15,
+      "wallSeconds": 75.74367353100001,
+      "drawIntervalsMs": {
+        "count": 69,
+        "p50": 50,
+        "p95": 50,
+        "max": 54
+      },
+      "uiService": {
+        "maxGapMs": 3,
+        "turns": 341259,
+        "nowMs": 4503,
+        "lastAtMs": 4503,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        364.9166666666667,
+        696.7083333333334,
+        2055.3333333333335,
+        498.5833333333333
+      ],
+      "audioQueue": {
+        "produced": 696,
+        "consumed": 695,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 5,
+        "lcdPixels": 129600
+      }
+    }
+  ],
+  "burstInstructionModel": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+    "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+    "mhz": 240,
+    "preset": 3,
+    "actualPreset": 3,
+    "script": "1000:C4,1200:E4,3600:E4^,4500:C4^,500:e6:3,1500:e2:1,1520:e2:-1,1540:e2:1,1560:e2:-1,1580:e2:1,1600:e2:-1,1620:e2:1,1640:e2:-1,1660:e2:1,1680:e2:-1,1700:e2:1,1720:e2:-1,1740:e2:1,1760:e2:-1,1780:e2:1,1800:e2:-1,1820:e2:1,1840:e2:-1,1860:e2:1,1880:e2:-1,1900:e2:1,1920:e2:-1,1940:e2:1,1960:e2:-1,1980:e2:1,2000:e2:-1,2020:e2:1,2040:e2:-1,2060:e2:1,2080:e2:-1,2100:e2:1,2120:e2:-1,2140:e2:1,2160:e2:-1,2180:e2:1,2200:e2:-1,2220:e2:1,2240:e2:-1,2260:e2:1,2280:e2:-1,2300:e2:1,2320:e2:-1,2340:e2:1,2360:e2:-1,2380:e2:1,2400:e2:-1,2420:e2:1,2440:e2:-1,2460:e2:1,2480:e2:-1,2500:e2:1,2520:e2:-1,2540:e2:1,2560:e2:-1,2580:e2:1,2600:e2:-1,2620:e2:1,2640:e2:-1,2660:e2:1,2680:e2:-1,2700:e2:1,2720:e2:-1,2740:e2:1,2760:e2:-1,2780:e2:1,2800:e2:-1,2820:e2:1,2840:e2:-1,2860:e2:1,2880:e2:-1,2900:e2:1,2920:e2:-1,2940:e2:1,2960:e2:-1,2980:e2:1,3000:e2:-1,3020:e2:1,3040:e2:-1,3060:e2:1,3080:e2:-1,3100:e2:1,3120:e2:-1,3140:e2:1,3160:e2:-1,3180:e2:1,3200:e2:-1,3220:e2:1,3240:e2:-1,3260:e2:1,3280:e2:-1,3300:e2:1,3320:e2:-1,3340:e2:1,3360:e2:-1,3380:e2:1,3400:e2:-1,3420:e2:1,3440:e2:-1,3460:e2:1,3480:e2:-1",
+    "requestedMs": 6500,
+    "emulatedMs": 6500,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": true,
+      "blocks": 1054,
+      "lastUs": 12.916666666666666,
+      "maxUs": 14,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 4676.083333333333,
+      "dspMaxUs": 4867.708333333333,
+      "peak": 24602,
+      "clips": 0,
+      "meanUs": 11.293247944339027
+    },
+    "steady": {
+      "blocks": 825,
+      "p50Us": 11.166666666666666,
+      "p95Us": 12.916666666666666,
+      "p99Us": 12.958333333333334,
+      "maxUs": 14
+    },
+    "dspSteady": {
+      "blocks": 825,
+      "p50Us": 4669.625,
+      "p95Us": 4750.166666666667,
+      "p99Us": 4769,
+      "maxUs": 4867.708333333333
+    },
+    "audioFrames": 270976,
+    "audioSha256": "1c3ef466f14134515ed667ea9796093b71101414cf4f3530754cc94885ca1b00",
+    "shortQuanta": 15,
+    "wallSeconds": 147.803767405,
+    "drawIntervalsMs": {
+      "count": 68,
+      "p50": 50,
+      "p95": 50,
+      "max": 2089
+    },
+    "uiService": {
+      "maxGapMs": 3,
+      "turns": 209111,
+      "nowMs": 6500,
+      "lastAtMs": 6500,
+      "sinceLastMs": 0
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      368.25,
+      696.7083333333334,
+      2066,
+      502.5833333333333
+    ],
+    "audioQueue": {
+      "produced": 1040,
+      "consumed": 1039,
+      "partialFrames": 0
+    },
+    "uiRender": {
+      "completedScans": 6,
+      "lcdPixels": 1356480
+    }
+  },
+  "bootInstructionModel": {
+    "kind": "target-interpreter-normal-and-physical-rescue-key-boot",
+    "hardwareMeasured": false,
+    "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+    "firmwareSha256": "a769e500eb68d5966253dc82a4ce64d6a729495d6daa86bb4b5b922086cab7fd",
+    "normal": {
+      "emulatedMs": 2003,
+      "ready": 1,
+      "rescue": 0,
+      "blocks": 279,
+      "audioFrames": 72576,
+      "halted": 0
+    },
+    "rescue": {
+      "emulatedMs": 2013,
+      "ready": 0,
+      "rescue": 1,
+      "blocks": 0,
+      "audioFrames": 0,
+      "halted": 0
+    },
+    "dspAddresses": {
+      "ifw_fixed_sample": 29374662,
+      "ifw_fixed_process": 29378258,
+      "ifw_fixed_fx_tick": 29364774
+    }
+  },
+  "streamInstructionModel": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+    "firmwareSha256": "f26c8815040c41f5b1bcb9fda59e8439c468078f0163e4cddc5ab60788f0a141",
+    "mhz": 240,
+    "preset": 0,
+    "actualPreset": 0,
+    "script": "",
+    "requestedMs": 6000,
+    "emulatedMs": 6001,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": true,
+      "blocks": 968,
+      "lastUs": 11.166666666666666,
+      "maxUs": 13.958333333333334,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 76,
+      "dspMaxUs": 4920.625,
+      "peak": 11075,
+      "clips": 0,
+      "meanUs": 11.288610537190083
+    },
+    "steady": {
+      "blocks": 771,
+      "p50Us": 11.166666666666666,
+      "p95Us": 12.916666666666666,
+      "p99Us": 12.958333333333334,
+      "maxUs": 13.958333333333334
+    },
+    "dspSteady": {
+      "blocks": 771,
+      "p50Us": 3197.625,
+      "p95Us": 4865.208333333333,
+      "p99Us": 4891,
+      "maxUs": 4920.625
+    },
+    "audioFrames": 248960,
+    "audioSha256": "b0c8caa81447ca4aa2d78ddaeed2d4dbd71974a657117540dda71e909cc0251c",
+    "shortQuanta": 15,
+    "wallSeconds": 154.435972811,
+    "drawIntervalsMs": {
+      "count": 87,
+      "p50": 52,
+      "p95": 65,
+      "max": 65
+    },
+    "uiService": {
+      "maxGapMs": 3,
+      "turns": 643896,
+      "nowMs": 6001,
+      "lastAtMs": 6001,
+      "sinceLastMs": 0
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      364.5,
+      708.5416666666666,
+      1773.3333333333333,
+      534.4166666666666
+    ],
+    "audioQueue": {
+      "produced": 954,
+      "consumed": 953,
+      "partialFrames": 256
+    },
+    "uiRender": {
+      "completedScans": 82,
+      "lcdPixels": 2847360
+    },
+    "irqRegression": {
+      "ready": true,
+      "blocks": 768,
+      "frames": 196608,
+      "done": 1,
+      "hashes": [
+        2487913643,
+        3672979936,
+        1576189980,
+        830244902,
+        3828859575,
+        4243867471,
+        3367255549,
+        1947032251,
+        1314428674,
+        467323088,
+        2484020674,
+        263350405,
+        4203956151,
+        3820446827,
+        2180506614,
+        2372140025,
+        1245889392,
+        4171619972,
+        958984482,
+        1468443415,
+        3924068641,
+        993620081,
+        4079188785,
+        4244373416
+      ]
+    }
+  },
+  "arithmeticInstructionModel": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "6c8efc4d1e85e1b799d44ab98d0b9e512af9eb144d6760d553972414ba68e8ca",
+    "firmwareSha256": "ec62390dad5908a42b092a1545b5c2112d11f83115f0458c89cab5482c8c8a58",
+    "mhz": 240,
+    "preset": 0,
+    "actualPreset": 0,
+    "script": "",
+    "requestedMs": 5000,
+    "emulatedMs": 5003,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": true,
+      "blocks": 579,
+      "lastUs": 11.125,
+      "maxUs": 13.958333333333334,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 4382.875,
+      "dspMaxUs": 4389.333333333333,
+      "peak": 0,
+      "clips": 0,
+      "meanUs": 11.235823258491651
+    },
+    "steady": {
+      "blocks": 497,
+      "p50Us": 11.166666666666666,
+      "p95Us": 12.916666666666666,
+      "p99Us": 13.916666666666666,
+      "maxUs": 13.958333333333334
+    },
+    "dspSteady": {
+      "blocks": 497,
+      "p50Us": 4378.708333333333,
+      "p95Us": 4383.166666666667,
+      "p99Us": 4386.166666666667,
+      "maxUs": 4389.333333333333
+    },
+    "audioFrames": 204928,
+    "audioSha256": "0c61ea85c35edc0a75f5dbbc26deeae1e757f012d37e71517dacd642c82af846",
+    "shortQuanta": 15,
+    "wallSeconds": 157.75604592599998,
+    "drawIntervalsMs": {
+      "count": 62,
+      "p50": 50,
+      "p95": 55,
+      "max": 55
+    },
+    "uiService": {
+      "maxGapMs": 3,
+      "turns": 200063,
+      "nowMs": 5003,
+      "lastAtMs": 5002,
+      "sinceLastMs": 1
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      366.7083333333333,
+      695.75,
+      1690.2083333333333,
+      535.1666666666666
+    ],
+    "audioQueue": {
+      "produced": 564,
+      "consumed": 563,
+      "partialFrames": 0
+    },
+    "uiRender": {
+      "completedScans": 26,
+      "lcdPixels": 825600
+    },
+    "targetRegression": {
+      "complete": true,
+      "hashes": [
+        1517792965,
+        186922835,
+        438099576,
+        4218795505,
+        87682874,
+        353106916,
+        1422885329,
+        3493980177,
+        3708070013,
+        4046083143,
+        2712413889,
+        3072289713,
+        535097152,
+        617287820,
+        3581225098,
+        1498942777
+      ],
+      "mathErrors": 0
+    }
+  }
+}

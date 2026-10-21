@@ -131,9 +131,10 @@ int32_t ifw_allpass_a30(int32_t hz,int half) {
     return lerp(t,i,(unsigned)hz&1048575u,20);
 }
 int32_t ifw_soft20(int32_t x) {
+    if(!x)return 0;
     uint32_t a=x<0?(uint32_t)(-(int64_t)x):(uint32_t)x;
     uint32_t d=65536u+(uint32_t)(((uint64_t)a*983u)>>20);
-    uint32_t whole=a/d,rem=a%d,frac=ifw_ratio16(rem,d);
+    uint32_t whole=a/d,rem=a-whole*d,frac=ifw_ratio16(rem,d);
     int32_t out=(int32_t)((whole<<16)+frac);
     return x<0?-out:out;
 }

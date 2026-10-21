@@ -30,7 +30,7 @@ shutil.copy2(R/'firmware-bin'/filename,O/'firmware'/filename)
 shutil.copy2(R/'firmware-bin/build.json',O/'firmware/build.json')
 (O/'install/release.json').write_text(json.dumps(dict(schema=1,version=release['version'],
     product=release['identity'],file=filename,bytes=len(package),sha256=release['sha256'],
-    hardwareTested=release['hardwareTested']),indent=2)+'\n')
+    hardwareTested=release['hardwareTested'],experimental=release.get('experimental',False),stage=release.get('stage','legacy')),indent=2)+'\n')
 # The byte-identical previously bootable package remains available for rescue.
 for version in ['0.4.1','0.4.4']:
     recovery=json.loads((R/f'firmware-bin/OpenIFW-FM1-{version}.json').read_text())

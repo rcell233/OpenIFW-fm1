@@ -24,7 +24,7 @@ int main(void) {
         page=pages[c];ui_drawing=0;ui.menu=ui.confirm=ui.naming=ui.layer=0;
         uint64_t elapsed=0;
         for(unsigned i=0;i<33;i++) {
-            memset(ui_row_valid,0,sizeof ui_row_valid);
+            ui_display_invalidate();
             uint64_t start=ns();draw_panel(1);while(ui_drawing)draw_panel(0);
             if(i)elapsed+=ns()-start;
         }
@@ -33,13 +33,12 @@ int main(void) {
         printf("%s{\"page\":%u,\"meanUs\":%.3f,\"pixelHash\":%u}",c?",":"",page,elapsed/32000.,hash);
     }
     ui_init();page=UP_OSC1;ui_drawing=0;draw_panel(1);
-    uint32_t completed=0,furthest=ui_draw_y;
+    uint32_t completed=0;
     for(unsigned i=0;i<100;i++) {
         fm1_ms++;host_enc[ENC_KNOB1]=(i&1)?-1:1;
         uint32_t last=last_draw;app_step();
-        if(ui_draw_y>furthest)furthest=ui_draw_y;
         if(last_draw!=last)completed++;
     }
-    printf("],\"burstCompletedScans\":%u,\"burstFurthestRow\":%u}\n",completed,furthest);
+    printf("],\"burstCompletedUpdates\":%u}\n",completed);
     return 0;
 }

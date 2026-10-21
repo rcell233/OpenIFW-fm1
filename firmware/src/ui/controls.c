@@ -459,7 +459,7 @@ static void ui_knob(uint32_t k, int32_t d) {
     if(d>0) {
       perf_reset();ui_poll_max_gap=0;
 #ifdef IFW_TARGET
-      audio_yields=0;
+      audio_underruns=0;
 #endif
     }
     dirty=1;return;
@@ -864,11 +864,11 @@ static void ui_leds(void) {
                                    BTN_SEQ,  BTN_FX,   BTN_SEL, BTN_ARP,
                                    BTN_GLO,  BTN_SAVE};
   for (uint32_t i = 0; i < 10; i++)
-    fm1_led_key(button[i], !ui.menu && ui_group() == i);
-  fm1_led_key(BTN_REC, (int)learn_armed);
-  fm1_led_key(BTN_PLAY, meter.held != 0);
-  fm1_led_key(BTN_OCT_UP, ui.confirm || ui.naming || page == UP_SAVE);
-  fm1_led_key(BTN_OCT_DOWN, ui.confirm || ui.naming || page == UP_SAVE);
+    ui_led(button[i], !ui.menu && ui_group() == i);
+  ui_led(BTN_REC, (int)learn_armed);
+  ui_led(BTN_PLAY, meter.held != 0);
+  ui_led(BTN_OCT_UP, ui.confirm || ui.naming || page == UP_SAVE);
+  ui_led(BTN_OCT_DOWN, ui.confirm || ui.naming || page == UP_SAVE);
 }
 static void ui_init(void) {
   memset(&ui, 0, sizeof ui);

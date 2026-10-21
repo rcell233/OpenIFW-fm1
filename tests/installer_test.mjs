@@ -16,6 +16,11 @@ const bad=async(p,code)=>{await assert.rejects(p,e=>e.code===code);checks++;};
 await bad(verifyFirmware(bytes.slice(0,-1),meta),'badpkg');
 const changed=bytes.slice();changed[2000]^=1;await bad(verifyFirmware(changed,meta),'badpkg');
 await bad(verifyFirmware(bytes,{...meta,product:'FM-2_982'}),'badpkg');
+if(meta.version.includes('-rc')){
+ eq(meta.experimental,true);await bad(verifyFirmware(bytes,{...meta,experimental:false}),'badpkg');
+ for(const v of ['0.4.6-rc0','0.4.6-rc','../0.4.6'])await bad(verifyFirmware(bytes,{...meta,version:v}),'badpkg');
+}
+
 const brokenLoader=bytes.slice(),ota=pkg.entries.find(e=>e.type===100);brokenLoader[ota.dataOff+20+200]^=1;
 await bad(verifyFirmware(brokenLoader,{...meta,sha256:await sha256hex(brokenLoader)}),'badpkg');
 const addresses=[];
