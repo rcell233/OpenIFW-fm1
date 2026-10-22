@@ -1,16 +1,16 @@
 {
-  "version": "0.4.7-rc5",
+  "version": "0.4.7-rc7",
   "identity": "FM-1_982",
-  "appBytes": 268476,
+  "appBytes": 268848,
   "packageBytes": 610161,
   "originalHalSha256": {
     "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
     "fm1_time.h": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
     "fm1_isr.S": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5"
   },
-  "sha256": "59cb87236c0ca266a8d00143b73f1ffc0320251f797b9ca315e5af3f25bbf5a9",
+  "sha256": "09de4a0b6e6398afeb104cac8d1b390e83b2c37d17135ecb51acd47da535cd1f",
   "hardwareTested": false,
-  "ramDataBss": 81712,
+  "ramDataBss": 81728,
   "poolBytes": 285208,
   "limits": {
     "app": 581564,
@@ -20,9 +20,9 @@
   "sampleRate": 44100,
   "framesPerBlock": 256,
   "cpuMeasured": false,
-  "ramCodeBytes": 19176,
+  "ramCodeBytes": 19548,
   "ramFlashDriverBytes": 2848,
-  "ramDspBytes": 16328,
+  "ramDspBytes": 16700,
   "ramIrqBytes": 0,
   "dspPlacement": "ram",
   "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",

@@ -1,0 +1,209 @@
+{
+  "referenceCommit": "4ff76039e3904db74bcad201b37972b0d320f325",
+  "referenceSourceSha256": {
+    "firmware/src/fixed/synth.c": "d02cb5fc0b09449cb98f6b732f8be7eb0cab2ae20ea8905436a8370b0b8044bf",
+    "firmware/src/fixed/synth.h": "8411f8e2eb9eb4498716b5b7a9a28f6abafb1637b64da706e09fe4c2da947173",
+    "firmware/src/fixed/effects.c": "c394057a32652b55589bd98508f82d1cc8f94866042b7adeb0d672335750e6ec",
+    "firmware/src/fixed/math.c": "2e942203d3112cd92c905604c92d2e358c4774b988ef967f801f8816caecc1d7"
+  },
+  "harnessSha256": "715830c8fa7f624a4044a5bc3af53f4a0385ce64e43b6ab52ca05298bb421fe6",
+  "capture": "Compiled from archived unmodified rc5 engine before the CPU source edits; native production DIV=2, BITS=23.",
+  "trace": {
+    "kind": "rc5-production-pcm-state-fx-trace",
+    "cases": [
+      {
+        "preset": 0,
+        "mode": 0,
+        "hashes": [
+          3265324884,
+          2209340477
+        ]
+      },
+      {
+        "preset": 0,
+        "mode": 1,
+        "hashes": [
+          1830441491,
+          2010621518
+        ]
+      },
+      {
+        "preset": 0,
+        "mode": 2,
+        "hashes": [
+          3957535506,
+          1637168381
+        ]
+      },
+      {
+        "preset": 0,
+        "mode": 3,
+        "hashes": [
+          3545101840,
+          2415483055
+        ]
+      },
+      {
+        "preset": 1,
+        "mode": 0,
+        "hashes": [
+          568099671,
+          2559828460
+        ]
+      },
+      {
+        "preset": 1,
+        "mode": 1,
+        "hashes": [
+          1293617989,
+          1844745462
+        ]
+      },
+      {
+        "preset": 1,
+        "mode": 2,
+        "hashes": [
+          1854935293,
+          3774813974
+        ]
+      },
+      {
+        "preset": 1,
+        "mode": 3,
+        "hashes": [
+          2406882281,
+          342445710
+        ]
+      },
+      {
+        "preset": 2,
+        "mode": 0,
+        "hashes": [
+          1786010246,
+          2313732633
+        ]
+      },
+      {
+        "preset": 2,
+        "mode": 1,
+        "hashes": [
+          3179402999,
+          62750376
+        ]
+      },
+      {
+        "preset": 2,
+        "mode": 2,
+        "hashes": [
+          841415212,
+          2570036399
+        ]
+      },
+      {
+        "preset": 2,
+        "mode": 3,
+        "hashes": [
+          4091872311,
+          2003392822
+        ]
+      },
+      {
+        "preset": 3,
+        "mode": 0,
+        "hashes": [
+          1433128916,
+          3771155801
+        ]
+      },
+      {
+        "preset": 3,
+        "mode": 1,
+        "hashes": [
+          2181164297,
+          878100576
+        ]
+      },
+      {
+        "preset": 3,
+        "mode": 2,
+        "hashes": [
+          3020282447,
+          1765031372
+        ]
+      },
+      {
+        "preset": 3,
+        "mode": 3,
+        "hashes": [
+          2967654324,
+          4081124337
+        ]
+      },
+      {
+        "preset": 4,
+        "mode": 0,
+        "hashes": [
+          1779809509,
+          1860662378
+        ]
+      },
+      {
+        "preset": 4,
+        "mode": 1,
+        "hashes": [
+          2847114808,
+          3183104275
+        ]
+      },
+      {
+        "preset": 4,
+        "mode": 2,
+        "hashes": [
+          144092757,
+          2454232754
+        ]
+      },
+      {
+        "preset": 4,
+        "mode": 3,
+        "hashes": [
+          3515600342,
+          1732867067
+        ]
+      },
+      {
+        "preset": 5,
+        "mode": 0,
+        "hashes": [
+          3658628366,
+          3211465771
+        ]
+      },
+      {
+        "preset": 5,
+        "mode": 1,
+        "hashes": [
+          2897521858,
+          1823610907
+        ]
+      },
+      {
+        "preset": 5,
+        "mode": 2,
+        "hashes": [
+          62410575,
+          763937206
+        ]
+      },
+      {
+        "preset": 5,
+        "mode": 3,
+        "hashes": [
+          639307084,
+          1577395085
+        ]
+      }
+    ],
+    "frames": 2359296
+  }
+}

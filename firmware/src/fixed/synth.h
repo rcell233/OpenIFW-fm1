@@ -105,6 +105,10 @@ typedef struct {
     uint8_t wave_sources[4],wave_needed[4];
     uint32_t sync_mask,output1_mask,output2_mask;
     int32_t noise_period;
+    /* Exact rate memoization. Keys include the sync mode; no timing state is
+     * cached, advanced or skipped here. Every changed input runs the same math. */
+    int32_t env_rate_input[4],lfo_rate_input[2];
+    uint8_t rate_valid,lfo_rate_sync;
 } IFWFixedSynth;
 void ifw_fixed_capture_sources(IFWFixedSynth *s);
 void ifw_fixed_patch_default(IFWFixedPatch *p);

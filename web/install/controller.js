@@ -33,7 +33,7 @@ export async function verifyFirmware(bytes,meta){
 }
 
 export async function loadFirmware(baseURL,fetcher=fetch,release='release.json'){
-  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json','recovery-0.4.7-rc2.json','recovery-0.4.7-rc3.json','recovery-0.4.7-rc4.json','candidate-0.4.7-rc2.json','candidate-0.4.7-rc3.json','candidate-0.4.7-rc4.json','candidate-0.4.7-rc5.json'].includes(release))
+  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json','recovery-0.4.7-rc2.json','recovery-0.4.7-rc3.json','recovery-0.4.7-rc4.json','recovery-0.4.7-rc5.json','candidate-0.4.7-rc2.json','candidate-0.4.7-rc3.json','candidate-0.4.7-rc4.json','candidate-0.4.7-rc5.json','candidate-0.4.7-rc7.json'].includes(release))
     throw fail('badpkg','未知的固件发布入口。');
   const response=await fetcher(new URL('./'+release,baseURL),{cache:'no-store'});
   if(!response.ok)throw fail('download','无法读取固件信息（HTTP '+response.status+'）。');

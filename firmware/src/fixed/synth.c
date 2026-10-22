@@ -77,14 +77,27 @@ static int32_t log_cutoff(IFWFixedSynth *s,int i,int32_t note) {
     return ifw_sat(result);
 }
 static void configure_rates(IFWFixedSynth *s) {
-    for(int i=0;i<4;i++)s->env_rate[i]=ifw_fixed_env_rate_cv(s->mod[IFW_MOD_EG+i]);
+    for(unsigned i=0;i<4;i++) {
+        int32_t input=s->mod[IFW_MOD_EG+i];unsigned bit=1u<<i;
+        if(!(s->rate_valid&bit) || s->env_rate_input[i]!=input) {
+            s->env_rate[i]=ifw_fixed_env_rate_cv(input);
+            s->env_rate_input[i]=input;s->rate_valid|=bit;
+        }
+    }
     for(int i=0;i<2;i++) {
-        if(L(i,BPMSync)||L(i,BpmSync)) {
-            uint64_t den=(uint64_t)(uint32_t)ifw_clamp(L(i,Beat),1024,16*65536)*88200u;
+        unsigned sync=!!(L(i,BPMSync)||L(i,BpmSync)),bit=1u<<(4+i);
+        int32_t input=sync?ifw_clamp(L(i,Beat),1024,16*65536):
+            ifw_sat((int64_t)L(i,Speed)+s->mod[IFW_MOD_LFO+i]);
+        if((s->rate_valid&bit) && s->lfo_rate_input[i]==input &&
+           ((s->lfo_rate_sync>>(unsigned)i)&1u)==sync)continue;
+        if(sync) {
+            uint64_t den=(uint64_t)(uint32_t)input*88200u;
             uint64_t num=UINT64_C(281474976710656);
             while(den>UINT32_MAX) {den>>=1;num>>=1;}
             s->lfo_step[i]=ifw_udiv64(num,(uint32_t)den);
-        }else s->lfo_step[i]=ifw_lfo_step(ifw_sat((int64_t)L(i,Speed)+s->mod[IFW_MOD_LFO+i]));
+        }else s->lfo_step[i]=ifw_lfo_step(input);
+        s->lfo_rate_input[i]=input;s->rate_valid|=bit;
+        s->lfo_rate_sync=(uint8_t)((s->lfo_rate_sync&~(1u<<i))|(sync<<i));
     }
 }
 static void configure_filter3(IFWFixedSynth *s) {
@@ -261,8 +274,18 @@ static int32_t filter3_tick(IFWFixedFilter3 *f,int32_t input) {
     if(!f->enabled || !f->mix)return input;
     int32_t y=ifw_addsat(input,ifw_mul20(f->last,f->feedback));
     /* Frozen a30 coefficients are strictly inside (-Q30,Q30). */
-    for(int i=0;i<f->stages;i++) {int32_t v=ifw_addsat(ifw_mul30_bounded(y,f->a),f->z[i]);
-        f->z[i]=ifw_subsat(y,ifw_mul30_bounded(v,f->a));y=v;}
+    /* Four consecutive cells share their coefficient and loop bookkeeping.
+     * Keep every multiply, rounding, saturation and state write in order. */
+    int i=0,n=f->stages;int32_t a=f->a;
+#define FILTER3_CELL(I) do { \
+        int32_t v=ifw_addsat(ifw_mul30_bounded(y,a),f->z[I]); \
+        f->z[I]=ifw_subsat(y,ifw_mul30_bounded(v,a));y=v; \
+    } while(0)
+    for(;i+4<=n;i+=4) {
+        FILTER3_CELL(i);FILTER3_CELL(i+1);FILTER3_CELL(i+2);FILTER3_CELL(i+3);
+    }
+    for(;i<n;i++)FILTER3_CELL(i);
+#undef FILTER3_CELL
     int32_t wet=f->last;f->last=y;
     int32_t mix=f->mix<0?-f->mix:f->mix;
     return ifw_clamp(ifw_sat((int64_t)ifw_mul20(input,IFW_Q20-mix)+ifw_mul20(wet,f->mix)),-5*IFW_Q20,5*IFW_Q20);

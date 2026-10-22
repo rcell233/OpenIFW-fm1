@@ -1,0 +1,17 @@
+{
+  "version": "0.4.7-rc7",
+  "authorization": "User requires removal of rc6 output masks and real CPU efficiency improvements preserving OSC, modulation, envelopes, mono/Legato and accepted rc5 reverb/output.",
+  "changes": [
+    "four-cell filter3 loop unrolling with original ordered arithmetic",
+    "input-keyed envelope and LFO rate memoization, including sync mode and edits"
+  ],
+  "previousSha256": {
+    "firmware/src/fixed/synth.c": "d02cb5fc0b09449cb98f6b732f8be7eb0cab2ae20ea8905436a8370b0b8044bf",
+    "firmware/src/fixed/synth.h": "8411f8e2eb9eb4498716b5b7a9a28f6abafb1637b64da706e09fe4c2da947173"
+  },
+  "sha256": {
+    "firmware/src/fixed/synth.c": "9438ec22d8827ddb003f1f57500fd9999663c7490701ac8d69f8945a57c05a3d",
+    "firmware/src/fixed/synth.h": "fa2197dd2fcf8424eb46a2ece080237a09044db3b22d6829c0cfa2fcb0f6e388"
+  },
+  "reference": "Immutable original PCM/state fixtures plus locked rc5 production traces; no updated old golden outputs."
+}

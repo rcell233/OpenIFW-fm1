@@ -17,7 +17,9 @@ const divCycles=Number(process.env.IFW_SIM_DIV_CYCLES||1);
 if(divCycles!==1&&!x.fm1_audit_div_cycles)throw Error('Division sensitivity requires the audit emulator patch');
 x.fm1_audit_div_cycles?.(divCycles);
 if(process.env.IFW_SIM_SPI_TIMING){if(!x.fm1_audit_spi_timing)throw Error('SPI timing requires the audit emulator patch');x.fm1_audit_spi_timing(1);}
-const script=process.env.IFW_SIM_SCRIPT??`${preset?`500:e6:${preset},`:''}1200:C4,1800:E4,2300:E4^,2700:C4^`;
+/* The golden IRQ stream supplies its own notes. Do not add panel notes to
+ * that test unless explicitly requested: the native reference has none. */
+const script=process.env.IFW_SIM_SCRIPT??(syms.symbols.irq_check?'':`${preset?`500:e6:${preset},`:''}1200:C4,1800:E4,2300:E4^,2700:C4^`);
 const bytes=new TextEncoder().encode(script),sp=x.fm1_alloc(bytes.length);new Uint8Array(x.memory.buffer,sp,bytes.length).set(bytes);
 if(x.fm1_bench_script(sp,bytes.length))throw Error('Invalid script');
 if(process.env.IFW_SIM_PROFILE||process.env.IFW_SIM_PC_PROFILE)x.fm1_profile(1);
@@ -67,6 +69,9 @@ if(syms.symbols.ui_widget_max_ticks)result.widgetMaxUs=Array.from({length:widget
 if(syms.symbols.ui_widget_updates)result.widgetUpdates=Array.from({length:widgetCount},(_,i)=>r32(syms.symbols.ui_widget_updates+i*4));
 if(syms.symbols.audio_write)result.audioQueue={produced:r32(syms.symbols.audio_write),consumed:r32(syms.symbols.audio_read),partialFrames:r32(syms.symbols.audio_offset)};
 if(syms.symbols.ui_frame_count)result.uiRender={completedScans:r32(syms.symbols.ui_frame_count),lcdPixels:r32(syms.symbols.ui_lcd_pixels)};
+if(syms.symbols.platform_perf){const a=syms.symbols.platform_perf,scans=r32(a),polls=r32(a+12);
+ result.inputUsbInterrupt={scans,meanUs:scans?r32(a+4)/scans/24:0,maxUs:r32(a+8)/24,
+  usbPolls:polls,usbMeanUs:polls?r32(a+16)/polls/24:0,usbMaxUs:r32(a+20)/24};}
 if(process.env.IFW_SIM_MODE)result.diagnosticMode=process.env.IFW_SIM_MODE;
 if(process.env.IFW_SIM_PCM)writeFileSync(process.env.IFW_SIM_PCM,Buffer.concat(pcm));
 if(syms.symbols.dsp_check){const a=syms.symbols.dsp_check;result.targetRegression={complete:r32(a)===0x54535749,

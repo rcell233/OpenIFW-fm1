@@ -29,15 +29,18 @@ for row,old in zip(rows,before['openifw']):
 for row in long['longScenes']:
     assert row['seconds']==100 and row['boundaryChannelSamples']==0,row
 unchanged=['firmware/src/fixed/synth.c','firmware/src/presets.h','firmware/src/dsp.c']
+cpu=json.loads((root/'docs/evidence/cpu-optimization-baseline.json').read_text())
+assert cpu['previousSha256']['firmware/src/fixed/synth.c']==before['sourceSha256']['firmware/src/fixed/synth.c']
+expected={name:cpu['sha256'].get(name,before['sourceSha256'][name]) for name in unchanged}
 for name in unchanged:
-    assert hashlib.sha256((root/name).read_bytes()).hexdigest()==before['sourceSha256'][name],name
+    assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected[name],name
 summary=dict(kind='native-output-gain-validation-not-hardware',outputGain=2,gainDb=20*math.log10(2),
     factoryCases=288,presetIdentityExact=True,fxPrecisionChange=True,outputBoundaryChannelSamples=0,
     fullBreathMaxAbsRmsDeltaDb=max(abs(r['rmsDeltaDb']) for r in loudness if r['breath']==1),
     weakBreathMaxRmsDeltaDb=max(r['rmsDeltaDb'] for r in loudness if r['breath']<1),
     weakBreathCasesBeyond3Db=[r for r in loudness if abs(r['rmsDeltaDb'])>=3],
     factoryMaxOutputPeak=max(r['outputPeak'] for r in rows),
-    longScenes=long,unchangedSourceSha256={name:before['sourceSha256'][name] for name in unchanged},
+    longScenes=long,exactCpuOptimization=True,validatedSourceSha256=expected,
     sourceSha256={name:hashlib.sha256((root/name).read_bytes()).hexdigest()
                   for name in ['firmware/src/output_level.h','firmware/src/audio_output.h','web/emu/openifw_web.c']},
     hardwareMeasured=False)
