@@ -41,17 +41,22 @@ performance-test: build/dsp-regression build/dsp-regression-unity build/source-c
 build/dsp-irq-stream: tests/dsp_irq_stream.c $(FIXED) $(wildcard firmware/src/fixed/*.h) firmware/src/presets.h
 	mkdir -p build
 	$(CC) $(CFLAGS) -DIFW_IRQ_STREAM_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_irq_stream.c $(FIXED) -o $@
-build/audio-scheduler: tests/audio_scheduler.c firmware/src/audio_output.h firmware/src/audio_perf.h
+build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler.c -o $@
 build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-hardware-path-test: build/dsp-irq-stream build/audio-scheduler build/audio-scheduler-rc2
+build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h
+	mkdir -p build
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
+hardware-path-test: build/dsp-irq-stream build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
 	mkdir -p build/target-audit
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler > build/target-audit/scheduler.json
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler-rc2 > build/target-audit/scheduler-rc2.json
+	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler-production > build/target-audit/scheduler-production.json
 	python3 tests/timer_services_test.py
+	python3 tests/boot_diagnostics_test.py
 	node tests/diagnostics_test.mjs
 	node tests/diagnostics_page_test.mjs
 	build/dsp-irq-stream > build/target-audit/irq-native.json

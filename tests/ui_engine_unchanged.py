@@ -17,11 +17,5 @@ if changed:raise SystemExit('Frozen engine/preset changed: '+', '.join(changed))
 print(f"PASS source audit: {len(baseline['sha256'])-len(optimized)} frozen files; "
       f"{len(optimized)} explicitly recorded performance changes, with separate exact PCM/state regressions.")
 for name in ['fm1_input.h','fm1_time.h','fm1_isr.S']:
-    def semantic(s):
-        s=re.sub(r'/\*.*?\*/|//[^\n]*','',s,flags=re.S)
-        s=re.sub(r'__attribute__\(\(section\("[^"]*"\)\)\)|__attribute__\(\(always_inline\)\)','',s)
-        s=re.sub(r'\binline\b','',s)
-        s=s.replace('.section .ram_irq,','.section .text.\\name,')
-        return re.sub(r'\s+','',s)
-    assert semantic((root/'firmware/hal'/name).read_text())==semantic((root/'vendor/dinghy/firmware/hal'/name).read_text()),name+' changed beyond placement/inlining'
-print('PASS HAL: input/time/ISR copies differ only in placement, inlining and comments; original GPIO/debounce/encoder logic retained')
+    assert not (root/'firmware/hal'/name).exists(),name+' must use the original vendor HAL'
+print('PASS HAL: input/time/ISR use the original vendor files and Flash placement')

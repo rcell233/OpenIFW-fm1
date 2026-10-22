@@ -145,7 +145,7 @@ static struct {
     uint8_t rx_pend;             /* EP1 OUT packet seen, not yet taken (the MIDI ring was too full) */
     uint32_t rx_held, rx_bad;    /* packets held back (NAK) for room, malformed events ignored */
 #ifndef FELUCCA_LOADER
-    volatile uint8_t diag_req,diag_sequence;
+    volatile uint8_t diag_req,diag_sequence,diag_command;
 #endif
 } usb;
 
@@ -714,7 +714,7 @@ static void sysex_byte(uint8_t b)
             usb.uboot_req = 1;
 #ifndef FELUCCA_LOADER
         else if (ifw_diag_sequence(usb.sysex,usb.sx_len)>=0) {
-            usb.diag_sequence=usb.sysex[7];usb.diag_req=1;
+            usb.diag_sequence=usb.sysex[7];usb.diag_command=usb.sysex[6];usb.diag_req=1;
         }
 #endif
 #if FELUCCA_OTA

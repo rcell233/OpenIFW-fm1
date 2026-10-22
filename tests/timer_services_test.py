@@ -20,7 +20,7 @@ static void fm1_timer5_ack(void){}
 static void fm1_input_tick(void){scans++;ticks+=72;}
 static void usb_poll(void){polls++;ticks+=480;}
 static void uac_service(void){uac_calls++;ticks+=168;}
-static struct {uint8_t sx_on,sx_len,sysex[16],uboot_req,ota_req,diag_req,diag_sequence;} usb;
+static struct {uint8_t sx_on,sx_len,sysex[16],uboot_req,ota_req,diag_req,diag_sequence,diag_command;} usb;
 static uint8_t sx_collect,sx_ready,sx_frame[640];static uint32_t sx_pos,sx_frame_len;
 '''+body+sysex+r'''
 int main(void){
@@ -34,6 +34,9 @@ int main(void){
  for(unsigned i=0;i<9;i++){sysex_byte(request[i]);sysex_byte(0xf8);}
  assert(usb.diag_req && usb.diag_sequence==127 && !sx_ready && !usb.ota_req && !usb.uboot_req);
  usb.diag_req=0;
+ uint8_t boot[9];for(unsigned i=0;i<9;i++)boot[i]=request[i];boot[6]=2;
+ for(unsigned i=0;i<9;i++)sysex_byte(boot[i]);
+ assert(usb.diag_req && usb.diag_command==2 && usb.diag_sequence==127 && !sx_ready && !usb.ota_req);usb.diag_req=0;
  const uint8_t loader[]={0xf0,0x22,0x24,0x35,0x7d,0xf7};
  for(unsigned i=0;i<6;i++)sysex_byte(loader[i]);
  assert(usb.uboot_req && !usb.diag_req);

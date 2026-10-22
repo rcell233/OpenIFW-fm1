@@ -63,3 +63,5 @@ static void ui_led(uint32_t id,int on) {
         valid[id]=1;value[id]=(uint8_t)!!on;fm1_led_key(id,on);
     }
 }
+
+static uint32_t ui_priority_widgets,ui_priority_at;

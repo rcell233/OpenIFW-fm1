@@ -125,14 +125,7 @@ static void app_audio_finish(int32_t *out,uint32_t n) {
 static void app_audio(int32_t *out,uint32_t n) {
     if(!ready)return;
     app_audio_begin();
-#ifdef IFW_TARGET
-    for(uint32_t b=0;b<n;b+=32u) {
-        uint32_t count=n-b;if(count>32u)count=32u;
-        app_audio_render(out+2u*b,count);audio_usb_tap(out+2u*b,count);
-    }
-#else
     app_audio_render(out,n);
-#endif
     app_audio_finish(out,n);
 }
 static uint32_t app_crc(const void *data,uint32_t n) {
@@ -241,6 +234,9 @@ static void format_value(char *text,uint32_t id) {
 #include "ui/controls.c"
 #include "ui/draw.c"
 static void app_init(void) {
+#ifdef IFW_TARGET
+    ifw_boot_mark(7);
+#endif
 #ifdef IFW_DSP_SELFTEST
     /* Use full-address calls for target self-test entry points. */
     void (*volatile regression)(IFWFixedSynth *,IFWFixedFxBuffers *,uint32_t *)=opt_regression;
@@ -252,6 +248,9 @@ static void app_init(void) {
 #endif
     perf_mode=0;perf_phase=0;perf_reset();
     storage_load();make_preset(&edit_patch,0);
+#ifdef IFW_TARGET
+    ifw_boot_mark(8);
+#endif
 #ifdef IFW_DSP_STRESS
     perf_stress_patch(&edit_patch);
 #endif
@@ -260,31 +259,50 @@ static void app_init(void) {
     irq_stream_init();
 #endif
     RING_PUBLISH();ready=1;
+#ifdef IFW_TARGET
+    ifw_boot_mark(9);
+#endif
 #ifdef IFW_DSP_STRESS
     enqueue(2,INT32_MAX,0);enqueue(0,108,INT32_MAX);
 #endif
     for(int i=0;i<27;i++)key_notes[i]=255;
     ui_init();ui_palette();lcd_fill(0,0,240,240,uc.bg);ui_display_invalidate();draw_panel(1);
+#ifdef IFW_TARGET
+    ifw_boot_mark(10);
+#endif
 }
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
 /* Read-only snapshot, requested by the browser. No note, patch, output mode,
  * flash or reset operation is accepted by this protocol. */
 static void diagnostics_service(void) {
-    if(!usb.diag_req || !usb.config || mo_w-mo_r+(IFW_DIAG_BYTES+2u)/3u>MQ)return;
+    uint32_t boot=usb.diag_command==2,bytes_count=boot?IFW_BOOT_BYTES:IFW_DIAG_BYTES;
+    if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40701,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40702,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
         platform_perf.usb_polls,platform_perf.usb_ticks,platform_perf.usb_max_ticks,
         uac.underruns,uac.overruns,uac.missed,uac.stalls,uac.r48?48000u:44100u,
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
+    if(boot) {
+        uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
+        uint32_t report[IFW_BOOT_WORDS]={1,40702,recovery_active,ifw_boot_reason,
+            fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
+            valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
+            valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,
+            valid?fm1_crash.uptime_ms:0,valid?fm1_crash.early:0,ifw_boot_progress.stage,
+            ifw_previous_boot.stage,ifw_previous_boot.version};
+        memcpy(words,report,sizeof report);
+    }
     uint8_t sequence=usb.diag_sequence;usb.diag_req=0;irq_restore(f);
-    uint8_t bytes[IFW_DIAG_BYTES];ifw_diag_encode(bytes,sequence,words);
-    for(unsigned i=0;i<IFW_DIAG_BYTES;i+=3u) {
-        unsigned n=IFW_DIAG_BYTES-i;if(n>3u)n=3u;
-        uint32_t packet=i+n==IFW_DIAG_BYTES?4u+n:4u;
+    uint8_t bytes[IFW_DIAG_BYTES];
+    if(boot)ifw_diag_encode_words(bytes,sequence,3,IFW_BOOT_WORDS,words);
+    else ifw_diag_encode(bytes,sequence,words);
+    for(unsigned i=0;i<bytes_count;i+=3u) {
+        unsigned n=bytes_count-i;if(n>3u)n=3u;
+        uint32_t packet=i+n==bytes_count?4u+n:4u;
         for(unsigned k=0;k<n;k++)packet|=(uint32_t)bytes[i+k]<<(8u*(k+1u));
         midi_out_event(packet);
     }
@@ -309,6 +327,9 @@ static void app_step(void) {
 }
 static void app_main(void) {
     app_init();
+#ifdef IFW_TARGET
+    ifw_boot_mark(11);
+#endif
     for(;;) {
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
         /* A rejected/cancelled OTA can return after drawing its own screen. */
@@ -316,6 +337,7 @@ static void app_main(void) {
 #endif
         platform_poll();
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
+        audio_service();
         diagnostics_service();
 #endif
         app_step();

@@ -645,7 +645,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc1", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc2", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -919,20 +919,31 @@ static void draw_panel(uint32_t full) {
   if(page==UP_PERF && fm1_ms-perf_draw_at>=200u) {
     perf_snapshot();perf_draw_at=fm1_ms;ui_widgets|=6u;
   }
+  if(full && ui_widgets) {
+    if(!ui_priority_widgets)ui_priority_at=fm1_ms;
+    ui_priority_widgets|=ui_widgets;
+  }
   } /* model sampling: at most 50 Hz unless an input changes the screen */
   /* A full stage includes both home damage rectangles. It always supersedes
    * them, including when a menu opens while animation is waiting. */
-  if(ui_widgets&4u)ui_widgets&=~48u;
+  if(ui_widgets&4u) {ui_widgets&=~48u;ui_priority_widgets&=~48u;}
   ui_drawing=ui_widgets!=0;
   if(!ui_widgets){last_draw=fm1_ms;return;}
 #if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
-  /* Audio preempts drawing at interrupt priority. Only the LCD owns this
-   * canvas, and visual updates coalesce independently of the sample clock. */
+  /* Complete audio blocks take priority. Explicit controls and a coalesced
+   * scope retain bounded service when only one block is available. */
   uint32_t eligible=ui_widgets;
   /* A changing scope cannot monopolize the SPI bus at audio-slice rate. */
   for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
     if(fm1_ms-ui_widget_draw_at[i]<(ui_prefs.animate?50u:100u))eligible&=~(1u<<i);
   if(!eligible)return;
+  if(!audio_can_draw()) {
+    if(fm1_ms-ui_priority_at<50u)return;
+    eligible&=ui_priority_widgets;
+    if(audio_queued())for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
+      if(fm1_ms-ui_widget_draw_at[i]>=100u)eligible|=ui_widgets&(1u<<i);
+    if(!eligible)return;
+  }
 #else
   uint32_t eligible=ui_widgets;
 #endif
@@ -951,7 +962,8 @@ static void draw_panel(uint32_t full) {
   uint32_t draw_ticks=fm1_ticks()-draw_start;
   if(draw_ticks>ui_widget_max_ticks[widget])ui_widget_max_ticks[widget]=draw_ticks;
 #endif
-  ui_widgets&=~(1u<<widget);ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
+  ui_widgets&=~(1u<<widget);ui_priority_widgets&=~(1u<<widget);
+  ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
   ui_widget_draw_at[widget]=fm1_ms;
   if(widget==2)ui_widget_draw_at[4]=ui_widget_draw_at[5]=fm1_ms;
   ui_drawing=ui_widgets!=0;

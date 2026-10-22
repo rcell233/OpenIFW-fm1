@@ -25,6 +25,15 @@ fcntl.flock(build_lock.fileno(),fcntl.LOCK_EX)
 if (STAGE/'firmware').exists():shutil.rmtree(STAGE/'firmware')
 shutil.copytree(V/'firmware',STAGE/'firmware')
 shutil.copytree(R/'firmware',STAGE/'firmware',dirs_exist_ok=True)
+# Recovery builds require the original electrical scan sequence and IRQ entry.
+# Copy explicitly after the overlay, and bind the compiled inputs in metadata.
+original_hal=['fm1_input.h','fm1_time.h','fm1_isr.S']
+hal_sha={}
+for name in original_hal:
+    src=V/'firmware/hal'/name;dst=STAGE/'firmware/hal'/name
+    shutil.copy2(src,dst)
+    if dst.read_bytes()!=src.read_bytes():raise SystemExit('HAL staging mismatch: '+name)
+    hal_sha[name]=hashlib.sha256(dst.read_bytes()).hexdigest()
 shutil.copy2(R/'firmware/src/app.c',STAGE/'firmware/src/dinghy.c')
 if os.environ.get('IFW_DSP_XIP')=='1':
     shutil.copy2(V/'firmware/app.ld',STAGE/'firmware/app.ld')
@@ -32,7 +41,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc1'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc2'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -75,6 +84,9 @@ for name in dsp_files:
     obj=b.OUT/(Path(name).stem+'.o');objects.append(obj)
     commands.append(('cc',*common,'-fdata-sections','-Os' if baseline_dir else '-O3','-c',b.FW/'src'/name,'-o',obj))
 b.tc_all(*commands)
+for name,sha in hal_sha.items():
+    if hashlib.sha256((STAGE/'firmware/hal'/name).read_bytes()).hexdigest()!=sha:
+        raise SystemExit('HAL input changed during compilation: '+name)
 elf=b.OUT/'dinghy.elf'
 b.tc('pi32v2/bin/ld','--gc-sections','-e','_start','-T',b.FW/'app.ld',*objects,'-o',elf)
 syms,dis,rt=b.tc_all(('common/bin/objdump','-t',elf),('common/bin/objdump','-d',elf),
@@ -107,10 +119,11 @@ if ram_audio and (sym('_audio_start')!=sym('_rt_start')+len(blobs['.ram_text']) 
 for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
     if ram_audio and not sym('_audio_start')<=sym(name)<sym('_rt_end'):
         raise SystemExit('Hot DSP escaped the audio RAM section: '+name)
-if ram_audio:
-    for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
-        if not sym('_audio_start')<=sym(name)<sym('_rt_end'):
-            raise SystemExit('Input IRQ helper escaped RAM: '+name)
+for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
+    if sym(name)<0x02000120:
+        raise SystemExit('Recovery build requires original Flash input/IRQ placement: '+name)
+for name in ['FM1_KEYMAP','FM1_ENC']:
+    if sym(name)<0x02000120:raise SystemExit('Original input map unexpectedly placed in RAM: '+name)
 hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31']
 if ram_audio:
     for name in hot_tables:
@@ -127,16 +140,16 @@ for name,data in [('openifw.bin',image),(f'OpenIFW-FM1-{b.VERSION}.fwsc',package
 shutil.copy2(elf,dest/'openifw.elf');(dest/'openifw.dis').write_text(dis)
 (dest/'linker.ld').write_bytes((b.FW/'app.ld').read_bytes())
 result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageBytes=len(package),
+    originalHalSha256=hal_sha,
     sha256=hashlib.sha256(package).hexdigest(),hardwareTested=False,
     ramDataBss=sym('_bss_end')-0x01C08000,poolBytes=sym('_pool_end')-0x01C20000,
     limits=dict(app=581564,ram=98304,pool=344064),sampleRate=44100,framesPerBlock=256,
     cpuMeasured=False,ramCodeBytes=len(ramcode),ramFlashDriverBytes=len(blobs['.ram_text']),
-    ramDspBytes=(sym('_irq_start')-sym('_audio_start')) if ram_audio else 0,
-    ramIrqBytes=(sym('_irq_end')-sym('_irq_start')) if ram_audio else 0,
+    ramDspBytes=len(blobs.get('.audio_text',b'')),ramIrqBytes=0,
     dspPlacement='ram' if ram_audio else 'xip',
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
-    audioScheduling='ALNK-ISR-private-render-guarded-DMA-commit',
+    audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
     experimental=True,stage='release-candidate')
 (dest/'build.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))

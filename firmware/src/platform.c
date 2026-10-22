@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* OpenIFW's platform fork of Dinghy / Felucca. Changes are explicit here:
- * the ALNK ISR renders privately and commits only a completed, on-time block.
+ * bounded foreground audio slices; the short ALNK ISR consumes complete blocks.
  * Boot guard, updater, codec setup, input scanning and watchdog stay shared.
  *
  *   boot + boot guard   a firmware that crashes at boot falls back to the USB rescue, then to the ROM
@@ -50,6 +50,7 @@ enum { ENC_SELECT = 0, ENC_ALGORITHM = 1, ENC_KNOB1 = 2, ENC_KNOB2 = 3, ENC_KNOB
 #endif
 
 bootguard_t bootguard __attribute__((section(".noinit")));
+#include "boot_diagnostics.h"
 static volatile uint32_t fm1_ms;                /* milliseconds since power-on (TIMER5) */
 
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
@@ -195,7 +196,7 @@ static volatile uint8_t in_audio;
 static volatile struct {
     uint32_t scans,scan_ticks,scan_max_ticks,usb_polls,usb_ticks,usb_max_ticks;
 } platform_perf;
-__attribute__((section(".ram_irq"))) void fm1_timer5_irq(void)
+void fm1_timer5_irq(void)
 {
     static uint32_t sub, owed, last, acc;
     uint32_t t0 = fm1_ticks(), usb_due = sub % 5u == 0u;
@@ -232,6 +233,9 @@ extern void isr_timer5(void);
 static int32_t abuf[2u * HALF_WORDS] __attribute__((aligned(4)));
 static volatile int32_t master_q12 = 2048;
 static void app_audio(int32_t *out, uint32_t n);
+static void app_audio_begin(void);
+static void app_audio_render(int32_t *out,uint32_t n);
+static void app_audio_finish(int32_t *out,uint32_t n);
 static void app_main(void);
 
 /* Audio ISR, implemented after app_audio and the performance counters. */
@@ -304,10 +308,11 @@ void fm1_cstart(void)
 {
     extern uint32_t _data_start[], _data_end[], _data_load[], _bss_start[], _bss_end[];
     extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[];
-    uint32_t *s, *d, p3, boot_mode;
+    uint32_t *s, *d, p3, reset_src, wdt_con, boot_mode;
     fm1_time_init();
     fm1_reset_reason();
     p3 = fm1_boot.p3_rst;
+    reset_src=fm1_boot.rst_src;wdt_con=fm1_boot.wdt_con;
     fm1_wdt_arm(0x0D);
     if ((p3 & 1u) && !(p3 & (4u | 0x40u)))
         bootguard_clear(&bootguard);
@@ -319,21 +324,31 @@ void fm1_cstart(void)
     for (d = _pool_start; d < _pool_end; d++) *d = 0;
     for (s = _data_load, d = _data_start; d < _data_end; s++, d++) *d = *s;
     for (s = _rt_load, d = _rt_start; d < _rt_end; s++, d++) *d = *s;
+    ifw_boot_begin();
     fm1_mailbox_clear();
     fm1_guard_enable(FM1_GUARD_STACK | FM1_GUARD_WRITE | FM1_GUARD_BUS | FM1_GUARD_PC);
     fm1_boot.p3_rst = (uint8_t)p3;
-    if (boot_mode == BOOT_RECOVERY || recovery_key())
-        recovery_main();                        /* OCT- at power-on: the USB rescue */
+    fm1_boot.rst_src=reset_src;fm1_boot.wdt_con=(uint8_t)wdt_con;
+    ifw_boot_mark(2);
+    if (boot_mode == BOOT_RECOVERY) {
+        ifw_boot_reason=1;ifw_boot_mark(3);recovery_main();
+    }
+    if (recovery_key()) {
+        ifw_boot_reason=2;ifw_boot_mark(3);recovery_main();
+    }
+    ifw_boot_mark(4);
     flash_ok = FL_FAR(fl_jedec_ram)() == 0x856014u;
     ota_boot_cleanup();
     lcd_init();
     lcd_fill(0, 0, 240, 240, C_BLACK);
     fm1_input_init();
     fm1_adc_init();
+    ifw_boot_mark(5);
     fm1_audio_init(abuf, HALF_WORDS, isr_alnk0, 3);   /* (abuf is zero: .bss) */
     usb_start();
     fm1_timer5_start(isr_timer5, 4);
     fm1_guard_lock_top();
+    ifw_boot_mark(6);
     fm1_irq_enable_all();
     app_main();
     for (;;)

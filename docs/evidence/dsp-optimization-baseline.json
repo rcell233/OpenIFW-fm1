@@ -362,9 +362,6 @@
   ],
   "targetSourceSha256": {
     "firmware/src/dsp.c": "b87ee2f721da6e2ca917e18ade2cafc56296fef2770f2347b271d8b8c004b905",
-    "firmware/hal/ifw_dsp.h": "f4fa49f1c49f4abecabecd450c545c82589518de5580013300425a236d2e262d",
-    "firmware/hal/fm1_input.h": "1597bf9870ecdfa1dc5865fc64465431e58b2f668963c550a4b13f4281e64f6c",
-    "firmware/hal/fm1_time.h": "6d8e2660c284f4dbf5d0bdab8f658bfaa504b0f2899d71400095cf9760142750",
-    "firmware/hal/fm1_isr.S": "e2674298d784c71fcf814e773f797ad0ae11c57c8b9d8ae1f609598eb8dcfd22"
+    "firmware/hal/ifw_dsp.h": "f4fa49f1c49f4abecabecd450c545c82589518de5580013300425a236d2e262d"
   }
 }

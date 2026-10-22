@@ -45,6 +45,12 @@ const rc2Meta=JSON.parse(readFileSync('build/web/install/recovery-0.4.6-rc2.json
 const rc2Bytes=new Uint8Array(readFileSync('build/web/firmware/'+rc2Meta.file));
 const rc2=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(rc2Meta)):new Response(rc2Bytes),'recovery-0.4.6-rc2.json');
 eq(rc2.meta.version,'0.4.6-rc2');eq(rc2.meta.sha256,'22ba5f9c4e92388c299870de28d50179bc93718034c00da66e5cc3e946d20e9f');
+const candidateMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-rc2.json'));
+const candidateBytes=new Uint8Array(readFileSync('build/web/firmware/'+candidateMeta.file));
+const candidate=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(candidateMeta)):new Response(candidateBytes),'candidate-0.4.7-rc2.json');
+eq(candidate.meta.version,'0.4.7-rc2');eq(candidate.meta.experimental,true);
+ok(candidate.meta.sha256!==rc2.meta.sha256);eq(meta.version,'0.4.6-rc2','known bootable recovery stays the default');
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(rc2Meta)),'candidate-0.4.7-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(stableMeta)),'recovery-0.4.6-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(recoveryMeta)),'recovery-0.4.4.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>{throw Error('must not fetch');},'../other.json'),'badpkg');
@@ -120,6 +126,9 @@ eq(rollbackDevice.written,recovery.image.length);eq(rollbackDevice.bad,0);
 const stableDevice=new Device({identity:'FM-1_000',firmware:stable});
 eq(await clock(()=>installFirmware(stable,stableDevice.access)),'FM-1_982');
 eq(stableDevice.written,stable.image.length);eq(stableDevice.bad,0);
+const candidateDevice=new Device({identity:'FM-1_000',firmware:candidate});
+eq(await clock(()=>installFirmware(candidate,candidateDevice.access)),'FM-1_982');
+eq(candidateDevice.written,candidate.image.length);eq(candidateDevice.bad,0);
 for(const identity of ['FM-1_015','ota-FM-1_982']){
  const failed=new Device({identity,returnIdentity:'FM-1_000'}),events=[];
  await bad(clock(()=>installFirmware(verified,failed.access,k=>events.push(k))),'rescue');
@@ -134,15 +143,15 @@ ok(errorText({code:'denied'}).includes('权限'));ok(errorText({code:'lost'}).in
 ok(errorText({code:'rescue'}).includes('FM-1_000'));
 
 // Page lifecycle: loading never asks for MIDI; only the Install click may do so.
-async function page({midi=true,denied=false,secure=true,downloadFail=false,recovery:rollbackVersion=null}={}){
+async function page({midi=true,denied=false,secure=true,downloadFail=false,recovery:rollbackVersion=null,candidate:selectCandidate=false}={}){
   const elements=new Map(),handlers={},stages=Array.from({length:4},(_,i)=>({dataset:{stage:String(i)},classList:{toggle(){}}}));
   const el=id=>{if(!elements.has(id))elements.set(id,{disabled:id==='install',hidden:true,textContent:'',dataset:{},classList:{toggle(){}},listeners:{},addEventListener(k,f){this.listeners[k]=f;},removeAttribute(k){delete this[k];}});return elements.get(id);};
   let permissions=0,installs=0,allow;
   const state={get permissions(){return permissions;},get installs(){return installs;},el,handlers,finish(){allow?.();}};
   const source=readFileSync('build/web/install/install.js','utf8').replace(/^import .*;\n/m,'').replaceAll('import.meta.url',JSON.stringify('https://rcell233.github.io/OpenIFW-fm1/install/install.js'));
   vm.runInNewContext(source,{document:{getElementById:el,querySelectorAll:()=>stages},navigator:midi?{async requestMIDIAccess(options){permissions++;eq(options.sysex,true);if(denied)throw new DOMException('Permission denied','NotAllowedError');return {};}}:{},isSecureContext:secure,URL,Date,console,
-    addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:'')},
-    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
+    addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:selectCandidate?'?candidate=0.4.7-rc2':'')},
+    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return release==='candidate-0.4.7-rc2.json'?candidate:release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
     installFirmware:async(_v,_a,step)=>{installs++;step('write',1);await new Promise(r=>allow=r);step('done','FM-1_982');},
   });
   for(let i=0;i<20;i++)await Promise.resolve();return state;
@@ -158,5 +167,6 @@ const insecure=await page({secure:false});eq(insecure.el('install').disabled,tru
 const network=await page({downloadFail:true});eq(network.el('install').disabled,false);eq(network.permissions,0);
 const previous=await page({recovery:'0.4.4'});eq(previous.el('install').textContent,'Install 0.4.4');eq(previous.permissions,0);eq(previous.el('recovery-note').hidden,false);ok(previous.el('recovery-note').textContent.includes('0.4.4'));
 const fluent=await page({recovery:'0.4.6-rc2'});eq(fluent.el('install').textContent,'Install 0.4.6-rc2');eq(fluent.permissions,0);eq(fluent.el('recovery-note').hidden,false);ok(fluent.el('recovery-note').textContent.includes('0.4.6-rc2'));
-mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
+const optIn=await page({candidate:true});eq(optIn.el('install').textContent,'Install 0.4.7-rc2');eq(optIn.permissions,0);
+mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,candidateFirmwareSha256:candidate.meta.sha256,candidateFullInstall:true,candidateOnlyByExplicitSelection:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
 console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

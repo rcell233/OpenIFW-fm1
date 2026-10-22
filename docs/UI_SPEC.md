@@ -1,4 +1,4 @@
-# 0.4.7-rc1 面板与操作
+# 0.4.7-rc2 面板与操作
 
 UI 参照 Ghoulbox 的四卡片、页面组、列表、长按快捷层和分类菜单。`firmware/src/ui/` 是显示与操作层；原始音色、包络、调制与单音 / Legato 的输出行为维持 0.3；DSP 实现只作通过旧黄金音频验证的等价性能优化。当前视觉使用纯深色面板、单线边框与 Inter Tight 抗锯齿字体，去掉石纹、火焰与剑形光标；按钮、旋钮、菜单和保存逻辑不变。实际 240×240 C 帧缓冲见 [界面概览](evidence/ui-0.4.7-rc1.png)，逐页映射在 `ui-pages.json`。
 
@@ -45,5 +45,7 @@ MIDI 保持原有语义：Note On / Off、最后按键优先、CC7 Breath、CC9 
 
 浏览器由真实 C 固件运行上述逻辑，JavaScript 只传入控件输入并显示 LCD / LED / 状态。浏览器和目标共享 `app_step`、参数事件队列与存储逻辑；USB 外设、杰理指令和实时 CPU 不在仿真范围内。
 
+
+0.4.7-rc2 恢复前台 32 帧调度和音频余量绘图；一块余量时波形仍有最高 10 Hz 的更新机会。另可在网页诊断中读取启动信息，救援模式也支持。
 
 GLO 的第三页为 PERFORMANCE；也可长按 HOME，在 SYS 选 PERFORMANCE 并向右操作打开。K1 为 SYNTH / SINE / MUTE，K2 向右清零统计，K3 冻结读数，K4 为只读状态。SINE 为低电平 440 Hz，MUTE 为全零，均临时跳过 DSP；退出该页自动回到 SYNTH，重启也默认 SYNTH，不保存到音色或配置。网页显示 TIMING: DEVICE ONLY / N.A.，不把电脑 CPU 当作设备测量。真机统计项见 [硬件验证](HARDWARE_TEST.md)。

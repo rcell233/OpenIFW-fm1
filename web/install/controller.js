@@ -33,12 +33,12 @@ export async function verifyFirmware(bytes,meta){
 }
 
 export async function loadFirmware(baseURL,fetcher=fetch,release='release.json'){
-  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json'].includes(release))
+  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json','candidate-0.4.7-rc2.json'].includes(release))
     throw fail('badpkg','未知的固件发布入口。');
   const response=await fetcher(new URL('./'+release,baseURL),{cache:'no-store'});
   if(!response.ok)throw fail('download','无法读取固件信息（HTTP '+response.status+'）。');
   const meta=await response.json();
-  if(release!=='release.json'&&release!==`recovery-${meta?.version}.json`)
+  if(release!=='release.json'&&release!==`${release.startsWith('candidate-')?'candidate':'recovery'}-${meta?.version}.json`)
     throw fail('badpkg','恢复固件版本与入口不一致。');
   if(!/^OpenIFW-FM1-\d+\.\d+\.\d+(?:-rc[1-9]\d*)?\.fwsc$/.test(meta?.file??''))
     throw fail('badpkg','固件文件名无效。');

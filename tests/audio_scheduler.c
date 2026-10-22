@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Production ISR with an independent DMA clock. Render costs and foreground
+ * Frozen failed 0.4.7-rc1 ISR with an independent DMA clock. Render costs and foreground
  * work are injected inputs, not a prediction of hardware throughput.
  */
 #include <assert.h>
@@ -48,7 +48,7 @@ static void app_audio(int32_t *out,uint32_t n) {
     }
 }
 #include "../firmware/src/audio_perf.h"
-#include "../firmware/src/audio_output.h"
+#include "audio_output_rc1.h"
 static void fire(void) {
     assert(!in_audio && !masked);
     uint32_t half=fm1_audio_free_half(),before=commits,first=rendered;
@@ -92,7 +92,7 @@ static void run(double cost,uint32_t draw_work) {
 const char *__asan_default_options(void) {return "detect_leaks=0";}
 #endif
 int main(void) {
-    puts("{\"kind\":\"production-interrupt-scheduler-functional-model-not-hardware\",\"cases\":[");
+    puts("{\"kind\":\"frozen-rc1-interrupt-scheduler-functional-model-not-hardware\",\"cases\":[");
     run(.75,1);run(.75,88);run(.75,1764);run(.90,1764);run(.95,1764);
     master_q12=2048;run(.75,1764);master_q12=0;run(.75,1764);master_q12=4096;
     usb_frame_cost=.1;run(.75,1764);
