@@ -645,7 +645,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc3", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc4", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {

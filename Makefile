@@ -3,14 +3,14 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -69,9 +69,18 @@ build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware
 build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h
+build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
+output-level-test:
+	mkdir -p build/output-level
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/output_level_test.c firmware/src/dsp.c -lm -o build/output-level/long-scenes
+	build/output-level/long-scenes > build/output-level/long-scenes.json
+	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tools/output_level_probe.c firmware/src/dsp.c -lm -o build/output-level/factory-probe
+	build/output-level/factory-probe > build/output-level/factory.json
+	python3 tests/output_level_test.py
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/output_level_test.c firmware/src/dsp.c -lm -o build/output-level/arithmetic-sanitize
+	build/output-level/arithmetic-sanitize --arithmetic-only > build/output-level/arithmetic-sanitize.json
 hardware-path-test: build/dsp-irq-stream build/dsp-irq-stream-legacy build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
 	mkdir -p build/target-audit
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler > build/target-audit/scheduler.json
@@ -104,6 +113,7 @@ web-test: web
 	node tests/ui_test.mjs
 	node tests/octave_config.mjs
 	node tests/ui_audio_unchanged.mjs
+	node tests/output_gain.mjs
 	node tests/installer_test.mjs
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(FIXED) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin

@@ -93,6 +93,17 @@ static void run(double ratio,uint32_t stall_frames) {
         audio_service();
         assert(!in_audio);
         if(audio_write!=observed_write) {
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+            const int32_t *queued=audio_pcm[observed_write&3u];
+            for(uint32_t i=0;i<256u;i++) {
+                int32_t raw=sample(block_frame+i,captured_param);
+                int64_t product=(int64_t)raw*master_q12*2;
+                int32_t scaled=(int32_t)(product<0?-((-product+4095)/4096):product/4096);
+                int32_t neg=(int32_t)(product>0?-((product+4095)/4096):(-product)/4096);
+                assert(queued[2*i]==(scaled>32767?32767:scaled< -32767?-32767:scaled));
+                assert(queued[2*i+1]==(neg>32767?32767:neg< -32767?-32767:neg));
+            }
+#endif
             assert(audio_write==observed_write+1u);observed_write=audio_write;publications++;
         }
         assert(audio_write-audio_read<=4u);assert(audio_can_draw()==(audio_queued()>=2u));

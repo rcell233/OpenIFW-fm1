@@ -8,6 +8,7 @@
 #include <math.h>
 #include "synth.h"
 #include "presets.h"
+#include "output_level.h"
 
 static IFWFixedSynth synth;
 static IFWFixedFxBuffers buffers;
@@ -26,9 +27,9 @@ int main(void) {
         ifw_fixed_init(&synth,&patch,&buffers);
         ifw_fixed_breath(&synth,INT32_MAX/(int32_t)div);
         ifw_fixed_note_on(&synth,notes[n],(int32_t)((int64_t)INT32_MAX*velocities[v]/127));
-        double energy=0,steady_energy=0;
+        double energy=0,steady_energy=0,output_energy=0;
         int64_t raw_peak=0;
-        uint32_t peak=0,raw_clips=0,boost2_clips=0,boost4_clips=0;
+        uint32_t peak=0,raw_clips=0,boost2_clips=0,boost4_clips=0,output_peak=0,output_clips=0;
         for(unsigned i=0;i<4*44100u;i++) {
             int32_t left,right;
             ifw_fixed_sample(&synth,&left,&right);
@@ -45,6 +46,11 @@ int main(void) {
                 if(absolute>peak)peak=absolute;
                 if(absolute*2u>32767u)boost2_clips++;
                 if(absolute*4u>32767u)boost4_clips++;
+                int32_t output=ifw_output_sample(pcm,4096);
+                uint32_t oa=(uint32_t)(output<0?-output:output);
+                if(oa>output_peak)output_peak=oa;
+                if(oa>=32767u)output_clips++;
+                double ox=output/32768.;output_energy+=ox*ox;
                 double x=(double)pcm/32768.;
                 energy+=x*x;
                 if(i>=2*44100u)steady_energy+=x*x;
@@ -52,10 +58,12 @@ int main(void) {
         }
         printf("%s{\"preset\":%u,\"name\":\"%s\",\"note\":%u,\"velocity\":%u,\"breath\":%.2f,"
                "\"peak\":%.9f,\"rms\":%.9f,\"steadyRms\":%.9f,\"unclippedPeak\":%.9f,"
-               "\"clippedChannelSamples\":%u,\"gain2ClippedChannelSamples\":%u,\"gain4ClippedChannelSamples\":%u}",
+               "\"clippedChannelSamples\":%u,\"gain2ClippedChannelSamples\":%u,\"gain4ClippedChannelSamples\":%u,"
+               "\"outputGain\":%u,\"outputPeak\":%.9f,\"outputRms\":%.9f,\"outputBoundaryChannelSamples\":%u}",
                row++?",\n":"",p,preset_names[p],notes[n],velocities[v],1./div,
                peak/32768.,sqrt(energy/(8*44100)),sqrt(steady_energy/(4*44100)),
-               (double)raw_peak/IFW_Q20,raw_clips,boost2_clips,boost4_clips);
+               (double)raw_peak/IFW_Q20,raw_clips,boost2_clips,boost4_clips,
+               IFW_OUTPUT_GAIN,output_peak/32768.,sqrt(output_energy/(8*44100)),output_clips);
     }
     puts("\n]");
     return 0;

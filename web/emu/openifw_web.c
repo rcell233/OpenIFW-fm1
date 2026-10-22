@@ -4,6 +4,7 @@
  */
 #define IFW_EMU 1
 #include "../../firmware/src/app.c"
+#include "../../firmware/src/output_level.h"
 #ifdef __wasm__
 #define EXPORT __attribute__((used,visibility("default")))
 #else
@@ -42,8 +43,8 @@ static void emu_ms(void) {
         uint32_t k10=(uint32_t)(emu_master_avg/16);int32_t master_q12=(int32_t)(k10*k10>>8);
         for(uint32_t i=0;i<HALF_FRAMES;i++) {
             uint32_t j=emu_write++%4096;
-            emu_ring[j*2]=(float)ifw_clamp(emu_audio[i*2]*master_q12>>12,-32767,32767)/65536.f;
-            emu_ring[j*2+1]=(float)ifw_clamp(emu_audio[i*2+1]*master_q12>>12,-32767,32767)/65536.f;
+            emu_ring[j*2]=(float)ifw_output_sample(emu_audio[i*2],master_q12)/65536.f;
+            emu_ring[j*2+1]=(float)ifw_output_sample(emu_audio[i*2+1],master_q12)/65536.f;
         }
     }
 }

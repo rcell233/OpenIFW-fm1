@@ -4,6 +4,7 @@
  * from acquire until the complete copy and USB tap finish. DMA never reads a
  * producer slot, and synthesis never runs in an interrupt.
  */
+#include "output_level.h"
 #define AUDIO_SLOTS 4u
 #define AUDIO_SLICE 32u
 #define AUDIO_TARGET_BLOCKS 2u /* keep latency bounded; one slot may be in production */
@@ -26,11 +27,7 @@ static void audio_service(void) {
     if(audio_offset==HALF_FRAMES) {
         app_audio_finish(out,HALF_FRAMES);
         int32_t master=master_q12;
-        for(uint32_t i=0;i<HALF_WORDS;i++) {
-            /* Q15 * Q12 fits signed 32 bits (MASTER is clamped to 4096). */
-            int32_t v=(out[i]*master)>>12;
-            out[i]=v>32767?32767:v< -32767? -32767:v;
-        }
+        for(uint32_t i=0;i<HALF_WORDS;i++)out[i]=ifw_output_sample(out[i],master);
     }
     in_audio=saved_audio;audio_render_ticks+=fm1_ticks()-t0;
     if(audio_offset==HALF_FRAMES) {

@@ -1,0 +1,607 @@
+{
+  "schema": 1,
+  "version": "0.4.7-rc4",
+  "hardwareMeasured": false,
+  "firmware": {
+    "version": "0.4.7-rc4",
+    "identity": "FM-1_982",
+    "appBytes": 268348,
+    "packageBytes": 610161,
+    "originalHalSha256": {
+      "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
+      "fm1_time.h": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
+      "fm1_isr.S": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5"
+    },
+    "sha256": "661c57a11f60a3824d0f10a205f38c8a35974925ddd82e545fae20b5ebc5918e",
+    "hardwareTested": false,
+    "ramDataBss": 81712,
+    "poolBytes": 279272,
+    "limits": {
+      "app": 581564,
+      "ram": 98304,
+      "pool": 344064
+    },
+    "sampleRate": 44100,
+    "framesPerBlock": 256,
+    "cpuMeasured": false,
+    "ramCodeBytes": 19064,
+    "ramFlashDriverBytes": 2848,
+    "ramDspBytes": 16216,
+    "ramIrqBytes": 0,
+    "dspPlacement": "ram",
+    "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",
+    "ramTables": {
+      "ifw_sine_table": 29392896,
+      "ifw_ap_table": 29428124,
+      "ifw_ap_half_table": 29422604,
+      "ifw_alpha_table": 29396996,
+      "ifw_f3_table": 29407240,
+      "decay_curve_q31": 29433644
+    },
+    "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+    "outputGain": 2,
+    "outputGainDb": 6.020599913,
+    "outputCeilingDbFS": -6.020599913,
+    "reverbSampleRate": 22050,
+    "reverbTopology": "shared-4comb-2allpass-stereo-taps",
+    "fxProfile": "half-rate-Q15-room",
+    "experimental": true,
+    "stage": "release-candidate"
+  },
+  "output": {
+    "kind": "native-output-gain-validation-not-hardware",
+    "outputGain": 2,
+    "gainDb": 6.020599913279624,
+    "factoryCases": 288,
+    "preGainMeasurementsExact": true,
+    "outputBoundaryChannelSamples": 0,
+    "factoryMaxOutputPeak": 0.957885742,
+    "longScenes": {
+      "kind": "native-arithmetic-not-hardware",
+      "arithmeticChecks": 524288,
+      "longScenes": [
+        {
+          "preset": 0,
+          "seconds": 100,
+          "peak": 0.274108887,
+          "rms": 0.065794593,
+          "boundaryChannelSamples": 0
+        },
+        {
+          "preset": 1,
+          "seconds": 100,
+          "peak": 0.459899902,
+          "rms": 0.106188428,
+          "boundaryChannelSamples": 0
+        },
+        {
+          "preset": 2,
+          "seconds": 100,
+          "peak": 0.375305176,
+          "rms": 0.062855526,
+          "boundaryChannelSamples": 0
+        },
+        {
+          "preset": 3,
+          "seconds": 100,
+          "peak": 0.58807373,
+          "rms": 0.106879781,
+          "boundaryChannelSamples": 0
+        },
+        {
+          "preset": 4,
+          "seconds": 100,
+          "peak": 0.957885742,
+          "rms": 0.154983179,
+          "boundaryChannelSamples": 0
+        },
+        {
+          "preset": 5,
+          "seconds": 100,
+          "peak": 0.727600098,
+          "rms": 0.104614814,
+          "boundaryChannelSamples": 0
+        }
+      ]
+    },
+    "unchangedSourceSha256": {
+      "firmware/src/fixed/synth.c": "d02cb5fc0b09449cb98f6b732f8be7eb0cab2ae20ea8905436a8370b0b8044bf",
+      "firmware/src/fixed/effects.c": "ec86d15100b24992d4e50be5157c26dba5c60c4099a489e1cb46176386117be2",
+      "firmware/src/fixed/reverb_half.h": "e405ef6f20849385df79ba1ed38b7f873497642feb6c313e8e67ad3bf0db9c9d",
+      "firmware/src/presets.h": "a81c5019d3c3fe4336fded7560aab5e7f1e81c3fca0f2651709f2bb17f335228",
+      "firmware/src/dsp.c": "b87ee2f721da6e2ca917e18ade2cafc56296fef2770f2347b271d8b8c004b905"
+    },
+    "sourceSha256": {
+      "firmware/src/output_level.h": "97223796397b60a7af03ce632045fbc91224b2dc9dc8017b2a879a40de5a9204",
+      "firmware/src/audio_output.h": "a3b609c1cf3639c134a9959a515613a2771f42dfef0d63a796ccbb757a8c6410",
+      "web/emu/openifw_web.c": "850638ed12e842e98ca5d218fd179aa9fe821f68f8e15736b785912648f8d606"
+    },
+    "hardwareMeasured": false
+  },
+  "arithmeticSanitize": {
+    "kind": "native-arithmetic-not-hardware",
+    "arithmeticChecks": 524288,
+    "longScenes": []
+  },
+  "wasm": {
+    "scenes": 18,
+    "samples": 2764800,
+    "stateChecks": 81000,
+    "roundingSteps": 912899,
+    "gain": 2,
+    "maxRoundingDifference": 1.52587890625e-05,
+    "coreAndPatchStateExact": true
+  },
+  "targetDaisy32s": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+    "firmwareSha256": "661c57a11f60a3824d0f10a205f38c8a35974925ddd82e545fae20b5ebc5918e",
+    "mhz": 240,
+    "preset": 3,
+    "actualPreset": 3,
+    "script": "500:e6:3,1200:A4",
+    "requestedMs": 32000,
+    "emulatedMs": 32002,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": true,
+      "blocks": 5448,
+      "lastUs": 11.208333333333334,
+      "maxUs": 14.041666666666666,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 3281.8333333333335,
+      "dspMaxUs": 3354.375,
+      "peak": 9358,
+      "clips": 0,
+      "meanUs": 11.394273127753303
+    },
+    "steady": {
+      "blocks": 4601,
+      "p50Us": 11.208333333333334,
+      "p95Us": 12.958333333333334,
+      "p99Us": 13.041666666666666,
+      "maxUs": 14.041666666666666
+    },
+    "dspSteady": {
+      "blocks": 4601,
+      "p50Us": 3282.9166666666665,
+      "p95Us": 3286.375,
+      "p99Us": 3326.7083333333335,
+      "maxUs": 3354.375
+    },
+    "audioFrames": 1396096,
+    "audioSha256": "ae558fd1bdd1c40c034d3bf55e7623ce0fbeb540f913064f97d365fb1872bcda",
+    "shortQuanta": 15,
+    "wallSeconds": 151.624894059,
+    "drawIntervalsMs": {
+      "count": 619,
+      "p50": 50,
+      "p95": 50,
+      "max": 52
+    },
+    "uiService": {
+      "maxGapMs": 1,
+      "turns": 6396723,
+      "nowMs": 32002,
+      "lastAtMs": 32002,
+      "sinceLastMs": 0
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      257.7083333333333,
+      521.6666666666666,
+      1395.9583333333333,
+      343.5,
+      0,
+      0
+    ],
+    "widgetUpdates": [
+      3,
+      2,
+      2,
+      1,
+      0,
+      0
+    ],
+    "audioQueue": {
+      "produced": 5436,
+      "consumed": 5434,
+      "partialFrames": 0
+    },
+    "uiRender": {
+      "completedScans": 2,
+      "lcdPixels": 112320
+    },
+    "boot": {
+      "firmwareCode": 40704,
+      "stage": 11,
+      "failed": 0,
+      "pending": 0,
+      "rescue": false,
+      "entryReason": 0
+    }
+  },
+  "targetTresure": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+    "firmwareSha256": "661c57a11f60a3824d0f10a205f38c8a35974925ddd82e545fae20b5ebc5918e",
+    "mhz": 240,
+    "preset": 0,
+    "actualPreset": 0,
+    "script": "1200:C4,1800:E4,2300:E4^,2700:C4^",
+    "requestedMs": 4500,
+    "emulatedMs": 4504,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": true,
+      "blocks": 709,
+      "lastUs": 11.208333333333334,
+      "maxUs": 14.041666666666666,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 3006.7916666666665,
+      "dspMaxUs": 3362.0416666666665,
+      "peak": 5535,
+      "clips": 0,
+      "meanUs": 11.309590973201693
+    },
+    "steady": {
+      "blocks": 571,
+      "p50Us": 11.208333333333334,
+      "p95Us": 13,
+      "p99Us": 13.041666666666666,
+      "maxUs": 14
+    },
+    "dspSteady": {
+      "blocks": 571,
+      "p50Us": 3123.6666666666665,
+      "p95Us": 3237.9166666666665,
+      "p99Us": 3244.6666666666665,
+      "maxUs": 3362.0416666666665
+    },
+    "audioFrames": 182912,
+    "audioSha256": "e8b3932deaf6cb19ba9fca74c014068eb9a01437e1531e7eb867946af5c93a07",
+    "shortQuanta": 15,
+    "wallSeconds": 21.062686668999998,
+    "drawIntervalsMs": {
+      "count": 59,
+      "p50": 52,
+      "p95": 60,
+      "max": 469
+    },
+    "uiService": {
+      "maxGapMs": 1,
+      "turns": 854064,
+      "nowMs": 4504,
+      "lastAtMs": 4504,
+      "sinceLastMs": 0
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      257.7083333333333,
+      521.6666666666666,
+      955.5833333333334,
+      374.1666666666667,
+      479.2916666666667,
+      40.375
+    ],
+    "widgetUpdates": [
+      6,
+      1,
+      1,
+      1,
+      57,
+      11
+    ],
+    "audioQueue": {
+      "produced": 697,
+      "consumed": 695,
+      "partialFrames": 0
+    },
+    "uiRender": {
+      "completedScans": 50,
+      "lcdPixels": 1051920
+    },
+    "boot": {
+      "firmwareCode": 40704,
+      "stage": 11,
+      "failed": 0,
+      "pending": 1,
+      "rescue": false,
+      "entryReason": 0
+    }
+  },
+  "targetRescue": {
+    "kind": "pi32v2-instruction-model-not-hardware",
+    "cycleAccurate": false,
+    "hardwareMeasured": false,
+    "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+    "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+    "firmwareSha256": "661c57a11f60a3824d0f10a205f38c8a35974925ddd82e545fae20b5ebc5918e",
+    "mhz": 240,
+    "preset": 0,
+    "actualPreset": 0,
+    "script": "0:OCTDN",
+    "requestedMs": 1800,
+    "emulatedMs": 1819,
+    "dividerCyclesAssumption": 48,
+    "spiWireTiming": true,
+    "irqBudgetUs": 5804.988662131519,
+    "all": {
+      "ready": false,
+      "blocks": 0,
+      "lastUs": 0,
+      "maxUs": 0,
+      "overruns": 0,
+      "dmaLate": 0,
+      "dspLastUs": 0,
+      "dspMaxUs": 0,
+      "peak": 0,
+      "clips": 0,
+      "meanUs": 0
+    },
+    "steady": {
+      "blocks": 0,
+      "p50Us": null,
+      "p95Us": null,
+      "p99Us": null,
+      "maxUs": null
+    },
+    "dspSteady": {
+      "blocks": 0,
+      "p50Us": null,
+      "p95Us": null,
+      "p99Us": null,
+      "maxUs": null
+    },
+    "audioFrames": 0,
+    "audioSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shortQuanta": 49,
+    "wallSeconds": 4.527124336,
+    "drawIntervalsMs": {
+      "count": 0,
+      "p50": null,
+      "p95": null,
+      "max": null
+    },
+    "uiService": {
+      "maxGapMs": 0,
+      "turns": 0,
+      "nowMs": 1768,
+      "lastAtMs": 0,
+      "sinceLastMs": 1768
+    },
+    "underruns": 0,
+    "underrunAt": [],
+    "widgetMaxUs": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "widgetUpdates": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "audioQueue": {
+      "produced": 0,
+      "consumed": 0,
+      "partialFrames": 0
+    },
+    "uiRender": {
+      "completedScans": 0,
+      "lcdPixels": 0
+    },
+    "boot": {
+      "firmwareCode": 40704,
+      "stage": 3,
+      "failed": 0,
+      "pending": 2,
+      "rescue": true,
+      "entryReason": 2
+    }
+  },
+  "scheduler": {
+    "kind": "functional-scheduler-model-not-hardware-performance",
+    "cases": [
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 0,
+        "produced": 517,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 0.546,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.99,
+        "stallFrames": 0,
+        "produced": 516,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 0.721,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.01,
+        "stallFrames": 0,
+        "produced": 509,
+        "consumed": 508,
+        "underruns": 6,
+        "maxMainGapMs": 0.735,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.25,
+        "stallFrames": 0,
+        "produced": 412,
+        "consumed": 411,
+        "underruns": 103,
+        "maxMainGapMs": 0.909,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 1.8,
+        "stallFrames": 0,
+        "produced": 286,
+        "consumed": 285,
+        "underruns": 228,
+        "maxMainGapMs": 1.308,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 5.0,
+        "stallFrames": 0,
+        "produced": 103,
+        "consumed": 102,
+        "underruns": 404,
+        "maxMainGapMs": 3.63,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 88,
+        "produced": 517,
+        "consumed": 515,
+        "underruns": 0,
+        "maxMainGapMs": 2.542,
+        "invalidDmaWords": 0
+      },
+      {
+        "injectedCostRatio": 0.75,
+        "stallFrames": 1764,
+        "produced": 343,
+        "consumed": 341,
+        "underruns": 174,
+        "maxMainGapMs": 40.546,
+        "invalidDmaWords": 0
+      }
+    ]
+  },
+  "installer": {
+    "checks": 134,
+    "firmwareSha256": "661c57a11f60a3824d0f10a205f38c8a35974925ddd82e545fae20b5ebc5918e",
+    "fullImageBytes": 610141,
+    "fullInstall": true,
+    "candidateFirmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+    "candidateFullInstall": true,
+    "defaultVersion": "0.4.7-rc4",
+    "previousCandidateRecovery": true,
+    "resume": true,
+    "rescueInstall": true,
+    "rescueReturnRejected": true,
+    "rollbackFirmwareSha256": "cf7ab1e35378ae7797ab817c7e32aaa8ce0b49d3bbbe55185aa18ded7ae2a9b8",
+    "rollbackFullImageBytes": 610090,
+    "rollbackFullInstall": true,
+    "errors": [
+      "corrupt package",
+      "corrupt loader",
+      "wrong model",
+      "foreign loader",
+      "unplug",
+      "mismatch",
+      "rescue after reboot",
+      "bounds",
+      "timeouts",
+      "multiple devices",
+      "permission denied"
+    ],
+    "pageLifecycle": true,
+    "realHardwareFlashed": false
+  },
+  "nativeWasm": {
+    "factoryPrograms": [
+      {
+        "name": "Tresure Island",
+        "program": 4,
+        "sha256": "4baa48db5036d25019534c88464c216e40a9b4d21f2d987be1b3e61c06ca5362"
+      },
+      {
+        "name": "Primer",
+        "program": 18,
+        "sha256": "c13ebf5fb2386305a12ff19094e604a8f18459798ab11ba6be27d0b1507dad63"
+      },
+      {
+        "name": "Ai no Labyrinth",
+        "program": 14,
+        "sha256": "14ccced6bcd030874fbb8b6a6e8245151e26cfd9cfac38aeacfdce53d442923f"
+      },
+      {
+        "name": "Daisy Area 2",
+        "program": 10,
+        "sha256": "4913b2a6ae5b4fd3b5ff3d809e7b97ae4e060da346c0b39756f7fbc030c96349"
+      },
+      {
+        "name": "Wanna Go To Hawaii",
+        "program": 8,
+        "sha256": "63e1bc3cb53feb39d85484a8cb3bc0af78eda5bb6ad760ef077fb79b4b26e5ab"
+      },
+      {
+        "name": "JUDD-ish 2000",
+        "program": 21,
+        "sha256": "394b8e2f60791fa3ca0a87e9d0018ab0fb4f3690d29e0bda034965e1b35935bb"
+      }
+    ],
+    "parameterChecks": 1098,
+    "matrixFields": 192,
+    "envFields": 120,
+    "equivalence": {
+      "operations": 255,
+      "renders": 197,
+      "bytesCompared": 24502072,
+      "pcm": true,
+      "lcd": true,
+      "patch": true,
+      "musicalState": true
+    },
+    "flashReboot": true,
+    "quickTapWorklet": true,
+    "browserUIQA": false
+  },
+  "publishedWeb": {
+    "version": "0.4.7-rc4",
+    "installerVersion": "0.4.7-rc4",
+    "kind": "shared-C-firmware-host",
+    "reverbSampleRate": 22050,
+    "outputGain": 2,
+    "outputGainDb": 6.020599913,
+    "wasmBytes": 562374,
+    "wasmSha256": "64ec2e5586b83cb152db7fb62b7b90f6b07530417fdf48c75af0c3a993bb7907",
+    "factoryPresets": 6,
+    "compiler": "clang version 23.1.0-wasi-sdk (https://github.com/llvm/llvm-project 895aa2c896ada719451be2e3673c83da8ddf1141)"
+  },
+  "checks": {
+    "outputLevel": true,
+    "makeTest": true,
+    "makeSanitize": true,
+    "extraWasmOutputComparison": true,
+    "oldCoreAndPresetFreeze": true,
+    "packageCrcAndIdentity": true
+  },
+  "measuredArtifactSha256": {
+    "build/output-level/factory.json": "3acfb3abbc08ada816fe63bb2ceeff740a035b92c7d6ba965b0ca08c61c49a0c",
+    "build/output-level/long-scenes.json": "bc4012feccef0882d39cac920ca54f176b886044091e0f1713a5ae4790dc8c25",
+    "build/gain-047rc4/test.log": "a04da59f6bc90561d8c5ad1e6c01f56cc93af43bd3a1b3407ffc22737e468a1d",
+    "build/gain-047rc4/sanitize.log": "a573383447a97cd458f05b0613744ecdff37acbe65daa198860de9945b403215",
+    "build/gain-047rc4/firmware-build.log": "7b4637c3c91a0b6b84063b317f732704d8a52db67c4483c59fcc821b6bf822e5"
+  }
+}

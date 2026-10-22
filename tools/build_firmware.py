@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc3'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc4'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -154,6 +154,7 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
     audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
+    outputGain=2,outputGainDb=6.020599913,outputCeilingDbFS=-6.020599913,
     reverbSampleRate=44100//reverb_div,
     reverbTopology='stereo-8comb-4allpass' if reverb_div==1 else 'shared-4comb-2allpass-stereo-taps',
     fxProfile='full-rate-regression-only' if reverb_div==1 else 'half-rate-Q15-room',

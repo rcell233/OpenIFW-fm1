@@ -154,8 +154,8 @@ def main():
         for c in group:
             c['q15PeakDbFS']=db(c['peak']);c['q15RmsDbFS']=db(c['rms'])
             c['q15SteadyRmsDbFS']=db(c['steadyRms'])
-            c['dacPeakDbFSAtUnityMaster']=db(c['peak']/2)
-            c['dacRmsDbFSAtUnityMaster']=db(c['rms']/2)
+            c['dacPeakDbFSAtUnityMaster']=db(c.get('outputPeak',c['peak'])/2)
+            c['dacRmsDbFSAtUnityMaster']=db(c.get('outputRms',c['rms'])/2)
     report=dict(schema=1,kind='native-arithmetic-output-level-comparison',hardwareMeasured=False,
         measuredSeconds=4,steadyWindowSeconds=[2,4],sampleRate=44100,
         caveats=['No speaker/headphone voltage, SPL, or LUFS measurements.',
@@ -167,7 +167,7 @@ def main():
             [ROOT/'tools/output_level_probe.c',ROOT/'firmware/src/dsp.c',ROOT/'firmware/src/fixed/synth.c',
              ROOT/'firmware/src/fixed/effects.c',ROOT/'firmware/src/fixed/reverb_half.h',
              ROOT/'firmware/src/audio_output.h',ROOT/'firmware/src/platform.c',ROOT/'firmware/src/presets.h',
-             ROOT/'vendor/dinghy/firmware/hal/fm1_audio.h',ROOT/'web/emu/openifw_web.c']},
+             ROOT/'vendor/dinghy/firmware/hal/fm1_audio.h',ROOT/'web/emu/openifw_web.c',ROOT/'firmware/src/output_level.h']},
         masterCurve=[dict(adc=v,q12=(v*v)>>8,gain=((v*v)>>8)/4096,db=db(((v*v)>>8)/4096))
                      for v in [0,256,512,768,1023]],openifw=cases,peers=peers)
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')

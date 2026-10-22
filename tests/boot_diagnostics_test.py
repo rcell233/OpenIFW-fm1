@@ -42,13 +42,13 @@ int main(void){
  (void)perf_phase;
  ifw_boot_progress=(IFWBootProgress){0x42574649,40701,11};ifw_boot_begin();
  assert(ifw_previous_boot.version==40701 && ifw_previous_boot.stage==11);
- ifw_boot_mark(3);assert(ifw_boot_progress.stage==3 && ifw_boot_progress.version==40703);
+ ifw_boot_mark(3);assert(ifw_boot_progress.stage==3 && ifw_boot_progress.version==40704);
  usb.config=1;usb.diag_req=1;usb.diag_sequence=127;usb.diag_command=2;
  recovery_active=1;ifw_boot_reason=1;fm1_boot.p3_rst=4;bootguard.failed=2;bootguard.pending=2;
  fm1_crash.magic=FM1_CRASH_MAGIC;fm1_crash.pc=0x02012344;fm1_crash.count=3;
  mo_w=29;diagnostics_service();assert(!sent && usb.diag_req); /* 37 packets need room */
  mo_r=2;diagnostics_service();assert(sent==37 && !usb.diag_req);
- assert(reply_word(1)==40703 && reply_word(2)==1 && reply_word(3)==1 && reply_word(4)==4);
+ assert(reply_word(1)==40704 && reply_word(2)==1 && reply_word(3)==1 && reply_word(4)==4);
  assert(reply_word(8)==1 && reply_word(11)==0x02012344 && reply_word(17)==3 && reply_word(18)==11 && reply_word(19)==40701);
  assert(bootguard.failed==2 && bootguard.pending==2 && recovery_active==1);
  sent=mo_w=mo_r=0;fm1_crash.magic=0;usb.diag_req=1;diagnostics_service();

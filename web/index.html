@@ -99,15 +99,15 @@ footer small { font-size: 11px; opacity: .8; }
 </p>
 
 <footer>
-  <small class="version">OpenIFW FM-1 · 0.4.7-rc3 · Firmware simulator</small><br>
+  <small class="version">OpenIFW FM-1 · 0.4.7-rc4 · Firmware simulator</small><br>
   OpenIFW by rcell233 · UI &amp; controls after <a href="https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth">Ghoulbox</a> by Jason Persinger · Panel adapted from Felucca by Leo Kuroshita, Hügelton Instruments · <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a> · browser build after charlesvestal's <a href="https://github.com/charlesvestal/fm1-x0x">X0X</a> · Inter Tight screen font, <a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/assets/fonts/OFL-InterTight.txt">SIL OFL 1.1</a><br>
-  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="./firmware/OpenIFW-FM1-0.4.7-rc3.fwsc">Firmware 0.4.7-rc3</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
+  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="./firmware/OpenIFW-FM1-0.4.7-rc4.fwsc">Firmware 0.4.7-rc4</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
   <small>M-VAVE and FM-1 are trademarks of their respective owners. OpenIFW FM-1 is not affiliated with or endorsed by them.</small>
 </footer>
 </main>
 
 <script type="module">
-import { midiKnob, KNOB_MODES } from "./worklet.js?v=0.4.7-rc3";
+import { midiKnob, KNOB_MODES } from "./worklet.js?v=0.4.7-rc4";
 const NS = "http://www.w3.org/2000/svg";
 // panel.c's labels (bit = label) and encoder roles
 const B = { FX: 0, SCL: 1, ENV: 2, LFO: 3, EDIT: 4, GLO: 5, HOME: 6, SAVE: 7, ARP: 8, SEQ: 9, PLAY: 10, REC: 11, "OCT-": 12, "OCT+": 13 };
@@ -509,8 +509,8 @@ async function switchOn() {
     if (ac.sampleRate !== 44100) { await ac.close(); throw new Error("44.1 kHz audio is required for this firmware"); }
     const resume = ac.resume();
     const [wasm] = await Promise.all([
-      fetch("openifw.wasm?v=0.4.7-rc3", {cache:"no-store"}).then((r) => { if (!r.ok) throw new Error(`openifw.wasm: ${r.status}`); return r.arrayBuffer(); }),
-      ac.audioWorklet.addModule("worklet.js?v=0.4.7-rc3")]);
+      fetch("openifw.wasm?v=0.4.7-rc4", {cache:"no-store"}).then((r) => { if (!r.ok) throw new Error(`openifw.wasm: ${r.status}`); return r.arrayBuffer(); }),
+      ac.audioWorklet.addModule("worklet.js?v=0.4.7-rc4")]);
     node = new AudioWorkletNode(ac, "openifw", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
     node.connect(ac.destination);
     let warned = false;

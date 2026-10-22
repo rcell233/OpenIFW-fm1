@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// The full-rate reference retains the old fixture; production may change only FX.
+// The unpublished full-rate/x1 reference retains the old fixture; production
+// uses the authorized half-rate FX and the separate x2 output calibration.
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
