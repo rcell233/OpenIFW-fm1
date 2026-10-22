@@ -3,14 +3,14 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test rapid-notes-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test rapid-notes-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -78,22 +78,9 @@ build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware
 build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h firmware/src/audio_transition.h
+build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-rapid-notes-test:
-	mkdir -p build/rapid-notes
-	$(CC) -O3 -std=c11 -Wall -Wextra -Werror tests/audio_transitions.c -o build/rapid-notes/arithmetic
-	build/rapid-notes/arithmetic > build/rapid-notes/arithmetic.json
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_transitions.c -o build/rapid-notes/arithmetic-sanitize
-	build/rapid-notes/arithmetic-sanitize > build/rapid-notes/arithmetic-sanitize.json
-	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Wno-missing-field-initializers -Ivendor/dinghy/firmware/gen tests/rapid_notes.c $(FIXED) -o build/rapid-notes/production
-	build/rapid-notes/production > build/rapid-notes/production.json
-	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Wno-missing-field-initializers -DIFW_NOTE_TRANSITIONS=0 -Ivendor/dinghy/firmware/gen tests/rapid_notes.c $(FIXED) -o build/rapid-notes/reference
-	build/rapid-notes/reference > build/rapid-notes/reference.json
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/rapid_notes.c $(FIXED) -o build/rapid-notes/sanitize
-	build/rapid-notes/sanitize > build/rapid-notes/sanitize.json
-	python3 tests/rapid_notes_test.py
 output-level-test:
 	mkdir -p build/output-level
 	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/output_level_test.c firmware/src/dsp.c -lm -o build/output-level/long-scenes

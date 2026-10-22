@@ -33,19 +33,19 @@ shutil.copy2(R/'firmware-bin/build.json',O/'firmware/build.json')
     product=release['identity'],file=filename,bytes=len(package),sha256=release['sha256'],
     hardwareTested=release['hardwareTested'],experimental=release.get('experimental',False),stage=release.get('stage','legacy')),indent=2)+'\n')
 # The byte-identical previously bootable package remains available for rescue.
-for version in ['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc6']:
+for version in ['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5']:
     recovery=json.loads((R/f'firmware-bin/OpenIFW-FM1-{version}.json').read_text())
     recovery_file=f'OpenIFW-FM1-{version}.fwsc'
     recovery_bytes=(R/'firmware-bin'/recovery_file).read_bytes()
     if recovery['version']!=version or recovery['identity']!='FM-1_982' or len(recovery_bytes)!=recovery['packageBytes'] or hashlib.sha256(recovery_bytes).hexdigest()!=recovery['sha256']:
         raise SystemExit(f'Recovery package does not match the locked {version} metadata.')
     shutil.copy2(R/'firmware-bin'/recovery_file,O/'firmware'/recovery_file)
-    prefix='candidate' if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc6'] else 'recovery'
+    prefix='candidate' if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5'] else 'recovery'
     (O/f'install/{prefix}-{version}.json').write_text(json.dumps(dict(schema=1,version=version,
         product=recovery['identity'],file=recovery_file,bytes=len(recovery_bytes),sha256=recovery['sha256'],
         hardwareTested=recovery['hardwareTested'],experimental=recovery.get('experimental',False),
         stage=recovery.get('stage','legacy')),indent=2)+'\n')
-    if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5']:shutil.copy2(O/f'install/{prefix}-{version}.json',O/f'install/recovery-{version}.json')
+    if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4']:shutil.copy2(O/f'install/{prefix}-{version}.json',O/f'install/recovery-{version}.json')
 tmp=R/'build/tmp';tmp.mkdir(exist_ok=True)
 env=dict(os.environ,TMPDIR=str(tmp),LD_LIBRARY_PATH=str(sdk/'lib')+(':'+os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else ''))
 cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',
@@ -55,7 +55,7 @@ cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra',
 subprocess.run(cmd,check=True,env=env)
 # Keep the old wet PCM regression explicit, outside the published web tree.
 reference=R/'build/test-web';reference.mkdir(exist_ok=True)
-reference_cmd=cmd[:-2]+['-DIFW_REVERB_DIV=1','-DIFW_OUTPUT_GAIN=1','-DIFW_NOTE_TRANSITIONS=0','-o',str(reference/'openifw-full-rate.wasm')]
+reference_cmd=cmd[:-2]+['-DIFW_REVERB_DIV=1','-DIFW_OUTPUT_GAIN=1','-o',str(reference/'openifw-full-rate.wasm')]
 subprocess.run(reference_cmd,check=True,env=env)
 # Same production DSP with the old output level: isolate gain from FX/state.
 subprocess.run(cmd[:-2]+['-DIFW_OUTPUT_GAIN=1','-o',str(reference/'openifw-half-rate-x1.wasm')],check=True,env=env)
@@ -64,7 +64,7 @@ for name in ['install.js','controller.js']:
     subprocess.run(['node','--check',str(O/'install'/name)],check=True)
 for name in ['diagnostics.js','protocol.js']:
     subprocess.run(['node','--check',str(O/'diagnostics'/name)],check=True)
-record=dict(version=json.loads((R/'package.json').read_text())['version'],installerVersion=release['version'],kind='shared-C-firmware-host',reverbSampleRate=22050,reverbPrecisionBits=23,noteTransitionFrames=64,outputGain=2,outputGainDb=6.020599913,wasmBytes=(O/'openifw.wasm').stat().st_size,
+record=dict(version=json.loads((R/'package.json').read_text())['version'],installerVersion=release['version'],kind='shared-C-firmware-host',reverbSampleRate=22050,reverbPrecisionBits=23,outputGain=2,outputGainDb=6.020599913,wasmBytes=(O/'openifw.wasm').stat().st_size,
             wasmSha256=hashlib.sha256((O/'openifw.wasm').read_bytes()).hexdigest(),factoryPresets=6,
             compiler=subprocess.check_output([cc,'--version'],env=env,text=True).splitlines()[0])
 (O/'build.json').write_text(json.dumps(record,indent=2)+'\n')

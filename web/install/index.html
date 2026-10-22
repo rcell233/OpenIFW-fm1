@@ -18,7 +18,8 @@
 <p class="intro">用 USB 数据线把设备直接连接到电脑，打开电源，在桌面版 Chrome 或 Edge 中点 Install。浏览器会请求 MIDI 权限，无需下载额外软件。</p>
 <section class="card" aria-label="安装固件">
 <div class="release"><strong id="version">OpenIFW FM-1</strong><span class="badge">实验固件 · 候选版 · 实机待验收</span></div>
-<p class="notice" role="alert"><strong>最新 0.4.7-rc6：针对密集演奏加入短暂输出过渡，缓解换音和短时欠载的突变；保留混响降噪、约 6 dB 输出增益及原合成引擎和音色。更新后首次试音请先调低 MASTER。密集演奏效果尚待实机验收。</strong></p>
+<p class="notice" role="alert"><strong>0.4.7-rc6 已撤回：换音过渡、欠载淡出和恢复淡入已全部移除。当前安装包恢复为 0.4.7-rc5，保留混响降噪和输出增益。密集演奏的硬件爆音仍在排查实时性能，尚未宣称解决。</strong></p>
+<p class="notice" role="alert"><strong>最新 0.4.7-rc5：提高混响内部精度，降低弱音和尾音中的量化误差；保留约 6 dB 输出增益及原合成引擎和音色。更新后首次试音请先调低 MASTER。降噪效果尚待实机验收。</strong></p>
 <p class="notice">安装会替换设备当前固件，更换前请备份需要保留的音色与配置。写入期间请勿断电、拔线或关闭此页面。</p>
 <p id="recovery-note" class="notice" hidden>当前选择的是 0.4.1 恢复包：此前可启动，但原有声音问题仍然存在。该入口用于从 USB RESCUE 恢复设备。</p>
 <div class="action"><button id="install" type="button" disabled>正在校验固件…</button><a id="download" class="download" hidden download>下载 .fwsc</a></div>
@@ -28,11 +29,11 @@
 <ol class="steps" aria-label="安装阶段"><li data-stage="0">01 连接设备</li><li data-stage="1">02 准备升级</li><li data-stage="2">03 写入固件</li><li data-stage="3">04 重启确认</li></ol>
 </section>
 <noscript>安装器需要启用 JavaScript。</noscript>
-<details open><summary>0.4.7-rc6 密集演奏缓解候选</summary><p>换音时对活动包络重触发或力度跳变做约 1.45 ms 输出过渡；短时欠载时淡出，恢复时淡入。混响降噪保持 rc5 的实现。最终约 6 dB 输出增益、MASTER 曲线和 DAC 余量保留。核心合成、单音、Legato 和出厂音色参数保持原值。<a href="?candidate=0.4.7-rc6&amp;v=0.4.7-rc6">直接选择 Install 0.4.7-rc6</a>。<a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/docs/RAPID_NOTES_0.4.7-rc6.md">改动与测试结果</a></p></details>
+<details open><summary>0.4.7-rc5 混响降噪候选</summary><p>混响延迟与反馈由 Q15 提升到 Q23，保留原空间结构、Size / Width 和湿干控制。最终约 6 dB 输出增益、MASTER 曲线和 DAC 余量保留。核心合成、单音、Legato 和出厂音色参数保持原值。<a href="?candidate=0.4.7-rc5&amp;v=0.4.7-rc5">直接选择 Install 0.4.7-rc5</a>。<a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/docs/REVERB_0.4.7-rc5.md">改动与测试结果</a></p></details>
 <details><summary>更新后验证声音与性能</summary><p>进入 GLO 的 PERFORMANCE 页，或长按 HOME → SYS → PERFORMANCE。向右转第二旋钮 RESET，持续演奏并观察 DSP MAX / XRUN / DMA / UND；后三项应保持 0。IRQ 包含 DMA 复制与 USB tap；DSP 是各前台合成片段耗时之和。第一旋钮可选 SINE / MUTE 帮助排查输出链路，退出此页自动恢复 SYNTH。</p><p><a href="../diagnostics/">通过 USB 采集 10 秒设备性能报告</a></p></details>
-<details open><summary>USB RESCUE / 恢复设备</summary><p>如果屏幕显示 OPENIFW FM1 USB RESCUE / CONNECT USB，保持此画面和 USB 连接，点击上方 Install 安装修复版；安装和重启时松开按键，尤其 OCT−。</p><p>可<a href="?recovery=0.4.7-rc5&amp;v=0.4.7-rc6">回退到 0.4.7-rc5</a>（保留混响降噪和输出增益，恢复之前的换音输出），或<a href="?recovery=0.4.7-rc4&amp;v=0.4.7-rc6">回退到 0.4.7-rc4</a>（保留约 6 dB 输出增益，恢复之前的混响），或<a href="?recovery=0.4.7-rc3&amp;v=0.4.7-rc6">回退到 0.4.7-rc3</a>（恢复原输出音量，保留半速混响优化），或选择更早的 <a href="?recovery=0.4.7-rc2">0.4.7-rc2</a>、<a href="?recovery=0.4.6-rc2">0.4.6-rc2</a>、<a href="?recovery=0.4.4">0.4.4</a>、<a href="?recovery=0.4.1">0.4.1</a> 恢复包。<a href="./?v=0.4.7-rc6">返回最新版安装</a>。救援身份 FM-1_000 不会被当作正常安装成功；曾启动失败的 0.4.7-rc1 继续撤回。</p></details>
+<details open><summary>USB RESCUE / 恢复设备</summary><p>如果屏幕显示 OPENIFW FM1 USB RESCUE / CONNECT USB，保持此画面和 USB 连接，点击上方 Install 安装修复版；安装和重启时松开按键，尤其 OCT−。</p><p>可<a href="?recovery=0.4.7-rc4&amp;v=0.4.7-rc5">回退到 0.4.7-rc4</a>（保留约 6 dB 输出增益，恢复之前的混响），或<a href="?recovery=0.4.7-rc3&amp;v=0.4.7-rc5">回退到 0.4.7-rc3</a>（恢复原输出音量，保留半速混响优化），或选择更早的 <a href="?recovery=0.4.7-rc2">0.4.7-rc2</a>、<a href="?recovery=0.4.6-rc2">0.4.6-rc2</a>、<a href="?recovery=0.4.4">0.4.4</a>、<a href="?recovery=0.4.1">0.4.1</a> 恢复包。<a href="./?v=0.4.7-rc5">返回最新版安装</a>。救援身份 FM-1_000 不会被当作正常安装成功；曾启动失败的 0.4.7-rc1 继续撤回。</p></details>
 <details><summary>连接失败或安装中断</summary><ul><li>确认使用能传输数据的 USB 线，并关闭占用 FM-1 MIDI 的 DAW、编辑器或其他网页。</li><li>如果连接了多台设备，请只保留要安装的那台 FM-1。</li><li>如果设备仍停在兼容的升级模式，重新接上 USB 后点 Install，会恢复写入。</li><li>如果当前固件无法正常启动，可尝试按住 OCT− 开机进入 USB 救援模式，再连接安装。</li><li>如果浏览器拒绝 MIDI 权限，请在地址栏的站点设置中允许 MIDI，然后重试。</li></ul><p>本页使用 FM-1 的 USB-MIDI 升级协议，只安装本项目发布的 OpenIFW 固件。只有型号确认通过的 FM-1 才会进入写入流程。</p></details>
 <details><summary>固件与安装日志</summary><p id="identity"></p><pre id="digest"></pre><pre id="log"></pre></details>
 <footer>升级传输沿用 Felucca（Leo Kuroshita / Hügelton Instruments）的 GPL-3.0 代码。<a href="../THIRD_PARTY_NOTICES.md">许可与归属</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/tree/main/firmware-bin">固件与构建信息</a><br>网页流程经过模拟设备测试，尚未连接实体 FM-1 进行刷写验证。</footer>
-<script type="module" src="./install.js?v=0.4.7-rc6"></script>
+<script type="module" src="./install.js?v=0.4.7-rc5"></script>
 </main></body></html>
