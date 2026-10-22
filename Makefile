@@ -3,44 +3,66 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed panel-test web-test performance-test hardware-path-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
-	node tests/engine_fixed_compare.mjs
+	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
 	python3 tests/performance_regression.py
+	python3 tests/reverb_production.py
 	node tests/factory_regression.mjs
 factory-test: build/ifw-fixed
 	node tests/factory_regression.mjs
 build/ifw-fixed: tests/engine_fixed_host.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
 	mkdir -p build
 	$(CC) $(CFLAGS) tests/engine_fixed_host.c $(FIXED) -o $@
+build/ifw-fixed-legacy: tests/engine_fixed_host.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
+	mkdir -p build
+	$(CC) $(CFLAGS) -DIFW_REVERB_DIV=1 tests/engine_fixed_host.c $(FIXED) -o $@
 build/dsp-regression: tests/dsp_optimization.c tests/dsp_math.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
 	mkdir -p build
-	$(CC) $(CFLAGS) -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c $(FIXED) -o $@
+	$(CC) $(CFLAGS) -DIFW_REVERB_DIV=1 -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c $(FIXED) -o $@
 build/dsp-regression-unity: tests/dsp_optimization.c tests/dsp_math.c firmware/src/dsp.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
 	mkdir -p build
-	$(CC) $(CFLAGS) -O3 -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c firmware/src/dsp.c -o $@
+	$(CC) $(CFLAGS) -DIFW_REVERB_DIV=1 -O3 -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_optimization.c firmware/src/dsp.c -o $@
 build/source-capture: tests/source_capture.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
 	mkdir -p build
-	$(CC) $(CFLAGS) -Ifirmware/src/fixed -Ifirmware/src tests/source_capture.c $(FIXED) -o $@
+	$(CC) $(CFLAGS) -DIFW_REVERB_DIV=1 -Ifirmware/src/fixed -Ifirmware/src tests/source_capture.c $(FIXED) -o $@
 performance-test: build/dsp-regression build/dsp-regression-unity build/source-capture
 	python3 tests/performance_regression.py --live-only
 	python3 tests/source_capture_test.py
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsp_optimization.c firmware/src/dsp.c -o build/dsp-regression-sanitize
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_REVERB_DIV=1 -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsp_optimization.c firmware/src/dsp.c -o build/dsp-regression-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/dsp-regression-sanitize > build/dsp-regression-sanitize.json
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/source_capture.c firmware/src/dsp.c -o build/source-capture-sanitize
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_REVERB_DIV=1 -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/source_capture.c firmware/src/dsp.c -o build/source-capture-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/source-capture-sanitize > build/source-capture-sanitize.json
 	python3 -c 'import json; assert json.load(open("build/source-capture-sanitize.json")) == json.load(open("docs/evidence/source-capture-rc1.json"))["hashes"]'
 build/dsp-irq-stream: tests/dsp_irq_stream.c $(FIXED) $(wildcard firmware/src/fixed/*.h) firmware/src/presets.h
 	mkdir -p build
 	$(CC) $(CFLAGS) -DIFW_IRQ_STREAM_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_irq_stream.c $(FIXED) -o $@
+build/dsp-irq-stream-legacy: tests/dsp_irq_stream.c $(FIXED) $(wildcard firmware/src/fixed/*.h) firmware/src/presets.h
+	mkdir -p build
+	$(CC) $(CFLAGS) -DIFW_REVERB_DIV=1 -DIFW_IRQ_STREAM_MAIN -Ifirmware/src/fixed -Ifirmware/src tests/dsp_irq_stream.c $(FIXED) -o $@
+build/reverb-impulse-production: tests/reverb_impulse.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
+	mkdir -p build
+	$(CC) $(CFLAGS) -Wno-misleading-indentation -Ifirmware/src/fixed -Ifirmware/src tests/reverb_impulse.c $(FIXED) -o $@
+build/reverb-impulse-legacy: tests/reverb_impulse.c $(FIXED) $(wildcard firmware/src/fixed/*.h)
+	mkdir -p build
+	$(CC) $(CFLAGS) -Wno-misleading-indentation -DIFW_REVERB_DIV=1 -Ifirmware/src/fixed -Ifirmware/src tests/reverb_impulse.c $(FIXED) -o $@
+reverb-test: build/reverb-impulse-production build/reverb-impulse-legacy
+	python3 tests/reverb_quality.py
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_SELFTEST_MAIN -Ifirmware/src/fixed -Ifirmware/src -fsanitize=address,undefined -fno-omit-frame-pointer tests/dsp_optimization.c firmware/src/dsp.c -o build/reverb-quality/live-edit-sanitize
+	build/reverb-quality/live-edit-sanitize > build/reverb-quality/live-edit-sanitize.json
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/preset_headroom.c firmware/src/dsp.c -lm -o build/reverb-quality/headroom
+	build/reverb-quality/headroom > build/reverb-quality/headroom.json
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/preset_headroom.c firmware/src/dsp.c -lm -o build/reverb-quality/headroom-sanitize
+	build/reverb-quality/headroom-sanitize > build/reverb-quality/headroom-sanitize.json
+	python3 -c 'import json; a=json.load(open("build/reverb-quality/headroom.json")); assert a==json.load(open("build/reverb-quality/headroom-sanitize.json")); assert len(a["cases"])==72; assert not any(c["clippedChannelSamples"] for c in a["cases"]); print("PASS production headroom: 72 cases, no final output clipping, identical ASan/UBSan results")'
 build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler.c -o $@
@@ -50,7 +72,7 @@ build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h 
 build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-hardware-path-test: build/dsp-irq-stream build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
+hardware-path-test: build/dsp-irq-stream build/dsp-irq-stream-legacy build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
 	mkdir -p build/target-audit
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler > build/target-audit/scheduler.json
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler-rc2 > build/target-audit/scheduler-rc2.json
@@ -60,6 +82,7 @@ hardware-path-test: build/dsp-irq-stream build/audio-scheduler build/audio-sched
 	node tests/diagnostics_test.mjs
 	node tests/diagnostics_page_test.mjs
 	build/dsp-irq-stream > build/target-audit/irq-native.json
+	build/dsp-irq-stream-legacy > build/target-audit/irq-native-legacy.json
 	python3 tests/irq_stream_test.py
 	python3 tests/usb_retry_test.py
 	python3 tests/usb_sie_deadline.py

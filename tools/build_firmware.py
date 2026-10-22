@@ -14,15 +14,17 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import tempfile
 
 R=Path(__file__).resolve().parents[1]
 V=R/'vendor/dinghy'
-STAGE=R/'build/target-source'
-STAGE.mkdir(parents=True,exist_ok=True)
-# Variants share a staging tree and must never compile over each other.
+stage_root=R/'build/target-source'
+stage_root.mkdir(parents=True,exist_ok=True)
+# Isolate each compilation's copied inputs. Keep the final output publication
+# locked too: no variant may replace a different build's ELF/package pair.
 build_lock=(R/'build/firmware-build.lock').open('w')
 fcntl.flock(build_lock.fileno(),fcntl.LOCK_EX)
-if (STAGE/'firmware').exists():shutil.rmtree(STAGE/'firmware')
+STAGE=Path(tempfile.mkdtemp(prefix='compile-',dir=stage_root))
 shutil.copytree(V/'firmware',STAGE/'firmware')
 shutil.copytree(R/'firmware',STAGE/'firmware',dirs_exist_ok=True)
 # Recovery builds require the original electrical scan sequence and IRQ entry.
@@ -41,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc2'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc3'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -64,6 +66,8 @@ for flag,suffix,files in [
         for source,name in files:shutil.copy2(R/'tests'/source,STAGE/'firmware/src'/name)
         b.CFLAGS.append('-Ifirmware/src/fixed')
 if os.environ.get('IFW_DSP_XIP')=='1':b.VERSION+='-xip'
+reverb_div=1 if baseline_dir or os.environ.get('IFW_DSP_SELFTEST')=='1' else 2
+b.CFLAGS.append(f'-DIFW_REVERB_DIV={reverb_div}')
 for rel,sha in b.SDK_SHA256.items():
     if hashlib.sha256(b.fm1pkg_make.sdk_file(rel)).hexdigest()!=sha:raise SystemExit('SDK checksum mismatch: '+rel)
 for f in (R/'firmware/src').rglob('*'):
@@ -150,6 +154,9 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
     audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
+    reverbSampleRate=44100//reverb_div,
+    reverbTopology='stereo-8comb-4allpass' if reverb_div==1 else 'shared-4comb-2allpass-stereo-taps',
+    fxProfile='full-rate-regression-only' if reverb_div==1 else 'half-rate-Q15-room',
     experimental=True,stage='release-candidate')
 (dest/'build.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))

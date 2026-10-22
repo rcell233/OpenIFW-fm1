@@ -33,7 +33,7 @@ export async function verifyFirmware(bytes,meta){
 }
 
 export async function loadFirmware(baseURL,fetcher=fetch,release='release.json'){
-  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json','candidate-0.4.7-rc2.json'].includes(release))
+  if(!['release.json','recovery-0.4.1.json','recovery-0.4.4.json','recovery-0.4.6-rc2.json','recovery-0.4.7-rc2.json','candidate-0.4.7-rc2.json','candidate-0.4.7-rc3.json'].includes(release))
     throw fail('badpkg','未知的固件发布入口。');
   const response=await fetcher(new URL('./'+release,baseURL),{cache:'no-store'});
   if(!response.ok)throw fail('download','无法读取固件信息（HTTP '+response.status+'）。');
@@ -99,7 +99,7 @@ export const ERROR_TEXT={
   noloader:'没有找到升级模式中的 FM-1。重新插拔 USB，再点 Install 重试。',
   noreturn:'写入后没有检测到设备重启。请重新接通设备电源，再确认设备状态。',
   mismatch:'设备重启后报告了不同的固件身份，安装没有通过最终确认。',
-  rescue:'设备进入了 USB RESCUE（FM-1_000），正常固件尚未启动。保持当前连接，可使用本页的“回退到 0.4.6-rc2”入口恢复。',
+  rescue:'设备进入了 USB RESCUE（FM-1_000），正常固件尚未启动。保持当前连接，可使用本页的“回退到 0.4.7-rc2”入口恢复。',
   badreq:'设备请求的数据超出固件范围，传输已停止。',
 };
 export function errorText(e){return ERROR_TEXT[e?.code]??e?.message??'安装失败，请重试。';}

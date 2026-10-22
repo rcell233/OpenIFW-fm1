@@ -1,0 +1,14 @@
+{
+  "version": "0.4.7-rc3",
+  "authorization": "User permits approximate FX to prevent crackles; preserve mono/Legato, OSC/FM, envelopes and matrix.",
+  "referenceMode": "IFW_REVERB_DIV=1 is tested only against the untouched original PCM/state fixtures; production defaults to DIV=2.",
+  "previousSha256": {
+    "firmware/src/fixed/effects.c": "48dc590f5c6385bd39bcd40f3d8ce1cb7ab3c9079ab62d6bac60319d2d9e1ee5",
+    "firmware/src/fixed/synth.h": "e9fa4098fedd17344c9b360f9c42f88b47ff705a693534c9715a44e2197e5646"
+  },
+  "sha256": {
+    "firmware/src/fixed/effects.c": "ec86d15100b24992d4e50be5157c26dba5c60c4099a489e1cb46176386117be2",
+    "firmware/src/fixed/synth.h": "500769f7743f82a567e43f2332d6348458b3ca7989a4bafec35c2befa083d514",
+    "firmware/src/fixed/reverb_half.h": "e405ef6f20849385df79ba1ed38b7f873497642feb6c313e8e67ad3bf0db9c9d"
+  }
+}

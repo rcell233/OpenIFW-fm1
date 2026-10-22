@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * OpenIFW FX topology. Delays use 22.05 kHz/Q15; reverb storage uses Q15.
+ * OpenIFW FX topology. Delays and the production reverb tank use 22.05 kHz.
  */
 #include "synth.h"
 #include "memory.h"
@@ -29,6 +29,16 @@ static uint32_t time_cycles(IFWFixedEffects *e,int32_t rate) {
     uint32_t lo=(uint32_t)e->time_phase,hi=(uint32_t)(e->time_phase>>32);
     return (uint32_t)(((uint64_t)lo*(uint32_t)rate)>>16)+(hi*(uint32_t)rate<<16);
 }
+#if IFW_REVERB_DIV == 2
+#include "reverb_half.h"
+/* Convex wet/dry interpolation uses one wide multiply. Only FX rounding
+ * changes (at most one Q20 LSB); out-of-range imported mixes retain the old
+ * saturated path. The core oscillator/filter/matrix math is untouched. */
+static int32_t wet_mix(int32_t dry,int32_t wet,int32_t mix) {
+    if(mix>=0 && mix<=IFW_Q20)return ifw_lerp30(dry,wet,mix*1024);
+    return ifw_addsat(ifw_mul20(dry,IFW_Q20-mix),ifw_mul20(wet,mix));
+}
+#endif
 void ifw_fixed_fx_reset(IFWFixedSynth *s) {
     IFWFixedFxBuffers *b=s->effects.buffers;
     memset(&s->effects,0,sizeof s->effects);s->effects.buffers=b;
@@ -66,6 +76,16 @@ void ifw_fixed_fx_configure(IFWFixedSynth *s) {
     int32_t width=cv20(rv[IFW_FX_Width]),mix=cv20(rv[IFW_FX_WetDry]);
     e->reverb_damp=cv20(rv[IFW_FX_HighDamp])*2/5;
     e->reverb_feedback=734003+ifw_mul20(size,293601);
+#if IFW_REVERB_DIV == 2
+    /* A one-pole's memory coefficient at twice the interval is d*d.
+     * Tank decay feedback is calibrated below for the smaller network. */
+    int32_t damp=ifw_clamp(e->reverb_damp,0,IFW_Q20);
+    e->reverb_damp15=(int32_t)(((int64_t)damp*damp)>>25);
+    int32_t feedback=e->reverb_feedback>>5;
+    /* The chosen combs average about 10% shorter than the full tank.
+     * f + (1-f)/10 approximates f^0.9, retaining the Size decay range. */
+    e->reverb_feedback15=ifw_clamp(feedback+(32768-feedback)/10,0,32767);
+#endif
     e->reverb_w1=ifw_mul20(ifw_sat((int64_t)mix*9/4),IFW_Q20+width);
     e->reverb_w2=ifw_mul20(ifw_sat((int64_t)mix*9/4),IFW_Q20-width);
     e->reverb_dry=2*IFW_Q20-mix;
@@ -129,8 +149,12 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
         int32_t cl=read32(b->chorus,IFW_SHORT_SAMPLES,e->chorus_head,(uint32_t)(base+swing));
         int32_t cr=read32(b->chorus,IFW_SHORT_SAMPLES,e->chorus_head,(uint32_t)(base-swing));
         b->chorus[e->chorus_head]=ifw_half((int64_t)l+r);
+#if IFW_REVERB_DIV == 2
+        l=wet_mix(l,cl,m);r=wet_mix(r,cr,m);
+#else
         l=ifw_addsat(ifw_mul20(l,IFW_Q20-m),ifw_mul20(cl,m));
         r=ifw_addsat(ifw_mul20(r,IFW_Q20-m),ifw_mul20(cr,m));
+#endif
     }else b->chorus[e->chorus_head]=ifw_half((int64_t)l+r);
     e->chorus_head=advance(e->chorus_head,IFW_SHORT_SAMPLES);
     for(int k=0;k<2;k++)if(active(s,k+2)) {
@@ -151,10 +175,29 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
             e->delay_head[k]=advance(e->delay_head[k],IFW_DELAY_SAMPLES);
         }
         e->delay_half[k]^=1;
+#if IFW_REVERB_DIV == 2
+        l=wet_mix(l,e->delay_wet[k*2],m);r=wet_mix(r,e->delay_wet[k*2+1],m);
+#else
         l=ifw_addsat(ifw_mul20(l,IFW_Q20-m),ifw_mul20(e->delay_wet[k*2],m));
         r=ifw_addsat(ifw_mul20(r,IFW_Q20-m),ifw_mul20(e->delay_wet[k*2+1],m));
+#endif
     }
     if(active(s,4)) {
+#if IFW_REVERB_DIV == 2
+        int32_t wet[2]={e->reverb_wet[0],e->reverb_wet[1]};
+        /* Three-tap 1/4,1/2,1/4 decimator. The bounded downmix is Q20;
+         * retain its fractional bits until it enters the Q15 tank. */
+        int32_t mono=(int32_t)((((int64_t)l+r)*15729)>>20);
+        if(!(e->reverb_half^=1u)) {
+            int32_t filtered=ifw_shr0(e->reverb_input[0]+2*e->reverb_input[1]+mono,2);
+            reverb_half_tick(e,b,ifw_shr0(filtered,5));
+            /* Causal linear reconstruction; only wet audio is delayed. */
+            wet[0]=ifw_shr0(wet[0]+e->reverb_wet[0],1);
+            wet[1]=ifw_shr0(wet[1]+e->reverb_wet[1],1);
+        }
+        e->reverb_input[0]=e->reverb_input[1];e->reverb_input[1]=mono;
+        wet[0]*=32;wet[1]*=32;
+#else
         int32_t damp=e->reverb_damp,feedback=e->reverb_feedback;
         /* l/r are int32: this downmix is bounded to < 65 million. */
         int32_t mono=(int32_t)((((int64_t)l+r)*15729)>>20),wet[2]={0,0};
@@ -204,6 +247,7 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
         ALLPASS(1,11,248,12615);
 #undef COMB
 #undef ALLPASS
+#endif
         int32_t w1=e->reverb_w1,w2=e->reverb_w2,dry=e->reverb_dry;
         l=ifw_sat((int64_t)ifw_mul20(l,dry)+ifw_mul20(wet[0],w1)+ifw_mul20(wet[1],w2));
         r=ifw_sat((int64_t)ifw_mul20(r,dry)+ifw_mul20(wet[1],w1)+ifw_mul20(wet[0],w2));

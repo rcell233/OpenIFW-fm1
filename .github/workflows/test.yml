@@ -33,3 +33,5 @@ jobs:
             build/target-audit/dma-pipeline/results.json
             build/target-audit/dma-042-starvation/results.json
             build/target-audit/octave-config.json
+            build/reverb-production/result.json
+            build/reverb-quality/*.json

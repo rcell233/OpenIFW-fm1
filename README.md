@@ -1,20 +1,20 @@
 # OpenIFW-fm1
 
-**2026-10-22 实机进展：0.4.7-rc1 的 USB RESCUE 启动失败版仍撤回。0.4.7-rc2 已有正常运行、JUDD 无爆音的反馈；Daisy / Tresure 仍爆音，尚未完成声音验收。[逐模块负载与简化方案](docs/PRESET_COST_0.4.7-rc2.md) 已加入。网页默认仍提供原始 0.4.6-rc2 恢复包。**
+**最新候选 [0.4.7-rc3](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc3&v=0.4.7-rc3)：已实现半速小型混响和效果器混合优化，Daisy / Tresure 的模型 DSP 耗时降低约 19%，核心合成与原始音色参数保留。软件检查通过，实机声音待验收。[改动与测试](docs/FX_0.4.7-rc3.md)。**
 
-OpenIFW 的 FM-1 专用单音合成器移植。**0.4.7-rc1 已因实机 USB RESCUE 反馈撤回；默认安装恢复提供原始 0.4.6-rc2。[0.4.7-rc2 恢复候选](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc2&v=0.4.7-rc2) 恢复前台分段音频及原始输入/中断布局，保留朴素界面并增加救援启动报告。已有实机运行反馈，部分音色爆音仍待解决，见 [恢复说明](docs/RECOVERY_0.4.7-rc2.md)。**
+OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc3**；[0.4.7-rc2](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc2&v=0.4.7-rc3) 保留为回退包，该版已确认可以运行，JUDD 正常、Daisy / Tresure 仍有爆音。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
 
-在桌面版 Chrome / Edge 打开 [恢复候选安装页](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc2&v=0.4.7-rc2)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.7-rc2**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+在桌面版 Chrome / Edge 打开 [候选安装页](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc3&v=0.4.7-rc3)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.7-rc3**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
-网页安装协议已通过模拟设备测试。0.4.4 已确认可以启动；0.4.5 的后续实机反馈仍有严重问题。0.4.7-rc2 已有用户实机运行反馈，JUDD 正常，其他部分音色仍会爆音；软件回归与目标指令测试不代替完整的设备声音验收。
+网页安装协议已通过 125 项模拟检查。0.4.7-rc2 已有用户实机运行反馈，JUDD 正常，其他部分音色仍会爆音。rc3 针对负载继续修复；软件回归与目标指令测试不代替完整的设备声音验收。
 
-如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认独立候选入口的按钮为 **Install 0.4.7-rc2** 后安装。可 [回退到 0.4.6-rc2](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.6-rc2&v=0.4.7-rc1) 恢复上一版；它的 UI 已有实机流畅反馈，仍存在破音。也可 [回退到 0.4.4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.4&v=0.4.7-rc1) 恢复本次已确认能启动的原包；它仍有卡顿和少量破音。更早的 [0.4.1 恢复包](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.1&v=0.4.7-rc1) 也保留。救援身份 FM-1_000 不会被当作安装成功。
+如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认按钮为 **Install 0.4.7-rc3** 后安装。可[回退到 0.4.7-rc2](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc2&v=0.4.7-rc3)；更早的 0.4.6-rc2、0.4.4、0.4.1 恢复入口也保留。救援身份 FM-1_000 不会被当作安装成功。
 
 ## 保留的合成行为
 
@@ -24,7 +24,7 @@ OpenIFW 的 FM-1 专用单音合成器移植。**0.4.7-rc1 已因实机 USB RESC
 - 静音振荡器继续作为调制源；八槽双来源调制，普通调制每 16 输出采样更新，FM 在内部采样率计算。
 - 双主滤波器和三种路由、Filter3、两组 LFO、Exciter、Enhancer、Phaser、Chorus、双 Delay、Reverb 和 EQ。
 
-硬件效果器保留链路，两个 Delay 改为 22.05 kHz / 16 位 / 最长 1 秒，Reverb 缓冲改为 16 位。主合成器采用 Q20 音频、Q16 控制、Q31 包络及整数查表；量化、插值和饱和会带来小差异。详见 [移植记录](docs/DSP_PORT.md)。
+硬件效果器保留链路，两个 Delay 使用 22.05 kHz / 16 位 / 最长 1 秒；rc3 的混响为半速 Q15 小型 room，带立体声抽头，扩散与高频尾音会不同。主合成器采用 Q20 音频、Q16 控制、Q31 包络及整数查表。详见 [移植记录](docs/DSP_PORT.md) 与 [新 FX 说明](docs/FX_0.4.7-rc3.md)。
 
 ## 编译与测试
 
@@ -56,11 +56,11 @@ sh build.sh --firmware
 
 SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；vendor 中 Dinghy 平台、HAL 和升级 loader 的原始源码保留不动；自有 platform / USB 与恢复诊断在 firmware 下，输入/时间/ISR 使用原始 vendor 文件。链接脚本沿用原分区和启动复制机制，将热 DSP 和查表放入预算内 RAM；输入和 ISR 使用原始 vendor 文件并在 Flash 执行。构建重新创建暂存源码并检查链接布局、复制镜像与 DSP 地址。HAL 算术适配封装 pi32v2 饱和加减，不改设备寄存器或时钟。
 
-独立选择的恢复候选：[OpenIFW-FM1-0.4.7-rc2.fwsc](firmware-bin/OpenIFW-FM1-0.4.7-rc2.fwsc)，资源与 SHA-256 见同目录 `OpenIFW-FM1-0.4.7-rc2.json`。
+当前候选：[OpenIFW-FM1-0.4.7-rc3.fwsc](firmware-bin/OpenIFW-FM1-0.4.7-rc3.fwsc)，资源与 SHA-256 见同目录 `OpenIFW-FM1-0.4.7-rc3.json`。
 
-输出 `build/firmware/OpenIFW-FM1-0.4.7-rc2.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
+输出 `build/firmware/OpenIFW-FM1-0.4.7-rc3.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
 
-默认恢复包大小见 `firmware-bin/build.json`，候选包大小见 `firmware-bin/OpenIFW-FM1-0.4.7-rc2.json` 和 [恢复证据](docs/evidence/recovery-0.4.7-rc2.json)；候选 data+bss 81,680 B / 98,304 B，pool 324,936 B / 344,064 B，RAM code 21,748 B / 24,576 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
+当前包信息见 `firmware-bin/build.json` 和 [rc3 验证证据](docs/evidence/fx-0.4.7-rc3.json)；data+bss 81,712 B / 98,304 B，pool 279,272 B / 344,064 B，RAM code 19,064 B / 24,576 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 
 真机验证步骤和实时预算见 [硬件验证](docs/HARDWARE_TEST.md)。优先使用本项目的 [网页安装器](https://rcell233.github.io/OpenIFW-fm1/install/)，也可沿用 [Dinghy 文档](vendor/dinghy/README.md) 的 `tools/fm1_install.py`；此开发环境没有连接或刷写任何设备。
 

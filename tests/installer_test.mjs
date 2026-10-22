@@ -49,7 +49,14 @@ const candidateMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-r
 const candidateBytes=new Uint8Array(readFileSync('build/web/firmware/'+candidateMeta.file));
 const candidate=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(candidateMeta)):new Response(candidateBytes),'candidate-0.4.7-rc2.json');
 eq(candidate.meta.version,'0.4.7-rc2');eq(candidate.meta.experimental,true);
-ok(candidate.meta.sha256!==rc2.meta.sha256);eq(meta.version,'0.4.6-rc2','known bootable recovery stays the default');
+ok(candidate.meta.sha256!==rc2.meta.sha256);eq(meta.version,'0.4.7-rc3','performance repair is the default');
+const repairedMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-rc3.json'));
+const repaired=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(repairedMeta)):new Response(bytes),'candidate-0.4.7-rc3.json');
+eq(repaired.meta.sha256,meta.sha256);eq(repaired.meta.version,'0.4.7-rc3');
+const previousRecovery=JSON.parse(readFileSync('build/web/install/recovery-0.4.7-rc2.json'));
+const previousCandidate=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(previousRecovery)):new Response(candidateBytes),'recovery-0.4.7-rc2.json');
+eq(previousCandidate.meta.sha256,candidate.meta.sha256);
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(candidateMeta)),'candidate-0.4.7-rc3.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(rc2Meta)),'candidate-0.4.7-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(stableMeta)),'recovery-0.4.6-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(recoveryMeta)),'recovery-0.4.4.json'),'badpkg');
@@ -150,8 +157,8 @@ async function page({midi=true,denied=false,secure=true,downloadFail=false,recov
   const state={get permissions(){return permissions;},get installs(){return installs;},el,handlers,finish(){allow?.();}};
   const source=readFileSync('build/web/install/install.js','utf8').replace(/^import .*;\n/m,'').replaceAll('import.meta.url',JSON.stringify('https://rcell233.github.io/OpenIFW-fm1/install/install.js'));
   vm.runInNewContext(source,{document:{getElementById:el,querySelectorAll:()=>stages},navigator:midi?{async requestMIDIAccess(options){permissions++;eq(options.sysex,true);if(denied)throw new DOMException('Permission denied','NotAllowedError');return {};}}:{},isSecureContext:secure,URL,Date,console,
-    addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:selectCandidate?'?candidate=0.4.7-rc2':'')},
-    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return release==='candidate-0.4.7-rc2.json'?candidate:release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
+    addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:selectCandidate?'?candidate='+(typeof selectCandidate==='string'?selectCandidate:'0.4.7-rc2'):'')},
+    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return ['candidate-0.4.7-rc2.json','recovery-0.4.7-rc2.json'].includes(release)?candidate:release==='candidate-0.4.7-rc3.json'?repaired:release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
     installFirmware:async(_v,_a,step)=>{installs++;step('write',1);await new Promise(r=>allow=r);step('done','FM-1_982');},
   });
   for(let i=0;i<20;i++)await Promise.resolve();return state;
@@ -168,5 +175,7 @@ const network=await page({downloadFail:true});eq(network.el('install').disabled,
 const previous=await page({recovery:'0.4.4'});eq(previous.el('install').textContent,'Install 0.4.4');eq(previous.permissions,0);eq(previous.el('recovery-note').hidden,false);ok(previous.el('recovery-note').textContent.includes('0.4.4'));
 const fluent=await page({recovery:'0.4.6-rc2'});eq(fluent.el('install').textContent,'Install 0.4.6-rc2');eq(fluent.permissions,0);eq(fluent.el('recovery-note').hidden,false);ok(fluent.el('recovery-note').textContent.includes('0.4.6-rc2'));
 const optIn=await page({candidate:true});eq(optIn.el('install').textContent,'Install 0.4.7-rc2');eq(optIn.permissions,0);
-mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,candidateFirmwareSha256:candidate.meta.sha256,candidateFullInstall:true,candidateOnlyByExplicitSelection:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
+const current=await page({candidate:'0.4.7-rc3'});eq(current.el('install').textContent,'Install 0.4.7-rc3');eq(current.permissions,0);ok(current.el('status').textContent.includes('性能修复'));
+const previousBoot=await page({recovery:'0.4.7-rc2'});eq(previousBoot.el('install').textContent,'Install 0.4.7-rc2');ok(previousBoot.el('recovery-note').textContent.includes('JUDD'));eq(ui.el('install').textContent,'Install 0.4.7-rc3');
+mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,candidateFirmwareSha256:candidate.meta.sha256,candidateFullInstall:true,defaultVersion:meta.version,previousCandidateRecovery:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
 console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

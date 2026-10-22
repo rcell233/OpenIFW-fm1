@@ -26,11 +26,19 @@ typedef struct { int32_t z[24],last,a,mix,feedback;uint8_t enabled,stages; } IFW
 typedef struct { uint8_t a,b;int16_t dest;int32_t depth; } IFWFixedMod;
 #define IFW_DELAY_SAMPLES 22052u
 #define IFW_SHORT_SAMPLES 4410u
-#define IFW_REVERB_SIDE 12900u
+/* Production uses a half-rate wet tank. DIV=1 exists only to retain the
+ * immutable full-rate PCM/state regression, never as a runtime quality switch. */
+#ifndef IFW_REVERB_DIV
+#define IFW_REVERB_DIV 2
+#endif
+#if IFW_REVERB_DIV != 1 && IFW_REVERB_DIV != 2
+#error "Unsupported reverb rate"
+#endif
+#define IFW_REVERB_SIDE (IFW_REVERB_DIV==1?12900u:2968u)
 typedef struct {
     int16_t delay[2][2][IFW_DELAY_SAMPLES];
     int32_t enhancer[IFW_SHORT_SAMPLES],chorus[IFW_SHORT_SAMPLES],exciter[2][25];
-    int16_t reverb[2][IFW_REVERB_SIDE];
+    int16_t reverb[IFW_REVERB_DIV==1?2:1][IFW_REVERB_SIDE];
 } IFWFixedFxBuffers;
 typedef struct {
     IFWFixedFxBuffers *buffers;
@@ -38,6 +46,10 @@ typedef struct {
     int32_t delay_acc[2][2],delay_lp[4],delay_hp[4],delay_wet[4];
     int32_t phaser[12],phaser_fb[2],phaser_low[2];
     uint32_t reverb_head[2][12];int32_t reverb_store[2][8];
+#if IFW_REVERB_DIV == 2
+    int32_t reverb_input[2],reverb_wet[2],reverb_damp15,reverb_feedback15;
+    uint32_t reverb_half;
+#endif
     int32_t eq_coeff[2][5],eq_state[2][2][2];
     uint8_t eq_identity[2];
     uint64_t time_phase;uint32_t time_remainder;

@@ -77,7 +77,7 @@ for(const [pc,n] of raw[0].pcs){
  const f=funcs[lo-1],name=f&&pc<f.address+f.bytes?f.name:'other';counts.set(name,(counts.get(name)||0)+n);
 }
 const profile=[...counts].sort((a,b)=>b[1]-a[1]);
-const dspFunctions=profile.filter(([k])=>/^(ifw_|filter_tick|source20|update_controls|configure_|amp_gain|oscillator_sample|filter3_tick)/.test(k));
+const dspFunctions=profile.filter(([k])=>/^(ifw_|filter_tick|source20|update_controls|configure_|amp_gain|oscillator_sample|filter3_tick|reverb_half_tick|wet_mix)/.test(k));
 const sum=rows=>rows.reduce((n,[,v])=>n+v,0),s=[...dsp].sort((a,b)=>a-b),pcnt=p=>s[Math.ceil(p*s.length)-1];
 const result={kind:'pi32v2-instruction-model-not-hardware',hardwareMeasured:false,cycleAccurate:false,
  assumptions:'240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model',

@@ -73,6 +73,9 @@ if(syms.symbols.dsp_check){const a=syms.symbols.dsp_check;result.targetRegressio
  hashes:Array.from({length:16},(_,i)=>r32(a+8+i*4)),mathErrors:r32(a+72)};}
 if(syms.symbols.irq_check){const a=syms.symbols.irq_check;result.irqRegression={ready:r32(a)===0x4b435249,
  blocks:r32(a+4),frames:r32(a+8),done:r32(a+12),hashes:Array.from({length:24},(_,i)=>r32(a+16+i*4))};}
+if(syms.symbols.bootguard&&syms.symbols.ifw_boot_progress){const b=syms.symbols.bootguard,p=syms.symbols.ifw_boot_progress;
+ result.boot={firmwareCode:r32(p+4),stage:r32(p+8),failed:r32(b+4),pending:r32(b+8),
+  rescue:!!r32(syms.symbols.recovery_active),entryReason:r32(syms.symbols.ifw_boot_reason)};}
 if(process.env.IFW_SIM_PROFILE){const ptr=x.fm1_profile_report(),b=new Uint8Array(x.memory.buffer);
  const profile=JSON.parse(new TextDecoder().decode(b.subarray(ptr,b.indexOf(0,ptr))));
  const counts=new Map();for(const [pc,n] of profile[0].pcs||[]){const f=syms.functions.find(f=>pc>=f.address&&pc<f.address+f.bytes);

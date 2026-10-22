@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-// Compare only audio: a new screen is expected, a new sound is not.
+// The full-rate reference retains the old fixture; production may change only FX.
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -21,7 +21,7 @@ async function render(bytes,program,navigate){
  }
  return hash.digest('hex');
 }
-const bytes=readFileSync('build/web/openifw.wasm'),old=oldPath?readFileSync(oldPath):null;
+const bytes=readFileSync('build/test-web/openifw-full-rate.wasm'),production=readFileSync('build/web/openifw.wasm'),old=oldPath?readFileSync(oldPath):null;
 for(const program of [4,18,14,10,8,21])for(const navigate of [false,true]){
  const current=await render(bytes,program,navigate),name=`program-${program}-${navigate?'navigation':'play'}`;
  if(old)assert.equal(current,await render(old,program,navigate),name+' changed PCM from 0.3.0');
@@ -30,4 +30,6 @@ for(const program of [4,18,14,10,8,21])for(const navigate of [false,true]){
 if(old){writeFileSync(baseline,JSON.stringify({baselineVersion:'0.3.0',baselineWasmSha256:createHash('sha256').update(old).digest('hex'),sampleRate:44100,channels:2,format:'IEEE754 float32 LE planar per 256 frames',scenarios},null,2)+'\n');}
 assert.ok(existsSync(baseline),'run once with IFW_UI_OLD_WASM to establish the frozen 0.3 PCM fixture');
 assert.deepEqual(scenarios,JSON.parse(readFileSync(baseline)).scenarios,'PCM differs from frozen audio fixture');
-console.log('PASS frozen audio: 12 scenarios / 1,228,800 stereo frames match 0.3.0 exactly, including page navigation during legato and sustain.');
+console.log('PASS full-rate reference: 12 frozen scenarios / 1,228,800 stereo frames still match 0.3.0.');
+for(const program of [4,18,14,10,8,21])assert.equal(await render(production,program,false),await render(production,program,true),'production page navigation changes sound: '+program);
+console.log('PASS production half-rate FX: page navigation leaves all six performances unchanged, including legato and sustain.');
