@@ -1,0 +1,8128 @@
+{
+  "kind": "preset-cost-analysis",
+  "date": "2026-10-22",
+  "hardwareMeasured": false,
+  "cycleAccurate": false,
+  "hardwareFeedback": {
+    "firmware": "0.4.7-rc2",
+    "boots": true,
+    "judd": "User reports normal without crackles",
+    "daisyAndTresure": "User reports remaining crackles"
+  },
+  "limits": [
+    "Instruction model has no real Flash/cache/bus stalls or USB host.",
+    "The valid modeled factory cases did not reproduce output underruns.",
+    "Ablation alters downstream signals; marginal costs are approximate and not additive.",
+    "Final output headroom does not rule out internal nonlinearities or analog distortion.",
+    "No simplified FX implementation or new firmware is claimed by this report."
+  ],
+  "sourceSha256": {
+    "tools/dsp_cost_probe.mjs": "5212a07c5c41271947c620a51135d4cf227d7416592a21f035521a66ecd44dc4",
+    "tests/preset_headroom.c": "cefcbd2f2da68f74df0009f1843e090920663114839306f1eb08cc8d1e6c5d9e",
+    "firmware/src/fixed/synth.c": "d02cb5fc0b09449cb98f6b732f8be7eb0cab2ae20ea8905436a8370b0b8044bf",
+    "firmware/src/fixed/effects.c": "48dc590f5c6385bd39bcd40f3d8ce1cb7ab3c9079ab62d6bac60319d2d9e1ee5",
+    "firmware/src/fixed/math.c": "2e942203d3112cd92c905604c92d2e358c4774b988ef967f801f8816caecc1d7",
+    "firmware/src/fixed/envelope.c": "e28205f6c2c7541ce77f719e9223576c5a9871ac780bb3a46d9f089890090d69",
+    "firmware/src/control/mono.c": "5d25e9bdec273f5192f4566742661ab8bf9c29b4049bc967d30ec2a250d395b7",
+    "firmware/src/presets.h": "a81c5019d3c3fe4336fded7560aab5e7f1e81c3fca0f2651709f2bb17f335228"
+  },
+  "ablations": [
+    {
+      "preset": 0,
+      "probe": "no_chorus",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3831.0586357526877,
+      "savedUs": 125.64851674393958,
+      "savedPercent": 3.1755829254297208
+    },
+    {
+      "preset": 0,
+      "probe": "no_delay",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3673.645089285713,
+      "savedUs": 283.0620632109144,
+      "savedPercent": 7.153980628369383
+    },
+    {
+      "preset": 0,
+      "probe": "no_eq",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3888.329637096772,
+      "savedUs": 68.37751539985538,
+      "savedPercent": 1.7281419312700441
+    },
+    {
+      "preset": 0,
+      "probe": "no_exciter_gain",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3956.7228915662645,
+      "savedUs": -0.015739069637220382,
+      "savedPercent": -0.0003977820200118387
+    },
+    {
+      "preset": 0,
+      "probe": "no_fm",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3776.361223118279,
+      "savedUs": 180.34592937834805,
+      "savedPercent": 4.557980220106817
+    },
+    {
+      "preset": 0,
+      "probe": "no_post_fx",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 2566.417224702381,
+      "savedUs": 1390.289927794246,
+      "savedPercent": 35.13754933611886
+    },
+    {
+      "preset": 0,
+      "probe": "no_reverb",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 2975.207825203252,
+      "savedUs": 981.4993272933752,
+      "savedPercent": 24.805963379778127
+    },
+    {
+      "preset": 0,
+      "probe": "no_sync",
+      "baselineMeanUs": 3956.7071524966273,
+      "ablatedMeanUs": 3951.3678618857903,
+      "savedUs": 5.339290610836997,
+      "savedPercent": 0.13494277956527245
+    },
+    {
+      "preset": 3,
+      "probe": "filter3_8",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 3935.756944444445,
+      "savedUs": 113.14939939940086,
+      "savedPercent": 2.7945669716820887
+    },
+    {
+      "preset": 3,
+      "probe": "no_chorus",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 3923.1401345291474,
+      "savedUs": 125.76620931469824,
+      "savedPercent": 3.106177289230694
+    },
+    {
+      "preset": 3,
+      "probe": "no_delay",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 3766.072211155375,
+      "savedUs": 282.8341326884706,
+      "savedPercent": 6.985445171348692
+    },
+    {
+      "preset": 3,
+      "probe": "no_eq",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 4048.914592760181,
+      "savedUs": -0.008248916335560352,
+      "savedPercent": -0.0002037319620340483
+    },
+    {
+      "preset": 3,
+      "probe": "no_exciter_gain",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 4048.9331439393954,
+      "savedUs": -0.02680009554978824,
+      "savedPercent": -0.0006619094953919102
+    },
+    {
+      "preset": 3,
+      "probe": "no_filter3",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 3784.7255231689055,
+      "savedUs": 264.18082067494015,
+      "savedPercent": 6.5247451593098305
+    },
+    {
+      "preset": 3,
+      "probe": "no_post_fx",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 2658.830357142858,
+      "savedUs": 1390.0759867009879,
+      "savedPercent": 34.33213486932162
+    },
+    {
+      "preset": 3,
+      "probe": "no_reverb",
+      "baselineMeanUs": 4048.9063438438457,
+      "ablatedMeanUs": 3067.3157196969687,
+      "savedUs": 981.590624146877,
+      "savedPercent": 24.243352174330614
+    },
+    {
+      "preset": 5,
+      "probe": "no_chorus",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 2953.291108630954,
+      "savedUs": 0.04408482142889625,
+      "savedPercent": 0.0014927131037012487
+    },
+    {
+      "preset": 5,
+      "probe": "no_delay",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 2953.291108630954,
+      "savedUs": 0.04408482142889625,
+      "savedPercent": 0.0014927131037012487
+    },
+    {
+      "preset": 5,
+      "probe": "no_eq",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 2884.8239489489497,
+      "savedUs": 68.51124450343332,
+      "savedPercent": 2.3197923708532797
+    },
+    {
+      "preset": 5,
+      "probe": "no_exciter_gain",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 2953.291108630954,
+      "savedUs": 0.04408482142889625,
+      "savedPercent": 0.0014927131037012487
+    },
+    {
+      "preset": 5,
+      "probe": "no_post_fx",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 1971.7533632286993,
+      "savedUs": 981.5818302236837,
+      "savedPercent": 33.23638415307124
+    },
+    {
+      "preset": 5,
+      "probe": "no_reverb",
+      "baselineMeanUs": 2953.335193452383,
+      "ablatedMeanUs": 1971.7533632286993,
+      "savedUs": 981.5818302236837,
+      "savedPercent": 33.23638415307124
+    }
+  ],
+  "measurements": [
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "baseline",
+      "note": "108",
+      "script": "",
+      "input": "AudioEvent-queue",
+      "noteInjectedAt": 1005,
+      "currentNote": 108,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 216,
+        "meanUs": 4083.4226466049404,
+        "p50Us": 4083.7083333333335,
+        "p95Us": 4085.375,
+        "maxUs": 4085.75
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4742,
+        "underruns": 0,
+        "completedBlocks": 257
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103092620
+        ],
+        [
+          "app_main",
+          90264035
+        ],
+        [
+          "ifw_fixed_sample",
+          80625397
+        ],
+        [
+          "ifw_waves20_cached",
+          15644789
+        ],
+        [
+          "ifw_waves20_masked",
+          12035847
+        ],
+        [
+          "platform_poll",
+          8112776
+        ],
+        [
+          "filter_tick",
+          6406656
+        ],
+        [
+          "amp_gain",
+          5944320
+        ],
+        [
+          "fm1_timer5_irq",
+          3921337
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "source_uncached",
+          2774016
+        ],
+        [
+          "diagnostics_service",
+          2570646
+        ],
+        [
+          "fm1__keys",
+          1654976
+        ],
+        [
+          "ui_stage",
+          1574567
+        ],
+        [
+          "cv_line",
+          1462055
+        ],
+        [
+          "ifw_fixed_process",
+          1339525
+        ],
+        [
+          "draw_panel",
+          1253885
+        ],
+        [
+          "ota_take",
+          1186446
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          679939
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "other",
+          106599
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51823
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20631
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_tap",
+          16448
+        ],
+        [
+          "uac_service",
+          12678
+        ],
+        [
+          "usb_poll",
+          9064
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2570
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 232632279,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103092620
+        ],
+        [
+          "ifw_fixed_sample",
+          80625397
+        ],
+        [
+          "ifw_waves20_cached",
+          15644789
+        ],
+        [
+          "ifw_waves20_masked",
+          12035847
+        ],
+        [
+          "filter_tick",
+          6406656
+        ],
+        [
+          "amp_gain",
+          5944320
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ifw_fixed_process",
+          1339525
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 23.387938851999998
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "baseline",
+      "note": "A4",
+      "script": "1000:A4",
+      "input": "panel-key",
+      "noteInjectedAt": null,
+      "currentNote": 69,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 247,
+        "meanUs": 3956.7071524966273,
+        "p50Us": 3956.8333333333335,
+        "p95Us": 3959.125,
+        "maxUs": 3961.1666666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3417,
+        "underruns": 0,
+        "completedBlocks": 257
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103093157
+        ],
+        [
+          "app_main",
+          98031811
+        ],
+        [
+          "ifw_fixed_sample",
+          79730528
+        ],
+        [
+          "ifw_waves20_cached",
+          14323530
+        ],
+        [
+          "platform_poll",
+          8836590
+        ],
+        [
+          "ifw_waves20_masked",
+          8395546
+        ],
+        [
+          "filter_tick",
+          6406462
+        ],
+        [
+          "amp_gain",
+          5944140
+        ],
+        [
+          "fm1_timer5_irq",
+          3923991
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "diagnostics_service",
+          2800148
+        ],
+        [
+          "source_uncached",
+          2773911
+        ],
+        [
+          "fm1__keys",
+          1652138
+        ],
+        [
+          "ui_stage",
+          1574774
+        ],
+        [
+          "ifw_fixed_process",
+          1339485
+        ],
+        [
+          "ota_take",
+          1292370
+        ],
+        [
+          "draw_panel",
+          1254596
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          677814
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          333624
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "other",
+          106592
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51713
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20631
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_tap",
+          16448
+        ],
+        [
+          "uac_service",
+          12312
+        ],
+        [
+          "usb_poll",
+          9656
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2570
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          130
+        ]
+      ],
+      "dspInstructions": 226775885,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103093157
+        ],
+        [
+          "ifw_fixed_sample",
+          79730528
+        ],
+        [
+          "ifw_waves20_cached",
+          14323530
+        ],
+        [
+          "ifw_waves20_masked",
+          8395546
+        ],
+        [
+          "filter_tick",
+          6406462
+        ],
+        [
+          "amp_gain",
+          5944140
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "ifw_fixed_process",
+          1339485
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 24.306583167
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_chorus",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          228,
+          2
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 248,
+        "meanUs": 3831.0586357526877,
+        "p50Us": 3831.0833333333335,
+        "p95Us": 3833.375,
+        "maxUs": 3834.0833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3444,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          104748376
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          95463304
+        ],
+        [
+          "ifw_fixed_sample",
+          79735602
+        ],
+        [
+          "ifw_waves20_cached",
+          14324470
+        ],
+        [
+          "platform_poll",
+          9462455
+        ],
+        [
+          "ifw_waves20_masked",
+          8396118
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "fm1_timer5_irq",
+          3925608
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "diagnostics_service",
+          2998580
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906156
+        ],
+        [
+          "source_uncached",
+          2774079
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574775
+        ],
+        [
+          "ota_take",
+          1383960
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "draw_panel",
+          1254991
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          333609
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51733
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          11868
+        ],
+        [
+          "usb_poll",
+          10144
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 219154549,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          95463304
+        ],
+        [
+          "ifw_fixed_sample",
+          79735602
+        ],
+        [
+          "ifw_waves20_cached",
+          14324470
+        ],
+        [
+          "ifw_waves20_masked",
+          8396118
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906156
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 25.949061057999998
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_delay",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          228,
+          12
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 3673.645089285713,
+        "p50Us": 3673.9166666666665,
+        "p95Us": 3676,
+        "maxUs": 3677.7916666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4382,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          113166906
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          92094755
+        ],
+        [
+          "ifw_fixed_sample",
+          79731149
+        ],
+        [
+          "ifw_waves20_cached",
+          14323594
+        ],
+        [
+          "platform_poll",
+          10246908
+        ],
+        [
+          "ifw_waves20_masked",
+          8395613
+        ],
+        [
+          "filter_tick",
+          6406462
+        ],
+        [
+          "amp_gain",
+          5944140
+        ],
+        [
+          "fm1_timer5_irq",
+          3927246
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "diagnostics_service",
+          3247309
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "source_uncached",
+          2773932
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574778
+        ],
+        [
+          "ota_take",
+          1498758
+        ],
+        [
+          "ifw_fixed_process",
+          1339476
+        ],
+        [
+          "draw_panel",
+          1255465
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          336203
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          52138
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          11400
+        ],
+        [
+          "usb_poll",
+          10696
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 215779349,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          92094755
+        ],
+        [
+          "ifw_fixed_sample",
+          79731149
+        ],
+        [
+          "ifw_waves20_cached",
+          14323594
+        ],
+        [
+          "ifw_waves20_masked",
+          8395613
+        ],
+        [
+          "filter_tick",
+          6406462
+        ],
+        [
+          "amp_gain",
+          5944140
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "ifw_fixed_process",
+          1339476
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 25.385006524999998
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_eq",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          154,
+          0
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          154,
+          281805
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 248,
+        "meanUs": 3888.329637096772,
+        "p50Us": 3888.5833333333335,
+        "p95Us": 3890.5,
+        "maxUs": 3892.2916666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3229,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          101697873
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          98936855
+        ],
+        [
+          "ifw_fixed_sample",
+          79735282
+        ],
+        [
+          "ifw_waves20_cached",
+          14324362
+        ],
+        [
+          "platform_poll",
+          9178202
+        ],
+        [
+          "ifw_waves20_masked",
+          8396059
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "fm1_timer5_irq",
+          3924855
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "diagnostics_service",
+          2908451
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "source_uncached",
+          2774058
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574774
+        ],
+        [
+          "ota_take",
+          1342362
+        ],
+        [
+          "ifw_fixed_process",
+          1339570
+        ],
+        [
+          "draw_panel",
+          1254912
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          327443
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51883
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          12084
+        ],
+        [
+          "usb_poll",
+          9832
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 222627671,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98936855
+        ],
+        [
+          "ifw_fixed_sample",
+          79735282
+        ],
+        [
+          "ifw_waves20_cached",
+          14324362
+        ],
+        [
+          "ifw_waves20_masked",
+          8396059
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ifw_fixed_process",
+          1339570
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 24.758399444
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_exciter_gain",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          150,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          150,
+          209715
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 249,
+        "meanUs": 3956.7228915662645,
+        "p50Us": 3956.875,
+        "p95Us": 3959.125,
+        "maxUs": 3961.25
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3335,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103099311
+        ],
+        [
+          "app_main",
+          98032228
+        ],
+        [
+          "ifw_fixed_sample",
+          79736215
+        ],
+        [
+          "ifw_waves20_cached",
+          14324528
+        ],
+        [
+          "platform_poll",
+          8836631
+        ],
+        [
+          "ifw_waves20_masked",
+          8396199
+        ],
+        [
+          "filter_tick",
+          6406850
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "fm1_timer5_irq",
+          3924186
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "diagnostics_service",
+          2800148
+        ],
+        [
+          "source_uncached",
+          2774100
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574771
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "ota_take",
+          1292376
+        ],
+        [
+          "draw_panel",
+          1254597
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          333772
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51513
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          12300
+        ],
+        [
+          "usb_poll",
+          9616
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          130
+        ]
+      ],
+      "dspInstructions": 226791559,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103099311
+        ],
+        [
+          "ifw_fixed_sample",
+          79736215
+        ],
+        [
+          "ifw_waves20_cached",
+          14324528
+        ],
+        [
+          "ifw_waves20_masked",
+          8396199
+        ],
+        [
+          "filter_tick",
+          6406850
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 24.98063684
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_fm",
+      "note": "108",
+      "script": "",
+      "input": "AudioEvent-queue",
+      "noteInjectedAt": 1005,
+      "currentNote": 108,
+      "monoCount": 1,
+      "patchWords": [
+        [
+          95,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          95,
+          124518
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 229,
+        "meanUs": 3903.242358078601,
+        "p50Us": 3903.4583333333335,
+        "p95Us": 3906,
+        "maxUs": 3907
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4680,
+        "underruns": 0,
+        "completedBlocks": 257
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103091142
+        ],
+        [
+          "app_main",
+          99895210
+        ],
+        [
+          "ifw_fixed_sample",
+          74188571
+        ],
+        [
+          "ifw_waves20_masked",
+          18382065
+        ],
+        [
+          "platform_poll",
+          9010225
+        ],
+        [
+          "ifw_waves20_cached",
+          7561818
+        ],
+        [
+          "filter_tick",
+          6406559
+        ],
+        [
+          "amp_gain",
+          5944230
+        ],
+        [
+          "fm1_timer5_irq",
+          3923368
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "diagnostics_service",
+          2855203
+        ],
+        [
+          "fm1__keys",
+          1654976
+        ],
+        [
+          "ui_stage",
+          1574553
+        ],
+        [
+          "cv_line",
+          1462827
+        ],
+        [
+          "ifw_fixed_process",
+          1339505
+        ],
+        [
+          "ota_take",
+          1317780
+        ],
+        [
+          "draw_panel",
+          1253964
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          679089
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "other",
+          106599
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51818
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20631
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_tap",
+          16448
+        ],
+        [
+          "uac_service",
+          12120
+        ],
+        [
+          "usb_poll",
+          9800
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2570
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 224456971,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103091142
+        ],
+        [
+          "ifw_fixed_sample",
+          74188571
+        ],
+        [
+          "ifw_waves20_masked",
+          18382065
+        ],
+        [
+          "ifw_waves20_cached",
+          7561818
+        ],
+        [
+          "filter_tick",
+          6406559
+        ],
+        [
+          "amp_gain",
+          5944230
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "ifw_fixed_process",
+          1339505
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 25.586134597
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_fm",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          95,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          95,
+          124518
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 248,
+        "meanUs": 3776.361223118279,
+        "p50Us": 3776.7916666666665,
+        "p95Us": 3778.5,
+        "maxUs": 3779.1666666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3404,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          107677456
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          103097019
+        ],
+        [
+          "ifw_fixed_sample",
+          73298867
+        ],
+        [
+          "ifw_waves20_masked",
+          13847617
+        ],
+        [
+          "platform_poll",
+          9735392
+        ],
+        [
+          "ifw_waves20_cached",
+          7122599
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "fm1_timer5_irq",
+          3926203
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "diagnostics_service",
+          3085121
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574783
+        ],
+        [
+          "ota_take",
+          1423902
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "draw_panel",
+          1255228
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          328976
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51923
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          11736
+        ],
+        [
+          "usb_poll",
+          10344
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 218601093,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103097019
+        ],
+        [
+          "ifw_fixed_sample",
+          73298867
+        ],
+        [
+          "ifw_waves20_masked",
+          13847617
+        ],
+        [
+          "ifw_waves20_cached",
+          7122599
+        ],
+        [
+          "filter_tick",
+          6406753
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 28.04885136
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_post_fx",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          228,
+          31
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 2566.417224702381,
+        "p50Us": 2566.5833333333335,
+        "p95Us": 2568.0416666666665,
+        "maxUs": 2569.3333333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 2416,
+        "underruns": 0,
+        "completedBlocks": 257
+      },
+      "profile": [
+        [
+          "app_main",
+          172352662
+        ],
+        [
+          "ifw_fixed_sample",
+          79727864
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24823134
+        ],
+        [
+          "platform_poll",
+          15761908
+        ],
+        [
+          "ifw_waves20_cached",
+          14323038
+        ],
+        [
+          "ifw_waves20_masked",
+          8395272
+        ],
+        [
+          "filter_tick",
+          6406268
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "diagnostics_service",
+          4995978
+        ],
+        [
+          "fm1_timer5_irq",
+          3939776
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905892
+        ],
+        [
+          "source_uncached",
+          2773806
+        ],
+        [
+          "ota_take",
+          2305830
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574679
+        ],
+        [
+          "ifw_fixed_process",
+          1339445
+        ],
+        [
+          "draw_panel",
+          1259100
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          679104
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          336720
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "other",
+          106599
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51828
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20631
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_tap",
+          16448
+        ],
+        [
+          "usb_poll",
+          15216
+        ],
+        [
+          "uac_service",
+          8004
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2570
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 148501930,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          79727864
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24823134
+        ],
+        [
+          "ifw_waves20_cached",
+          14323038
+        ],
+        [
+          "ifw_waves20_masked",
+          8395272
+        ],
+        [
+          "filter_tick",
+          6406268
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "configure_oscillators",
+          3421283
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905892
+        ],
+        [
+          "ifw_fixed_process",
+          1339445
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 21.436291972
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_reverb",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          228,
+          16
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 246,
+        "meanUs": 2975.207825203252,
+        "p50Us": 2975.5,
+        "p95Us": 2977.3333333333335,
+        "maxUs": 2979
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 1837,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          150501404
+        ],
+        [
+          "ifw_fixed_sample",
+          79736546
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          43458489
+        ],
+        [
+          "ifw_waves20_cached",
+          14324578
+        ],
+        [
+          "platform_poll",
+          13725799
+        ],
+        [
+          "ifw_waves20_masked",
+          8396280
+        ],
+        [
+          "filter_tick",
+          6406850
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "diagnostics_service",
+          4350372
+        ],
+        [
+          "fm1_timer5_irq",
+          3935218
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "source_uncached",
+          2774121
+        ],
+        [
+          "ota_take",
+          2007864
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574752
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "draw_panel",
+          1257993
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          332505
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          52068
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "usb_poll",
+          13592
+        ],
+        [
+          "uac_service",
+          9270
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 167151199,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          79736546
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          43458489
+        ],
+        [
+          "ifw_waves20_cached",
+          14324578
+        ],
+        [
+          "ifw_waves20_masked",
+          8396280
+        ],
+        [
+          "filter_tick",
+          6406850
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "configure_oscillators",
+          3422112
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 24.480984506000002
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_sync",
+      "note": "108",
+      "script": "",
+      "input": "AudioEvent-queue",
+      "noteInjectedAt": 1005,
+      "currentNote": 108,
+      "monoCount": 1,
+      "patchWords": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          24,
+          0
+        ],
+        [
+          36,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          24,
+          1
+        ],
+        [
+          36,
+          1
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 252,
+        "meanUs": 4033.2324735449697,
+        "p50Us": 4033.3333333333335,
+        "p95Us": 4035.9166666666665,
+        "maxUs": 4036.5416666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4742,
+        "underruns": 0,
+        "completedBlocks": 259
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103098225
+        ],
+        [
+          "app_main",
+          92947163
+        ],
+        [
+          "ifw_fixed_sample",
+          79627854
+        ],
+        [
+          "ifw_waves20_cached",
+          15643574
+        ],
+        [
+          "ifw_waves20_masked",
+          12055126
+        ],
+        [
+          "platform_poll",
+          8362799
+        ],
+        [
+          "filter_tick",
+          6407044
+        ],
+        [
+          "amp_gain",
+          5944680
+        ],
+        [
+          "fm1_timer5_irq",
+          3921877
+        ],
+        [
+          "configure_oscillators",
+          3422941
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906288
+        ],
+        [
+          "source_uncached",
+          2774184
+        ],
+        [
+          "diagnostics_service",
+          2649907
+        ],
+        [
+          "fm1__keys",
+          1654976
+        ],
+        [
+          "ui_stage",
+          1574568
+        ],
+        [
+          "cv_line",
+          1461760
+        ],
+        [
+          "ifw_fixed_process",
+          1339607
+        ],
+        [
+          "draw_panel",
+          1253806
+        ],
+        [
+          "ota_take",
+          1223034
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          682763
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106607
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          52153
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20649
+        ],
+        [
+          "uac_tap",
+          16576
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          12534
+        ],
+        [
+          "usb_poll",
+          9248
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2590
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 231661701,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103098225
+        ],
+        [
+          "ifw_fixed_sample",
+          79627854
+        ],
+        [
+          "ifw_waves20_cached",
+          15643574
+        ],
+        [
+          "ifw_waves20_masked",
+          12055126
+        ],
+        [
+          "filter_tick",
+          6407044
+        ],
+        [
+          "amp_gain",
+          5944680
+        ],
+        [
+          "configure_oscillators",
+          3422941
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906288
+        ],
+        [
+          "ifw_fixed_process",
+          1339607
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 26.257145838
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 0,
+      "actualPreset": 0,
+      "probe": "no_sync",
+      "note": "A4",
+      "script": "1000:A4",
+      "patchWords": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          0
+        ],
+        [
+          24,
+          0
+        ],
+        [
+          36,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          1
+        ],
+        [
+          24,
+          1
+        ],
+        [
+          36,
+          1
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 251,
+        "meanUs": 3951.3678618857903,
+        "p50Us": 3951.5,
+        "p95Us": 3953.9166666666665,
+        "maxUs": 3955.9166666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3417,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          103099510
+        ],
+        [
+          "app_main",
+          98315589
+        ],
+        [
+          "ifw_fixed_sample",
+          79632144
+        ],
+        [
+          "ifw_waves20_cached",
+          14324851
+        ],
+        [
+          "platform_poll",
+          8863035
+        ],
+        [
+          "ifw_waves20_masked",
+          8396335
+        ],
+        [
+          "filter_tick",
+          6406947
+        ],
+        [
+          "amp_gain",
+          5944590
+        ],
+        [
+          "fm1_timer5_irq",
+          3924351
+        ],
+        [
+          "configure_oscillators",
+          3422639
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "diagnostics_service",
+          2808520
+        ],
+        [
+          "source_uncached",
+          2774142
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ui_stage",
+          1574774
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "ota_take",
+          1296240
+        ],
+        [
+          "draw_panel",
+          1254517
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "cv_line",
+          333599
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          85144
+        ],
+        [
+          "lcd_cmd",
+          51783
+        ],
+        [
+          "ui_frame",
+          37932
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "ui_fixed",
+          16472
+        ],
+        [
+          "uac_service",
+          12264
+        ],
+        [
+          "usb_poll",
+          9712
+        ],
+        [
+          "ui_value",
+          6496
+        ],
+        [
+          "ui_gauge",
+          5220
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ],
+        [
+          "control_id",
+          1740
+        ],
+        [
+          "cv_text",
+          464
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 226689154,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          103099510
+        ],
+        [
+          "ifw_fixed_sample",
+          79632144
+        ],
+        [
+          "ifw_waves20_cached",
+          14324851
+        ],
+        [
+          "ifw_waves20_masked",
+          8396335
+        ],
+        [
+          "filter_tick",
+          6406947
+        ],
+        [
+          "amp_gain",
+          5944590
+        ],
+        [
+          "configure_oscillators",
+          3422639
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ifw_fixed_process",
+          1339576
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "ifw_sdiv64",
+          2436
+        ]
+      ],
+      "wallSeconds": 28.207436141000002
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "baseline",
+      "note": "108",
+      "script": "500:e6:3",
+      "input": "AudioEvent-queue",
+      "noteInjectedAt": 1005,
+      "currentNote": 108,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 223,
+        "meanUs": 4070.944319880417,
+        "p50Us": 4071.2083333333335,
+        "p95Us": 4073.1666666666665,
+        "maxUs": 4073.75
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 10551,
+        "underruns": 0,
+        "completedBlocks": 259
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          98913989
+        ],
+        [
+          "app_main",
+          94898557
+        ],
+        [
+          "ifw_fixed_sample",
+          91023154
+        ],
+        [
+          "ifw_waves20_masked",
+          20712573
+        ],
+        [
+          "platform_poll",
+          8525277
+        ],
+        [
+          "filter_tick",
+          6704290
+        ],
+        [
+          "fm1_timer5_irq",
+          3920007
+        ],
+        [
+          "amp_gain",
+          3566808
+        ],
+        [
+          "configure_oscillators",
+          3439457
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906332
+        ],
+        [
+          "diagnostics_service",
+          2701413
+        ],
+        [
+          "fm1__keys",
+          1654976
+        ],
+        [
+          "ifw_fixed_process",
+          1339627
+        ],
+        [
+          "ota_take",
+          1246812
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          682933
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "source_uncached",
+          206450
+        ],
+        [
+          "other",
+          106607
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20649
+        ],
+        [
+          "uac_tap",
+          16576
+        ],
+        [
+          "uac_service",
+          12636
+        ],
+        [
+          "usb_poll",
+          9040
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2590
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 229820156,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98913989
+        ],
+        [
+          "ifw_fixed_sample",
+          91023154
+        ],
+        [
+          "ifw_waves20_masked",
+          20712573
+        ],
+        [
+          "filter_tick",
+          6704290
+        ],
+        [
+          "amp_gain",
+          3566808
+        ],
+        [
+          "configure_oscillators",
+          3439457
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906332
+        ],
+        [
+          "ifw_fixed_process",
+          1339627
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 26.701863558
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "baseline",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "input": "panel-key",
+      "noteInjectedAt": null,
+      "currentNote": 69,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 222,
+        "meanUs": 4048.9063438438457,
+        "p50Us": 4049.3333333333335,
+        "p95Us": 4051.9583333333335,
+        "maxUs": 4052.7916666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 7370,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          98904811
+        ],
+        [
+          "app_main",
+          96077469
+        ],
+        [
+          "ifw_fixed_sample",
+          90868902
+        ],
+        [
+          "ifw_waves20_masked",
+          19783131
+        ],
+        [
+          "platform_poll",
+          8634870
+        ],
+        [
+          "filter_tick",
+          6703775
+        ],
+        [
+          "fm1_timer5_irq",
+          3921599
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "diagnostics_service",
+          2736175
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "ota_take",
+          1262850
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          12564
+        ],
+        [
+          "usb_poll",
+          9112
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 228724943,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98904811
+        ],
+        [
+          "ifw_fixed_sample",
+          90868902
+        ],
+        [
+          "ifw_waves20_masked",
+          19783131
+        ],
+        [
+          "filter_tick",
+          6703775
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 24.087728639
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "filter3_8",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          125,
+          524288
+        ]
+      ],
+      "originalWords": [
+        [
+          125,
+          1048576
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 222,
+        "meanUs": 3935.756944444445,
+        "p50Us": 3935.7916666666665,
+        "p95Us": 3938.8333333333335,
+        "maxUs": 3940.0833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3587,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          102122777
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          98904633
+        ],
+        [
+          "ifw_fixed_sample",
+          83998648
+        ],
+        [
+          "ifw_waves20_masked",
+          19782761
+        ],
+        [
+          "platform_poll",
+          9196898
+        ],
+        [
+          "filter_tick",
+          6703683
+        ],
+        [
+          "fm1_timer5_irq",
+          3922904
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "diagnostics_service",
+          2914379
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ota_take",
+          1345098
+        ],
+        [
+          "ifw_fixed_process",
+          1339496
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          12204
+        ],
+        [
+          "usb_poll",
+          9592
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 221853691,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98904633
+        ],
+        [
+          "ifw_fixed_sample",
+          83998648
+        ],
+        [
+          "ifw_waves20_masked",
+          19782761
+        ],
+        [
+          "filter_tick",
+          6703683
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "ifw_fixed_process",
+          1339496
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ]
+      ],
+      "wallSeconds": 27.908593628000002
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_chorus",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          228,
+          2
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 223,
+        "meanUs": 3923.1401345291474,
+        "p50Us": 3923.25,
+        "p95Us": 3925.5833333333335,
+        "maxUs": 3926.9583333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 7678,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          102796553
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          91268987
+        ],
+        [
+          "ifw_fixed_sample",
+          90867452
+        ],
+        [
+          "ifw_waves20_masked",
+          19782831
+        ],
+        [
+          "platform_poll",
+          9259546
+        ],
+        [
+          "filter_tick",
+          6703582
+        ],
+        [
+          "fm1_timer5_irq",
+          3923206
+        ],
+        [
+          "amp_gain",
+          3566430
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "diagnostics_service",
+          2934243
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ota_take",
+          1354266
+        ],
+        [
+          "ifw_fixed_process",
+          1339496
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          12174
+        ],
+        [
+          "usb_poll",
+          9744
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 221087058,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          91268987
+        ],
+        [
+          "ifw_fixed_sample",
+          90867452
+        ],
+        [
+          "ifw_waves20_masked",
+          19782831
+        ],
+        [
+          "filter_tick",
+          6703582
+        ],
+        [
+          "amp_gain",
+          3566430
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906024
+        ],
+        [
+          "ifw_fixed_process",
+          1339496
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 24.515775976
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_delay",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          228,
+          12
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 251,
+        "meanUs": 3766.072211155375,
+        "p50Us": 3766.2083333333335,
+        "p95Us": 3768.8333333333335,
+        "maxUs": 3770
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 8428,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          111200236
+        ],
+        [
+          "ifw_fixed_sample",
+          90872986
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          87934147
+        ],
+        [
+          "ifw_waves20_masked",
+          19783959
+        ],
+        [
+          "platform_poll",
+          10040842
+        ],
+        [
+          "filter_tick",
+          6704087
+        ],
+        [
+          "fm1_timer5_irq",
+          3924796
+        ],
+        [
+          "amp_gain",
+          3566700
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "diagnostics_service",
+          3181971
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906156
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ota_take",
+          1468602
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          11706
+        ],
+        [
+          "usb_poll",
+          10264
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 217759847,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          90872986
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          87934147
+        ],
+        [
+          "ifw_waves20_masked",
+          19783959
+        ],
+        [
+          "filter_tick",
+          6704087
+        ],
+        [
+          "amp_gain",
+          3566700
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906156
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 25.643748615
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_eq",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          154,
+          0
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          154,
+          0
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 221,
+        "meanUs": 4048.914592760181,
+        "p50Us": 4049.3333333333335,
+        "p95Us": 4051.9166666666665,
+        "maxUs": 4052.6666666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 7370,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          98905971
+        ],
+        [
+          "app_main",
+          96077469
+        ],
+        [
+          "ifw_fixed_sample",
+          90869245
+        ],
+        [
+          "ifw_waves20_masked",
+          19783131
+        ],
+        [
+          "platform_poll",
+          8634870
+        ],
+        [
+          "filter_tick",
+          6703784
+        ],
+        [
+          "fm1_timer5_irq",
+          3921599
+        ],
+        [
+          "amp_gain",
+          3566538
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906106
+        ],
+        [
+          "diagnostics_service",
+          2736175
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "ota_take",
+          1262850
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          12564
+        ],
+        [
+          "usb_poll",
+          9112
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 228726547,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98905971
+        ],
+        [
+          "ifw_fixed_sample",
+          90869245
+        ],
+        [
+          "ifw_waves20_masked",
+          19783131
+        ],
+        [
+          "filter_tick",
+          6703784
+        ],
+        [
+          "amp_gain",
+          3566538
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906106
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 23.744984484999996
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_exciter_gain",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          150,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          150,
+          242483
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 220,
+        "meanUs": 4048.9331439393954,
+        "p50Us": 4049.2916666666665,
+        "p95Us": 4051.875,
+        "maxUs": 4052.6666666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 6663,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "ifw_fixed_fx_tick",
+          98905975
+        ],
+        [
+          "app_main",
+          96077474
+        ],
+        [
+          "ifw_fixed_sample",
+          90868359
+        ],
+        [
+          "ifw_waves20_masked",
+          19782876
+        ],
+        [
+          "platform_poll",
+          8634870
+        ],
+        [
+          "filter_tick",
+          6703726
+        ],
+        [
+          "fm1_timer5_irq",
+          3921527
+        ],
+        [
+          "amp_gain",
+          3566538
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "diagnostics_service",
+          2736175
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "ota_take",
+          1262850
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          12564
+        ],
+        [
+          "usb_poll",
+          9064
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 228725314,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98905975
+        ],
+        [
+          "ifw_fixed_sample",
+          90868359
+        ],
+        [
+          "ifw_waves20_masked",
+          19782876
+        ],
+        [
+          "filter_tick",
+          6703726
+        ],
+        [
+          "amp_gain",
+          3566538
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 23.278101227000004
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_filter3",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          128,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          128,
+          360448
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 223,
+        "meanUs": 3784.7255231689055,
+        "p50Us": 3785,
+        "p95Us": 3787.3333333333335,
+        "maxUs": 3789.375
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4159,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          110202273
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          98904878
+        ],
+        [
+          "ifw_fixed_sample",
+          74819544
+        ],
+        [
+          "ifw_waves20_masked",
+          19783066
+        ],
+        [
+          "platform_poll",
+          9948059
+        ],
+        [
+          "filter_tick",
+          6703683
+        ],
+        [
+          "fm1_timer5_irq",
+          3924568
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "diagnostics_service",
+          3152552
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ota_take",
+          1455024
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "source_uncached",
+          206400
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          11742
+        ],
+        [
+          "usb_poll",
+          10176
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 212675495,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          98904878
+        ],
+        [
+          "ifw_fixed_sample",
+          74819544
+        ],
+        [
+          "ifw_waves20_masked",
+          19783066
+        ],
+        [
+          "filter_tick",
+          6703683
+        ],
+        [
+          "amp_gain",
+          3566484
+        ],
+        [
+          "configure_oscillators",
+          3438624
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ifw_fixed_process",
+          1339516
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 26.169396011
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_post_fx",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          228,
+          31
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 252,
+        "meanUs": 2658.830357142858,
+        "p50Us": 2659,
+        "p95Us": 2660.8333333333335,
+        "maxUs": 2662.0833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4994,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          170405349
+        ],
+        [
+          "ifw_fixed_sample",
+          90872778
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          20658645
+        ],
+        [
+          "ifw_waves20_masked",
+          19783865
+        ],
+        [
+          "platform_poll",
+          15545174
+        ],
+        [
+          "filter_tick",
+          6703987
+        ],
+        [
+          "diagnostics_service",
+          4927247
+        ],
+        [
+          "fm1_timer5_irq",
+          3937375
+        ],
+        [
+          "amp_gain",
+          3566646
+        ],
+        [
+          "configure_oscillators",
+          3439457
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ota_take",
+          2274114
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "source_uncached",
+          206450
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "usb_poll",
+          14824
+        ],
+        [
+          "uac_service",
+          8286
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 150485060,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          90872778
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          20658645
+        ],
+        [
+          "ifw_waves20_masked",
+          19783865
+        ],
+        [
+          "filter_tick",
+          6703987
+        ],
+        [
+          "amp_gain",
+          3566646
+        ],
+        [
+          "configure_oscillators",
+          3439457
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906200
+        ],
+        [
+          "ifw_fixed_process",
+          1339556
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 19.763431016
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 3,
+      "actualPreset": 3,
+      "probe": "no_reverb",
+      "note": "A4",
+      "script": "500:e6:3,1000:A4",
+      "patchWords": [
+        [
+          228,
+          16
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 220,
+        "meanUs": 3067.3157196969687,
+        "p50Us": 3067.4583333333335,
+        "p95Us": 3069.875,
+        "maxUs": 3071.1666666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3746,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          148563297
+        ],
+        [
+          "ifw_fixed_sample",
+          90869789
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          39268450
+        ],
+        [
+          "ifw_waves20_masked",
+          19783377
+        ],
+        [
+          "platform_poll",
+          13514485
+        ],
+        [
+          "filter_tick",
+          6703886
+        ],
+        [
+          "diagnostics_service",
+          4283383
+        ],
+        [
+          "fm1_timer5_irq",
+          3932792
+        ],
+        [
+          "amp_gain",
+          3566592
+        ],
+        [
+          "configure_oscillators",
+          3437791
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ota_take",
+          1976940
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339525
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "draw_panel",
+          241260
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ],
+        [
+          "source_uncached",
+          206350
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "app_audio_render",
+          20631
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "usb_poll",
+          13200
+        ],
+        [
+          "uac_service",
+          9504
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 169088816,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          90869789
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          39268450
+        ],
+        [
+          "ifw_waves20_masked",
+          19783377
+        ],
+        [
+          "filter_tick",
+          6703886
+        ],
+        [
+          "amp_gain",
+          3566592
+        ],
+        [
+          "configure_oscillators",
+          3437791
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906068
+        ],
+        [
+          "ifw_fixed_process",
+          1339525
+        ],
+        [
+          "configure_rates",
+          689209
+        ],
+        [
+          "configure_filter3",
+          309525
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214604
+        ]
+      ],
+      "wallSeconds": 22.272965845
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "baseline",
+      "note": "108",
+      "script": "500:e6:5",
+      "input": "AudioEvent-queue",
+      "noteInjectedAt": 1005,
+      "currentNote": 108,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 226,
+        "meanUs": 2960.6010324483786,
+        "p50Us": 2960.75,
+        "p95Us": 2961.7916666666665,
+        "maxUs": 2962
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 3249,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          154262633
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          83991040
+        ],
+        [
+          "ifw_fixed_sample",
+          62805801
+        ],
+        [
+          "platform_poll",
+          14044369
+        ],
+        [
+          "filter_tick",
+          7793192
+        ],
+        [
+          "ifw_waves20_masked",
+          6047539
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "diagnostics_service",
+          4451382
+        ],
+        [
+          "fm1_timer5_irq",
+          3932683
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905936
+        ],
+        [
+          "ota_take",
+          2054484
+        ],
+        [
+          "fm1__keys",
+          1654976
+        ],
+        [
+          "ifw_fixed_process",
+          1339456
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70176
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "usb_poll",
+          13664
+        ],
+        [
+          "uac_service",
+          9192
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 175375980,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          83991040
+        ],
+        [
+          "ifw_fixed_sample",
+          62805801
+        ],
+        [
+          "filter_tick",
+          7793192
+        ],
+        [
+          "ifw_waves20_masked",
+          6047539
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905936
+        ],
+        [
+          "ifw_fixed_process",
+          1339456
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 21.179117376999997
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "baseline",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "input": "panel-key",
+      "noteInjectedAt": null,
+      "currentNote": 69,
+      "monoCount": 1,
+      "patchWords": [],
+      "originalWords": [],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 2953.335193452383,
+        "p50Us": 2953.5416666666665,
+        "p95Us": 2954.7083333333335,
+        "maxUs": 2956.5833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 5964,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          154653317
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          83991702
+        ],
+        [
+          "ifw_fixed_sample",
+          62811877
+        ],
+        [
+          "platform_poll",
+          14080695
+        ],
+        [
+          "filter_tick",
+          7793192
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "ifw_waves20_masked",
+          5599760
+        ],
+        [
+          "diagnostics_service",
+          4462900
+        ],
+        [
+          "fm1_timer5_irq",
+          3934121
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "ota_take",
+          2059800
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339476
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70176
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "usb_poll",
+          13688
+        ],
+        [
+          "uac_service",
+          9180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 174935003,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          83991702
+        ],
+        [
+          "ifw_fixed_sample",
+          62811877
+        ],
+        [
+          "filter_tick",
+          7793192
+        ],
+        [
+          "amp_gain",
+          5943960
+        ],
+        [
+          "ifw_waves20_masked",
+          5599760
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2905980
+        ],
+        [
+          "ifw_fixed_process",
+          1339476
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 22.217279087
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_chorus",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          228,
+          2
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 2953.291108630954,
+        "p50Us": 2953.5,
+        "p95Us": 2954.7083333333335,
+        "maxUs": 2956.5833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 5964,
+        "underruns": 0,
+        "completedBlocks": 259
+      },
+      "profile": [
+        [
+          "app_main",
+          154653381
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "platform_poll",
+          14080736
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "diagnostics_service",
+          4462900
+        ],
+        [
+          "fm1_timer5_irq",
+          3934121
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ota_take",
+          2059806
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          682473
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106607
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70193
+        ],
+        [
+          "app_audio_render",
+          20649
+        ],
+        [
+          "uac_tap",
+          16576
+        ],
+        [
+          "usb_poll",
+          13688
+        ],
+        [
+          "uac_service",
+          9180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2590
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 174951117,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 23.276916416999995
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_delay",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          228,
+          12
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 2953.291108630954,
+        "p50Us": 2953.5,
+        "p95Us": 2954.7083333333335,
+        "maxUs": 2956.5833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 5964,
+        "underruns": 0,
+        "completedBlocks": 259
+      },
+      "profile": [
+        [
+          "app_main",
+          154653381
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "platform_poll",
+          14080736
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "diagnostics_service",
+          4462900
+        ],
+        [
+          "fm1_timer5_irq",
+          3934121
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ota_take",
+          2059806
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          682473
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106607
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70193
+        ],
+        [
+          "app_audio_render",
+          20649
+        ],
+        [
+          "uac_tap",
+          16576
+        ],
+        [
+          "usb_poll",
+          13688
+        ],
+        [
+          "uac_service",
+          9180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2590
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 174951117,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 23.842141329999997
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_eq",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          154,
+          0
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          154,
+          419430
+        ],
+        [
+          155,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 222,
+        "meanUs": 2884.8239489489497,
+        "p50Us": 2885,
+        "p95Us": 2885.8333333333335,
+        "maxUs": 2887.5416666666665
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 4364,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          158314966
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          79840420
+        ],
+        [
+          "ifw_fixed_sample",
+          62819980
+        ],
+        [
+          "platform_poll",
+          14421118
+        ],
+        [
+          "filter_tick",
+          7794254
+        ],
+        [
+          "amp_gain",
+          5944770
+        ],
+        [
+          "ifw_waves20_masked",
+          5600513
+        ],
+        [
+          "diagnostics_service",
+          4570839
+        ],
+        [
+          "fm1_timer5_irq",
+          3934845
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906321
+        ],
+        [
+          "ota_take",
+          2109618
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339616
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70193
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "usb_poll",
+          13928
+        ],
+        [
+          "uac_service",
+          8958
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 170796032,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          79840420
+        ],
+        [
+          "ifw_fixed_sample",
+          62819980
+        ],
+        [
+          "filter_tick",
+          7794254
+        ],
+        [
+          "amp_gain",
+          5944770
+        ],
+        [
+          "ifw_waves20_masked",
+          5600513
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906321
+        ],
+        [
+          "ifw_fixed_process",
+          1339616
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 23.48092998
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_exciter_gain",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          150,
+          0
+        ]
+      ],
+      "originalWords": [
+        [
+          150,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 224,
+        "meanUs": 2953.291108630954,
+        "p50Us": 2953.5,
+        "p95Us": 2954.7083333333335,
+        "maxUs": 2956.5833333333335
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 5964,
+        "underruns": 0,
+        "completedBlocks": 259
+      },
+      "profile": [
+        [
+          "app_main",
+          154653381
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "platform_poll",
+          14080736
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "diagnostics_service",
+          4462900
+        ],
+        [
+          "fm1_timer5_irq",
+          3934121
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ota_take",
+          2059806
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "fm1_alnk0_irq",
+          682473
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ],
+        [
+          "other",
+          106607
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70193
+        ],
+        [
+          "app_audio_render",
+          20649
+        ],
+        [
+          "uac_tap",
+          16576
+        ],
+        [
+          "usb_poll",
+          13688
+        ],
+        [
+          "uac_service",
+          9180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2590
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 174951117,
+      "dspFunctions": [
+        [
+          "ifw_fixed_fx_tick",
+          83998669
+        ],
+        [
+          "ifw_fixed_sample",
+          62817756
+        ],
+        [
+          "filter_tick",
+          7793900
+        ],
+        [
+          "amp_gain",
+          5944500
+        ],
+        [
+          "ifw_waves20_masked",
+          5600303
+        ],
+        [
+          "configure_oscillators",
+          3336232
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906244
+        ],
+        [
+          "ifw_fixed_process",
+          1339587
+        ],
+        [
+          "configure_rates",
+          689543
+        ],
+        [
+          "configure_filter3",
+          309675
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214708
+        ]
+      ],
+      "wallSeconds": 24.497048475
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_post_fx",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          228,
+          31
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 223,
+        "meanUs": 1971.7533632286993,
+        "p50Us": 1972.25,
+        "p95Us": 1972.75,
+        "maxUs": 1973.0833333333333
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 2880,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          207139434
+        ],
+        [
+          "ifw_fixed_sample",
+          62815471
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24357154
+        ],
+        [
+          "platform_poll",
+          18960351
+        ],
+        [
+          "filter_tick",
+          7793782
+        ],
+        [
+          "diagnostics_service",
+          6010108
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "ifw_waves20_masked",
+          5600096
+        ],
+        [
+          "fm1_timer5_irq",
+          3945109
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "ota_take",
+          2773896
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70176
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "usb_poll",
+          17608
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          6180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 115305617,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          62815471
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24357154
+        ],
+        [
+          "filter_tick",
+          7793782
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "ifw_waves20_masked",
+          5600096
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 19.855786617
+    },
+    {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "hardwareMeasured": false,
+      "cycleAccurate": false,
+      "assumptions": "240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model",
+      "firmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "preset": 5,
+      "actualPreset": 5,
+      "probe": "no_reverb",
+      "note": "A4",
+      "script": "500:e6:5,1000:A4",
+      "patchWords": [
+        [
+          228,
+          16
+        ]
+      ],
+      "originalWords": [
+        [
+          228,
+          0
+        ]
+      ],
+      "startMs": 1753,
+      "endMs": 3250,
+      "blockFrames": 256,
+      "blockBudgetUs": 5804.988662131519,
+      "dsp": {
+        "blocks": 223,
+        "meanUs": 1971.7533632286993,
+        "p50Us": 1972.25,
+        "p95Us": 1972.75,
+        "maxUs": 1973.0833333333333
+      },
+      "observation": {
+        "clips": 0,
+        "peak": 2880,
+        "underruns": 0,
+        "completedBlocks": 258
+      },
+      "profile": [
+        [
+          "app_main",
+          207139434
+        ],
+        [
+          "ifw_fixed_sample",
+          62815471
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24357154
+        ],
+        [
+          "platform_poll",
+          18960351
+        ],
+        [
+          "filter_tick",
+          7793782
+        ],
+        [
+          "diagnostics_service",
+          6010108
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "ifw_waves20_masked",
+          5600096
+        ],
+        [
+          "fm1_timer5_irq",
+          3945109
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "ota_take",
+          2773896
+        ],
+        [
+          "fm1__keys",
+          1652254
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "fm1_alnk0_irq",
+          680346
+        ],
+        [
+          "fm1__frame",
+          359304
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "draw_panel",
+          241650
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ],
+        [
+          "other",
+          106603
+        ],
+        [
+          "memcpy",
+          88080
+        ],
+        [
+          "source_uncached",
+          70176
+        ],
+        [
+          "app_audio_render",
+          20640
+        ],
+        [
+          "usb_poll",
+          17608
+        ],
+        [
+          "uac_tap",
+          16512
+        ],
+        [
+          "uac_service",
+          6180
+        ],
+        [
+          "ui_value",
+          5010
+        ],
+        [
+          "uac_render_start",
+          2580
+        ],
+        [
+          "control_id",
+          1800
+        ],
+        [
+          "ui_gauge",
+          1410
+        ],
+        [
+          "usb_attach_after_reset",
+          124
+        ]
+      ],
+      "dspInstructions": 115305617,
+      "dspFunctions": [
+        [
+          "ifw_fixed_sample",
+          62815471
+        ],
+        [
+          "ifw_fixed_fx_tick",
+          24357154
+        ],
+        [
+          "filter_tick",
+          7793782
+        ],
+        [
+          "amp_gain",
+          5944410
+        ],
+        [
+          "ifw_waves20_masked",
+          5600096
+        ],
+        [
+          "configure_oscillators",
+          3335424
+        ],
+        [
+          "ifw_fixed_env_tick",
+          2906112
+        ],
+        [
+          "ifw_fixed_process",
+          1339536
+        ],
+        [
+          "configure_rates",
+          689376
+        ],
+        [
+          "configure_filter3",
+          309600
+        ],
+        [
+          "ifw_fixed_fx_mod_configure",
+          214656
+        ]
+      ],
+      "wallSeconds": 20.252574006000003
+    }
+  ],
+  "headroom": {
+    "kind": "native-arithmetic-not-hardware",
+    "secondsPerCase": 4,
+    "cases": [
+      {
+        "preset": 0,
+        "note": 36,
+        "breath": 1.0,
+        "peak": 0.119034767,
+        "peakDbFS": -18.48652,
+        "rms": 0.046686093,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 36,
+        "breath": 0.5,
+        "peak": 0.034401894,
+        "peakDbFS": -29.26835,
+        "rms": 0.008572556,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 36,
+        "breath": 0.25,
+        "peak": 0.005580902,
+        "peakDbFS": -45.06591,
+        "rms": 0.001654495,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 48,
+        "breath": 1.0,
+        "peak": 0.112955093,
+        "peakDbFS": -18.94188,
+        "rms": 0.050278205,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 48,
+        "breath": 0.5,
+        "peak": 0.035396576,
+        "peakDbFS": -29.02077,
+        "rms": 0.010501207,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 48,
+        "breath": 0.25,
+        "peak": 0.006782532,
+        "peakDbFS": -43.37216,
+        "rms": 0.002284722,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 60,
+        "breath": 1.0,
+        "peak": 0.11335659,
+        "peakDbFS": -18.91106,
+        "rms": 0.053816636,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 60,
+        "breath": 0.5,
+        "peak": 0.039191246,
+        "peakDbFS": -28.13622,
+        "rms": 0.013278694,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 60,
+        "breath": 0.25,
+        "peak": 0.009340286,
+        "peakDbFS": -40.5928,
+        "rms": 0.003067407,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 69,
+        "breath": 1.0,
+        "peak": 0.102288246,
+        "peakDbFS": -19.80349,
+        "rms": 0.048820319,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 69,
+        "breath": 0.5,
+        "peak": 0.03589344,
+        "peakDbFS": -28.8997,
+        "rms": 0.014023384,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 69,
+        "breath": 0.25,
+        "peak": 0.009378433,
+        "peakDbFS": -40.55739,
+        "rms": 0.003896208,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 72,
+        "breath": 1.0,
+        "peak": 0.116868973,
+        "peakDbFS": -18.64602,
+        "rms": 0.063803403,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 72,
+        "breath": 0.5,
+        "peak": 0.032166481,
+        "peakDbFS": -29.85193,
+        "rms": 0.018302174,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 72,
+        "breath": 0.25,
+        "peak": 0.008089066,
+        "peakDbFS": -41.84203,
+        "rms": 0.004668976,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 84,
+        "breath": 1.0,
+        "peak": 0.102982521,
+        "peakDbFS": -19.74473,
+        "rms": 0.042402227,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 84,
+        "breath": 0.5,
+        "peak": 0.036934853,
+        "peakDbFS": -28.65127,
+        "rms": 0.013872956,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 84,
+        "breath": 0.25,
+        "peak": 0.010728836,
+        "peakDbFS": -39.38895,
+        "rms": 0.004170999,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 96,
+        "breath": 1.0,
+        "peak": 0.10587883,
+        "peakDbFS": -19.50382,
+        "rms": 0.045380588,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 96,
+        "breath": 0.5,
+        "peak": 0.036518097,
+        "peakDbFS": -28.74984,
+        "rms": 0.016237283,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 96,
+        "breath": 0.25,
+        "peak": 0.012838364,
+        "peakDbFS": -37.82981,
+        "rms": 0.005437542,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 108,
+        "breath": 1.0,
+        "peak": 0.145384789,
+        "peakDbFS": -16.74962,
+        "rms": 0.071999118,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 108,
+        "breath": 0.5,
+        "peak": 0.057035446,
+        "peakDbFS": -24.8771,
+        "rms": 0.028844657,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 0,
+        "note": 108,
+        "breath": 0.25,
+        "peak": 0.021289825,
+        "peakDbFS": -33.43656,
+        "rms": 0.01042479,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 36,
+        "breath": 1.0,
+        "peak": 0.242189407,
+        "peakDbFS": -12.3169,
+        "rms": 0.057699481,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 36,
+        "breath": 0.5,
+        "peak": 0.06191349,
+        "peakDbFS": -24.16429,
+        "rms": 0.014233248,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 36,
+        "breath": 0.25,
+        "peak": 0.009097099,
+        "peakDbFS": -40.82194,
+        "rms": 0.001490506,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 48,
+        "breath": 1.0,
+        "peak": 0.206364632,
+        "peakDbFS": -13.70729,
+        "rms": 0.081926428,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 48,
+        "breath": 0.5,
+        "peak": 0.040985107,
+        "peakDbFS": -27.74748,
+        "rms": 0.015693628,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 48,
+        "breath": 0.25,
+        "peak": 0.006993294,
+        "peakDbFS": -43.10636,
+        "rms": 0.00132858,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 60,
+        "breath": 1.0,
+        "peak": 0.281039238,
+        "peakDbFS": -11.02466,
+        "rms": 0.114623106,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 60,
+        "breath": 0.5,
+        "peak": 0.073653221,
+        "peakDbFS": -22.65617,
+        "rms": 0.022005975,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 60,
+        "breath": 0.25,
+        "peak": 0.010690689,
+        "peakDbFS": -39.41989,
+        "rms": 0.001473976,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 69,
+        "breath": 1.0,
+        "peak": 0.289190292,
+        "peakDbFS": -10.77633,
+        "rms": 0.0830473,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 69,
+        "breath": 0.5,
+        "peak": 0.038464546,
+        "peakDbFS": -28.29879,
+        "rms": 0.008034551,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 69,
+        "breath": 0.25,
+        "peak": 0.00753212,
+        "peakDbFS": -42.46166,
+        "rms": 0.000698984,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 72,
+        "breath": 1.0,
+        "peak": 0.233758926,
+        "peakDbFS": -12.62464,
+        "rms": 0.080530394,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 72,
+        "breath": 0.5,
+        "peak": 0.021652222,
+        "peakDbFS": -33.28995,
+        "rms": 0.006142416,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 72,
+        "breath": 0.25,
+        "peak": 0.005922318,
+        "peakDbFS": -44.55017,
+        "rms": 0.000531278,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 84,
+        "breath": 1.0,
+        "peak": 0.225126266,
+        "peakDbFS": -12.95148,
+        "rms": 0.062175536,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 84,
+        "breath": 0.5,
+        "peak": 0.017309189,
+        "peakDbFS": -35.23447,
+        "rms": 0.003108259,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 84,
+        "breath": 0.25,
+        "peak": 0.005415916,
+        "peakDbFS": -45.32656,
+        "rms": 0.000420449,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 96,
+        "breath": 1.0,
+        "peak": 0.175601959,
+        "peakDbFS": -15.10941,
+        "rms": 0.069362187,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 96,
+        "breath": 0.5,
+        "peak": 0.016677856,
+        "peakDbFS": -35.5572,
+        "rms": 0.002315001,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 96,
+        "breath": 0.25,
+        "peak": 0.007346153,
+        "peakDbFS": -42.6788,
+        "rms": 0.000410234,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 108,
+        "breath": 1.0,
+        "peak": 0.296245575,
+        "peakDbFS": -10.56696,
+        "rms": 0.104566876,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 108,
+        "breath": 0.5,
+        "peak": 0.016253471,
+        "peakDbFS": -35.78108,
+        "rms": 0.002360137,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 3,
+        "note": 108,
+        "breath": 0.25,
+        "peak": 0.006140709,
+        "peakDbFS": -44.23563,
+        "rms": 0.000404456,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 36,
+        "breath": 1.0,
+        "peak": 0.26825428,
+        "peakDbFS": -11.42907,
+        "rms": 0.08296898,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 36,
+        "breath": 0.5,
+        "peak": 0.128098488,
+        "peakDbFS": -17.84912,
+        "rms": 0.040187221,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 36,
+        "breath": 0.25,
+        "peak": 0.050963402,
+        "peakDbFS": -25.85483,
+        "rms": 0.016419077,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 48,
+        "breath": 1.0,
+        "peak": 0.226707458,
+        "peakDbFS": -12.89068,
+        "rms": 0.081941097,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 48,
+        "breath": 0.5,
+        "peak": 0.102592468,
+        "peakDbFS": -19.77769,
+        "rms": 0.039112307,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 48,
+        "breath": 0.25,
+        "peak": 0.035560608,
+        "peakDbFS": -28.98062,
+        "rms": 0.014552288,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 60,
+        "breath": 1.0,
+        "peak": 0.203372955,
+        "peakDbFS": -13.83414,
+        "rms": 0.075064324,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 60,
+        "breath": 0.5,
+        "peak": 0.088450432,
+        "peakDbFS": -21.066,
+        "rms": 0.034851055,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 60,
+        "breath": 0.25,
+        "peak": 0.024512291,
+        "peakDbFS": -32.21232,
+        "rms": 0.010899622,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 69,
+        "breath": 1.0,
+        "peak": 0.179643631,
+        "peakDbFS": -14.91176,
+        "rms": 0.048202456,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 69,
+        "breath": 0.5,
+        "peak": 0.068930626,
+        "peakDbFS": -23.23176,
+        "rms": 0.020861674,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 69,
+        "breath": 0.25,
+        "peak": 0.013008118,
+        "peakDbFS": -37.71571,
+        "rms": 0.004943887,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 72,
+        "breath": 1.0,
+        "peak": 0.168773651,
+        "peakDbFS": -15.45391,
+        "rms": 0.054315038,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 72,
+        "breath": 0.5,
+        "peak": 0.069717407,
+        "peakDbFS": -23.13318,
+        "rms": 0.023392984,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 72,
+        "breath": 0.25,
+        "peak": 0.012041092,
+        "peakDbFS": -38.38668,
+        "rms": 0.004674684,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 84,
+        "breath": 1.0,
+        "peak": 0.138498306,
+        "peakDbFS": -17.17111,
+        "rms": 0.05049644,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 84,
+        "breath": 0.5,
+        "peak": 0.051086426,
+        "peakDbFS": -25.83389,
+        "rms": 0.020280994,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 84,
+        "breath": 0.25,
+        "peak": 0.005111694,
+        "peakDbFS": -45.8287,
+        "rms": 0.002392682,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 96,
+        "breath": 1.0,
+        "peak": 0.126757622,
+        "peakDbFS": -17.94052,
+        "rms": 0.046393314,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 96,
+        "breath": 0.5,
+        "peak": 0.045498848,
+        "peakDbFS": -26.83999,
+        "rms": 0.016783202,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 96,
+        "breath": 0.25,
+        "peak": 0.001748085,
+        "peakDbFS": -55.14875,
+        "rms": 0.000825104,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 108,
+        "breath": 1.0,
+        "peak": 0.101575851,
+        "peakDbFS": -19.86419,
+        "rms": 0.039926241,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 108,
+        "breath": 0.5,
+        "peak": 0.032060623,
+        "peakDbFS": -29.88056,
+        "rms": 0.012257884,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      },
+      {
+        "preset": 5,
+        "note": 108,
+        "breath": 0.25,
+        "peak": 0.000523567,
+        "peakDbFS": -65.62055,
+        "rms": 0.000259193,
+        "clippedChannelSamples": 0,
+        "boundaryChannelSamples": 0,
+        "channelSamples": 352800
+      }
+    ]
+  },
+  "validation": {
+    "headroomAsanUbsan": true,
+    "headroomNormalSanitizedIdentical": true,
+    "rejectedRunsExcluded": "Unsupported panel C8 and absent UART stimulus yielded silence; not measurements."
+  }
+}

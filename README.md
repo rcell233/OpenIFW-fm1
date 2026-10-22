@@ -1,8 +1,8 @@
 # OpenIFW-fm1
 
-**2026-10-22 启动回归：0.4.7-rc1 实机安装后进入 USB RESCUE，未通过启动验收，已撤出默认安装。当前网页默认提供原始 0.4.6-rc2 恢复包；它仍有破音。后续启动修复尚在调查，下文 rc1 模型通过不能证明实机可启动。**
+**2026-10-22 实机进展：0.4.7-rc1 的 USB RESCUE 启动失败版仍撤回。0.4.7-rc2 已有正常运行、JUDD 无爆音的反馈；Daisy / Tresure 仍爆音，尚未完成声音验收。[逐模块负载与简化方案](docs/PRESET_COST_0.4.7-rc2.md) 已加入。网页默认仍提供原始 0.4.6-rc2 恢复包。**
 
-OpenIFW 的 FM-1 专用单音合成器移植。**0.4.7-rc1 已因实机 USB RESCUE 反馈撤回；默认安装恢复提供原始 0.4.6-rc2。新的 [0.4.7-rc2 恢复候选](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc2&v=0.4.7-rc2) 恢复前台分段音频及原始输入/中断布局，保留朴素界面并增加救援启动报告。启动和声音尚需实机确认，见 [恢复说明](docs/RECOVERY_0.4.7-rc2.md)。**
+OpenIFW 的 FM-1 专用单音合成器移植。**0.4.7-rc1 已因实机 USB RESCUE 反馈撤回；默认安装恢复提供原始 0.4.6-rc2。[0.4.7-rc2 恢复候选](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc2&v=0.4.7-rc2) 恢复前台分段音频及原始输入/中断布局，保留朴素界面并增加救援启动报告。已有实机运行反馈，部分音色爆音仍待解决，见 [恢复说明](docs/RECOVERY_0.4.7-rc2.md)。**
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
@@ -12,7 +12,7 @@ OpenIFW 的 FM-1 专用单音合成器移植。**0.4.7-rc1 已因实机 USB RESC
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
-网页安装协议已通过模拟设备测试。0.4.4 已确认可以启动；0.4.5 的后续实机反馈仍有严重问题。当前候选版只报告软件回归与目标指令测试结果，不把它们当作设备声音、帧率或安装成功的证明。
+网页安装协议已通过模拟设备测试。0.4.4 已确认可以启动；0.4.5 的后续实机反馈仍有严重问题。0.4.7-rc2 已有用户实机运行反馈，JUDD 正常，其他部分音色仍会爆音；软件回归与目标指令测试不代替完整的设备声音验收。
 
 如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认独立候选入口的按钮为 **Install 0.4.7-rc2** 后安装。可 [回退到 0.4.6-rc2](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.6-rc2&v=0.4.7-rc1) 恢复上一版；它的 UI 已有实机流畅反馈，仍存在破音。也可 [回退到 0.4.4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.4&v=0.4.7-rc1) 恢复本次已确认能启动的原包；它仍有卡顿和少量破音。更早的 [0.4.1 恢复包](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.1&v=0.4.7-rc1) 也保留。救援身份 FM-1_000 不会被当作安装成功。
 
