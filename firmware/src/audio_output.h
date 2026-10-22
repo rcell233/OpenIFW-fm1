@@ -5,12 +5,16 @@
  * producer slot, and synthesis never runs in an interrupt.
  */
 #include "output_level.h"
+#include "audio_transition.h"
 #define AUDIO_SLOTS 4u
 #define AUDIO_SLICE 32u
 #define AUDIO_TARGET_BLOCKS 2u /* keep latency bounded; one slot may be in production */
 static int32_t audio_pcm[AUDIO_SLOTS][HALF_WORDS];
 static volatile uint32_t audio_write,audio_read,audio_started;
 static uint32_t audio_offset,audio_render_ticks;
+/* Used only at an underrun boundary, never as a second producer/voice. */
+static int32_t audio_recovery_pcm[HALF_WORDS],audio_last[2];
+static uint32_t audio_recovering;
 static uint32_t audio_queued(void) {return audio_write-audio_read;}
 static int audio_can_draw(void) {return audio_queued()>=2u;}
 
@@ -52,16 +56,31 @@ void fm1_alnk0_irq(void) {
         if(audio_started && r!=audio_write) {
             ifw_audio_acquire();
             const int32_t *src=audio_pcm[r&(AUDIO_SLOTS-1u)];
+            if(audio_recovering) {
+                for(uint32_t i=0;i<HALF_FRAMES;i++)for(unsigned ch=0;ch<2;ch++)
+                    audio_recovery_pcm[2u*i+ch]=i<IFW_TRANSITION_FRAMES?
+                        ifw_audio_blend(0,src[2u*i+ch],i):src[2u*i+ch];
+                src=audio_recovery_pcm;audio_recovering=0;
+            }
             for(uint32_t i=0;i<HALF_WORDS;i++)dst[i]=src[i]*128;
             uac_render_start();
             for(uint32_t b=0;b<HALF_FRAMES;b+=32u)uac_tap(src+2u*b,32u);
+            audio_last[0]=src[HALF_WORDS-2u];audio_last[1]=src[HALF_WORDS-1u];
             ifw_audio_release();
             audio_read=r+1u;
         }else {
-            /* Conventional underrun: silence, count it, keep rendering every
-             * synthesis sample in order. Never skip a DSP block to feed UI. */
-            for(uint32_t i=0;i<HALF_WORDS;i++)dst[i]=0;
-            if(audio_started)audio_underruns++;
+            /* A missing block still counts as an underrun. Fade the last
+             * output to zero, then fade the next queued block back in. No
+             * DSP block is skipped or replayed; USB receives the same PCM. */
+            if(audio_started) {
+                for(uint32_t i=0;i<HALF_FRAMES;i++)for(unsigned ch=0;ch<2;ch++) {
+                    int32_t v=i<IFW_TRANSITION_FRAMES?ifw_audio_blend(audio_last[ch],0,i):0;
+                    audio_recovery_pcm[2u*i+ch]=v;dst[2u*i+ch]=v*128;
+                }
+                uac_render_start();
+                for(uint32_t b=0;b<HALF_FRAMES;b+=32u)uac_tap(audio_recovery_pcm+2u*b,32u);
+                audio_last[0]=audio_last[1]=0;audio_recovering=1;audio_underruns++;
+            }else for(uint32_t i=0;i<HALF_WORDS;i++)dst[i]=0;
         }
         ifw_audio_release();
         uint32_t ticks=fm1_ticks()-start;

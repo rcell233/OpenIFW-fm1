@@ -65,6 +65,7 @@ if(syms.symbols.audio_underruns){result.underruns=r32(syms.symbols.audio_underru
 const widgetCount=syms.symbols.ui_widget_draw_at?6:4;
 if(syms.symbols.ui_widget_max_ticks)result.widgetMaxUs=Array.from({length:widgetCount},(_,i)=>r32(syms.symbols.ui_widget_max_ticks+i*4)/24);
 if(syms.symbols.ui_widget_updates)result.widgetUpdates=Array.from({length:widgetCount},(_,i)=>r32(syms.symbols.ui_widget_updates+i*4));
+if(syms.symbols.note_transition_events)result.noteTransitionEvents=r32(syms.symbols.note_transition_events);
 if(syms.symbols.audio_write)result.audioQueue={produced:r32(syms.symbols.audio_write),consumed:r32(syms.symbols.audio_read),partialFrames:r32(syms.symbols.audio_offset)};
 if(syms.symbols.ui_frame_count)result.uiRender={completedScans:r32(syms.symbols.ui_frame_count),lcdPixels:r32(syms.symbols.ui_lcd_pixels)};
 if(process.env.IFW_SIM_MODE)result.diagnosticMode=process.env.IFW_SIM_MODE;

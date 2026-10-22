@@ -36,4 +36,5 @@ jobs:
             build/reverb-production/result.json
             build/reverb-quality/*.json
             build/reverb-noise/*.json
+            build/rapid-notes/*.json
             build/output-level/*.json

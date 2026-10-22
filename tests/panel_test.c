@@ -12,6 +12,7 @@ static void tick(void) {app_audio(audio,256);}
 static void reset(void) {
     memset(host_flash,255,sizeof host_flash);storage_load();ui_init();make_preset(&edit_patch,0);
     ifw_fixed_init(&synth,&edit_patch,&fx_buffers);ready=1;qwrite=qread=overflow=0;saved.wind=0;nrpn=16383;
+    ifw_note_transition_reset(&note_transition);note_transition_events=0;
     memset(midi_down,0,sizeof midi_down);memset(sustain_hold,0,sizeof sustain_hold);sustain=0;
 }
 static void math_tests(void) {

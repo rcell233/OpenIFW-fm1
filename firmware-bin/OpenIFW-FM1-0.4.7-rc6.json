@@ -1,0 +1,50 @@
+{
+  "version": "0.4.7-rc6",
+  "identity": "FM-1_982",
+  "appBytes": 268636,
+  "packageBytes": 610161,
+  "originalHalSha256": {
+    "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
+    "fm1_time.h": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
+    "fm1_isr.S": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5"
+  },
+  "sha256": "effd83712b7ef51c11c05065e4f04a4fc22d2c118150b46f0065fee698f0a3b9",
+  "hardwareTested": false,
+  "ramDataBss": 83808,
+  "poolBytes": 285208,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false,
+  "ramCodeBytes": 19176,
+  "ramFlashDriverBytes": 2848,
+  "ramDspBytes": 16328,
+  "ramIrqBytes": 0,
+  "dspPlacement": "ram",
+  "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",
+  "ramTables": {
+    "ifw_sine_table": 29392896,
+    "ifw_ap_table": 29428124,
+    "ifw_ap_half_table": 29422604,
+    "ifw_alpha_table": 29396996,
+    "ifw_f3_table": 29407240,
+    "decay_curve_q31": 29433644
+  },
+  "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+  "outputGain": 2,
+  "outputGainDb": 6.020599913,
+  "outputCeilingDbFS": -6.020599913,
+  "noteTransitionFrames": 64,
+  "underrunTransitionFrames": 64,
+  "noteTransitionPlacement": "post-FX-before-MASTER",
+  "reverbSampleRate": 22050,
+  "reverbTopology": "shared-4comb-2allpass-stereo-taps",
+  "fxProfile": "half-rate-Q23-room",
+  "reverbPrecisionBits": 23,
+  "experimental": true,
+  "stage": "release-candidate"
+}
