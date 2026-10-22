@@ -1,5 +1,7 @@
 # OpenIFW-fm1
 
+**2026-10-22 启动回归：0.4.7-rc1 实机安装后进入 USB RESCUE，未通过启动验收，已撤出默认安装。当前网页默认提供原始 0.4.6-rc2 恢复包；它仍有破音。后续启动修复尚在调查，下文 rc1 模型通过不能证明实机可启动。**
+
 OpenIFW 的 FM-1 专用单音合成器移植。**0.4.6-rc2 实机 UI 已流畅，爆音仍在。0.4.7-rc1 在克隆研究多个 FM-1 实现后，改用常规中断音频、完整块 DMA 提交、RAM 输入扫描和分段 USB 供数，并换用清晰的朴素界面。音色、矩阵、包络与单音 / Legato 保持旧输出。六个工厂音色通过软件预算场景，但极端压力音色仍超时；实机声音尚未验收。详见 [研究与测试报告](docs/RESEARCH_0.4.7.md)。**
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。

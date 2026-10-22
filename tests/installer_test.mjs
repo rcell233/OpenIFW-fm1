@@ -45,7 +45,7 @@ const rc2Meta=JSON.parse(readFileSync('build/web/install/recovery-0.4.6-rc2.json
 const rc2Bytes=new Uint8Array(readFileSync('build/web/firmware/'+rc2Meta.file));
 const rc2=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(rc2Meta)):new Response(rc2Bytes),'recovery-0.4.6-rc2.json');
 eq(rc2.meta.version,'0.4.6-rc2');eq(rc2.meta.sha256,'22ba5f9c4e92388c299870de28d50179bc93718034c00da66e5cc3e946d20e9f');
-await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(meta)),'recovery-0.4.6-rc2.json'),'badpkg');
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(stableMeta)),'recovery-0.4.6-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(recoveryMeta)),'recovery-0.4.4.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>{throw Error('must not fetch');},'../other.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(meta)),'recovery-0.4.1.json'),'badpkg');
