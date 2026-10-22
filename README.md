@@ -4,6 +4,8 @@
 
 OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc3**；[0.4.7-rc2](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc2&v=0.4.7-rc3) 保留为回退包，该版已确认可以运行，JUDD 正常、Daisy / Tresure 仍有爆音。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。
 
+当前音量反馈的核查见 [输出电平对比](docs/OUTPUT_LEVEL_0.4.7-rc3.md)：288 个出厂场景与 26 个其他固件单音场景的软件测量，包含 MASTER 曲线、DAC 缩放及 +6 / +12 dB 输出增益余量评估。
+
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
