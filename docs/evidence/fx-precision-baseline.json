@@ -1,0 +1,15 @@
+{
+  "version": "0.4.7-rc5",
+  "authorization": "User requests fixing reverb hiss while preserving core OSC/presets/mono/Legato and final +6 dB output.",
+  "referenceMode": "DIV=1 retains original full-rate fixtures; DIV=2/BITS=15 is the unpublished rc3/rc4 precision reference; production DIV=2/BITS=23.",
+  "previousSha256": {
+    "firmware/src/fixed/effects.c": "ec86d15100b24992d4e50be5157c26dba5c60c4099a489e1cb46176386117be2",
+    "firmware/src/fixed/synth.h": "500769f7743f82a567e43f2332d6348458b3ca7989a4bafec35c2befa083d514",
+    "firmware/src/fixed/reverb_half.h": "e405ef6f20849385df79ba1ed38b7f873497642feb6c313e8e67ad3bf0db9c9d"
+  },
+  "sha256": {
+    "firmware/src/fixed/effects.c": "c394057a32652b55589bd98508f82d1cc8f94866042b7adeb0d672335750e6ec",
+    "firmware/src/fixed/synth.h": "8411f8e2eb9eb4498716b5b7a9a28f6abafb1637b64da706e09fe4c2da947173",
+    "firmware/src/fixed/reverb_half.h": "ad089864fceb57fae7614247695ac48f5a86c6f66b21da219dd405bfa1277eba"
+  }
+}

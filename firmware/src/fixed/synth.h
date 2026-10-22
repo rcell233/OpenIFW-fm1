@@ -34,11 +34,24 @@ typedef struct { uint8_t a,b;int16_t dest;int32_t depth; } IFWFixedMod;
 #if IFW_REVERB_DIV != 1 && IFW_REVERB_DIV != 2
 #error "Unsupported reverb rate"
 #endif
+/* Q15 is an unpublished reference for the rc3/rc4 tank. The production
+ * half-rate tank keeps eight more fractional bits in int32 delay memory. */
+#ifndef IFW_REVERB_BITS
+#define IFW_REVERB_BITS 23
+#endif
+#if IFW_REVERB_BITS != 15 && IFW_REVERB_BITS != 23
+#error "Unsupported reverb precision"
+#endif
+#if IFW_REVERB_DIV == 2 && IFW_REVERB_BITS == 23
+typedef int32_t IFWReverbSample;
+#else
+typedef int16_t IFWReverbSample;
+#endif
 #define IFW_REVERB_SIDE (IFW_REVERB_DIV==1?12900u:2968u)
 typedef struct {
     int16_t delay[2][2][IFW_DELAY_SAMPLES];
     int32_t enhancer[IFW_SHORT_SAMPLES],chorus[IFW_SHORT_SAMPLES],exciter[2][25];
-    int16_t reverb[IFW_REVERB_DIV==1?2:1][IFW_REVERB_SIDE];
+    IFWReverbSample reverb[IFW_REVERB_DIV==1?2:1][IFW_REVERB_SIDE];
 } IFWFixedFxBuffers;
 typedef struct {
     IFWFixedFxBuffers *buffers;

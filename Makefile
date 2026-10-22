@@ -3,14 +3,14 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -63,6 +63,15 @@ reverb-test: build/reverb-impulse-production build/reverb-impulse-legacy
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/preset_headroom.c firmware/src/dsp.c -lm -o build/reverb-quality/headroom-sanitize
 	build/reverb-quality/headroom-sanitize > build/reverb-quality/headroom-sanitize.json
 	python3 -c 'import json; a=json.load(open("build/reverb-quality/headroom.json")); assert a==json.load(open("build/reverb-quality/headroom-sanitize.json")); assert len(a["cases"])==72; assert not any(c["clippedChannelSamples"] for c in a["cases"]); print("PASS production headroom: 72 cases, no final output clipping, identical ASan/UBSan results")'
+reverb-noise-test:
+	mkdir -p build/reverb-noise
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/reverb_noise.c firmware/src/dsp.c -lm -o build/reverb-noise/q23
+	build/reverb-noise/q23 > build/reverb-noise/q23.json
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_REVERB_BITS=15 -iquotefirmware/src/fixed -iquotefirmware/src tests/reverb_noise.c firmware/src/dsp.c -lm -o build/reverb-noise/q15
+	build/reverb-noise/q15 > build/reverb-noise/q15.json
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/reverb_noise.c firmware/src/dsp.c -lm -o build/reverb-noise/sanitize
+	build/reverb-noise/sanitize > build/reverb-noise/sanitize.json
+	python3 tests/reverb_noise_test.py
 build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler.c -o $@

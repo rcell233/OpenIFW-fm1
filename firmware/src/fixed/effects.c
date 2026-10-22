@@ -186,17 +186,17 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
 #if IFW_REVERB_DIV == 2
         int32_t wet[2]={e->reverb_wet[0],e->reverb_wet[1]};
         /* Three-tap 1/4,1/2,1/4 decimator. The bounded downmix is Q20;
-         * retain its fractional bits until it enters the Q15 tank. */
+         * retain its fractional bits through the high-precision wet tank. */
         int32_t mono=(int32_t)((((int64_t)l+r)*15729)>>20);
         if(!(e->reverb_half^=1u)) {
             int32_t filtered=ifw_shr0(e->reverb_input[0]+2*e->reverb_input[1]+mono,2);
-            reverb_half_tick(e,b,ifw_shr0(filtered,5));
+            reverb_half_tick(e,b,reverb_from20(filtered));
             /* Causal linear reconstruction; only wet audio is delayed. */
             wet[0]=ifw_shr0(wet[0]+e->reverb_wet[0],1);
             wet[1]=ifw_shr0(wet[1]+e->reverb_wet[1],1);
         }
         e->reverb_input[0]=e->reverb_input[1];e->reverb_input[1]=mono;
-        wet[0]*=32;wet[1]*=32;
+        wet[0]=reverb_to20(wet[0]);wet[1]=reverb_to20(wet[1]);
 #else
         int32_t damp=e->reverb_damp,feedback=e->reverb_feedback;
         /* l/r are int32: this downmix is bounded to < 65 million. */

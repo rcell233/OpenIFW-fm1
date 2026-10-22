@@ -15,7 +15,10 @@ for old,new in zip(profiles['legacy']['cases'],profiles['production']['cases']):
     assert old['size']==new['size']
     assert abs(old['firstWetFrame']-new['firstWetFrame'])<=4,'Delay time changed'
     assert new['peak']<0.5,'Unexpected wet gain'
-    assert new['lastNonzeroFrame']<8*44100,'Tail fails to decay'
+    # High precision retains weak tails formerly erased by Q15 truncation.
+    # Keep size-dependent finite bounds and exact end-of-response silence.
+    max_tail=2 if new['size']==0 else 6 if new['size']<10 else 16
+    assert new['lastNonzeroFrame']<max_tail*44100,'Tail fails to decay'
     assert new['lastNonzeroFrame']>new['firstWetFrame']+4410,'Tail missing'
     ratio=new['lowpass1kEnergy']/old['lowpass1kEnergy']
     assert 0.5<ratio<2,'Low/mid wet energy differs by more than 3 dB'

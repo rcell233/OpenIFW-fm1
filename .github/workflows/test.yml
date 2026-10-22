@@ -35,4 +35,5 @@ jobs:
             build/target-audit/octave-config.json
             build/reverb-production/result.json
             build/reverb-quality/*.json
+            build/reverb-noise/*.json
             build/output-level/*.json
