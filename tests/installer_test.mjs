@@ -41,6 +41,11 @@ const stableMeta=JSON.parse(readFileSync('build/web/install/recovery-0.4.4.json'
 const stableBytes=new Uint8Array(readFileSync('build/web/firmware/'+stableMeta.file));
 const stable=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(stableMeta)):new Response(stableBytes),'recovery-0.4.4.json');
 eq(stable.meta.version,'0.4.4');eq(stable.meta.sha256,'39fb0338e9c12394897edd62b19902af1f82b324c03628ee102c7d8c9ec1af8e');
+const rc2Meta=JSON.parse(readFileSync('build/web/install/recovery-0.4.6-rc2.json'));
+const rc2Bytes=new Uint8Array(readFileSync('build/web/firmware/'+rc2Meta.file));
+const rc2=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(rc2Meta)):new Response(rc2Bytes),'recovery-0.4.6-rc2.json');
+eq(rc2.meta.version,'0.4.6-rc2');eq(rc2.meta.sha256,'22ba5f9c4e92388c299870de28d50179bc93718034c00da66e5cc3e946d20e9f');
+await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(meta)),'recovery-0.4.6-rc2.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(recoveryMeta)),'recovery-0.4.4.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>{throw Error('must not fetch');},'../other.json'),'badpkg');
 await bad(loadFirmware('https://example.test/install/install.js',async()=>new Response(JSON.stringify(meta)),'recovery-0.4.1.json'),'badpkg');
@@ -137,7 +142,7 @@ async function page({midi=true,denied=false,secure=true,downloadFail=false,recov
   const source=readFileSync('build/web/install/install.js','utf8').replace(/^import .*;\n/m,'').replaceAll('import.meta.url',JSON.stringify('https://rcell233.github.io/OpenIFW-fm1/install/install.js'));
   vm.runInNewContext(source,{document:{getElementById:el,querySelectorAll:()=>stages},navigator:midi?{async requestMIDIAccess(options){permissions++;eq(options.sysex,true);if(denied)throw new DOMException('Permission denied','NotAllowedError');return {};}}:{},isSecureContext:secure,URL,Date,console,
     addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:'')},
-    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
+    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
     installFirmware:async(_v,_a,step)=>{installs++;step('write',1);await new Promise(r=>allow=r);step('done','FM-1_982');},
   });
   for(let i=0;i<20;i++)await Promise.resolve();return state;
@@ -152,5 +157,6 @@ const unsupported=await page({midi:false});eq(unsupported.el('install').disabled
 const insecure=await page({secure:false});eq(insecure.el('install').disabled,true);ok(insecure.el('status').textContent.includes('HTTPS'));
 const network=await page({downloadFail:true});eq(network.el('install').disabled,false);eq(network.permissions,0);
 const previous=await page({recovery:'0.4.4'});eq(previous.el('install').textContent,'Install 0.4.4');eq(previous.permissions,0);eq(previous.el('recovery-note').hidden,false);ok(previous.el('recovery-note').textContent.includes('0.4.4'));
+const fluent=await page({recovery:'0.4.6-rc2'});eq(fluent.el('install').textContent,'Install 0.4.6-rc2');eq(fluent.permissions,0);eq(fluent.el('recovery-note').hidden,false);ok(fluent.el('recovery-note').textContent.includes('0.4.6-rc2'));
 mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
 console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Stone windows, palette and sword cursor adapted from GHOULBOX (Jason
- * Persinger, 2026), built on Felucca (Leo Kuroshita / Hügelton Instruments).
- * VT323: SIL OFL. Displays only; no oscillator, envelope, modulation or effect
+ * Controls adapted from GHOULBOX (Jason Persinger, 2026), built on Felucca
+ * (Leo Kuroshita / Hügelton Instruments). Plain panels and Inter Tight text.
+ * Displays only; no oscillator, envelope, modulation or effect
  * state is advanced.
  */
 typedef struct {
-  uint16_t bg, surf, text, theme, accent, stone, edge, mid, dim, line;
+  uint16_t bg, surf, text, theme, accent, edge, mid, dim, line;
 } IFWUiColors;
 static IFWUiColors uc;
 static uint16_t ui_mix(uint16_t a, uint16_t b, uint32_t n) {
@@ -16,12 +16,12 @@ static uint16_t ui_mix(uint16_t a, uint16_t b, uint32_t n) {
 }
 static void ui_palette(void) {
   static const uint16_t p[4][5] = {
-      {RGB(14, 11, 8), RGB(36, 28, 20), RGB(232, 220, 196), RGB(232, 154, 44),
-       RGB(232, 76, 64)},
-      {RGB(6, 18, 10), RGB(16, 40, 26), RGB(226, 244, 230), RGB(84, 214, 120),
-       RGB(255, 214, 92)},
-      {RGB(0, 0, 0), RGB(0, 24, 10), RGB(150, 230, 170), RGB(56, 220, 100),
-       RGB(255, 255, 255)},
+      {RGB(8, 12, 16), RGB(16, 22, 28), RGB(248, 250, 252), RGB(116, 196, 248),
+       RGB(255, 196, 112)},
+      {RGB(8, 14, 10), RGB(16, 26, 20), RGB(248, 250, 248), RGB(144, 224, 168),
+       RGB(255, 216, 128)},
+      {RGB(14, 12, 8), RGB(26, 22, 16), RGB(252, 248, 240), RGB(248, 200, 128),
+       RGB(255, 236, 192)},
       {RGB(0, 0, 0), RGB(0, 0, 0), RGB(255, 255, 255), RGB(255, 255, 255),
        RGB(255, 255, 255)}};
   uint32_t n = ui_prefs.palette % 4;
@@ -30,11 +30,10 @@ static void ui_palette(void) {
   uc.text = p[n][2];
   uc.theme = p[n][3];
   uc.accent = p[n][4];
-  uc.stone = ui_mix(uc.surf, uc.bg, 45);
   uc.edge = ui_mix(uc.theme, uc.bg, 55);
-  uc.mid = ui_mix(uc.bg, uc.text, 70);
-  uc.dim = ui_mix(uc.bg, uc.text, 42);
-  uc.line = ui_mix(uc.bg, uc.text, 18);
+  uc.mid = ui_mix(uc.bg, uc.text, 85);
+  uc.dim = ui_mix(uc.bg, uc.text, 65);
+  uc.line = ui_mix(uc.bg, uc.text, 28);
 }
 static void ui_frame(int x, int y, int w, int h, uint16_t c) {
   cv_rect(x, y, w, 1, c);
@@ -43,43 +42,11 @@ static void ui_frame(int x, int y, int w, int h, uint16_t c) {
   cv_rect(x + w - 1, y, 1, h, c);
 }
 static void ui_window(int x, int y, int w, int h, int b) {
-  int border = b == 1 ? 1 : 3;
-  static uint8_t noise[240],noise_ready;
-  if(!noise_ready) {
-    for(uint32_t i=0;i<240;i++)noise[i]=(uint8_t)((i*0x9E37u>>7)&7u);
-    noise_ready=1;
-  }
-  int left=x+border,right=x+w-border,top=y+border,bottom=y+h-border;
-  if(left<0)left=0;
-  if(right>(int)cv_w)right=(int)cv_w;
-  if(top+cv_oy<0)top=-cv_oy;
-  if(bottom+cv_oy>(int)cv_h)bottom=(int)cv_h-cv_oy;
-  uint16_t bg=swap16(uc.bg),surf=swap16(uc.surf),stone=swap16(uc.stone);
-  for (int j=top;j<bottom;j++) {
-    uint16_t *row=cv_px+(uint32_t)(j+cv_oy)*cv_w;
-    uint32_t ry=((uint32_t)j*0x7F4Au>>7)&7u;
-    for(int i=left;i<right;i++)row[i]=ui_prefs.style?bg:noise[i]==ry?stone:surf;
-  }
-  if (border == 3) {
-    ui_frame(x, y, w, h, uc.edge);
-    ui_frame(x + 1, y + 1, w - 2, h - 2, uc.stone);
-    ui_frame(x + 2, y + 2, w - 4, h - 4, uc.theme);
-  } else
-    ui_frame(x, y, w, h, uc.theme);
-  cv_rect(x, y, border, border, uc.accent);
-  cv_rect(x + w - border, y, border, border, uc.accent);
-  cv_rect(x, y + h - border, border, border, uc.accent);
-  cv_rect(x + w - border, y + h - border, border, border, uc.accent);
+  cv_rect(x,y,w,h,ui_prefs.style?uc.bg:uc.surf);
+  ui_frame(x,y,w,h,b==1?uc.line:uc.edge);
 }
-static void ui_sword(int x, int y) {
-  static const char *const r[] = {
-      "....2.........", "....2.........", "....2.0000000.", "11112000000000",
-      "....2.0000000.", "....2.........", "....2........."};
-  uint16_t c[] = {uc.text, uc.edge, uc.theme};
-  for (int j = 0; j < 7; j++)
-    for (int i = 0; i < 14; i++)
-      if (r[j][i] >= '0' && r[j][i] <= '2')
-        cv_pset(x + i, y + j, c[r[j][i] - '0']);
+static void ui_cursor(int x, int y) {
+  cv_rect(x+3,y,3,10,uc.theme);
 }
 static void ui_fit(int x, int y, int width, const felucca_font_t *f,
                    const char *s, uint16_t color) {
@@ -426,18 +393,10 @@ static void ui_cards(void) {
             hot ? uc.accent : uc.theme);
   }
 }
-static void ui_torch(int x, int y, uint32_t frame) {
-  cv_rect(x + 4, y + 12, 3, 15, uc.edge);
-  cv_rect(x + 2, y + 11, 7, 2, uc.theme);
-  cv_rect(x + 3, y + 5, 5, 6, uc.accent);
-  cv_rect(x + 4, y + 2 + (int)(frame & 1), 3, 8, uc.theme);
-  cv_rect(x + 5, y + (int)(frame & 3), 1, 9, uc.text);
-  cv_rect(x + 2 + (int)(frame % 3), y + 6, 2, 3, uc.theme);
-}
 static void ui_scope(void) {
   int32_t top=-cv_oy,bottom=top+(int32_t)cv_h;
   if(top<184 && bottom>96) {
-  cv_line(25, 139, 215, 139, uc.line);
+  cv_line(25, 130, 215, 130, uc.line);
   int32_t peak = 1024;
   for (uint32_t i = 0; i < 96; i++) {
     int32_t n = scope[i] < 0 ? -scope[i] : scope[i];
@@ -446,17 +405,13 @@ static void ui_scope(void) {
   }
   if (ui_prefs.scope == 0) {
     for (int i = 1; i < 96; i++)
-      cv_line(25 + (i - 1) * 190 / 95, 139 - scope[i - 1] * 43 / peak,
-              25 + i * 190 / 95, 139 - scope[i] * 43 / peak, uc.theme);
+      cv_line(25 + (i - 1) * 190 / 95, 130 - scope[i - 1] * 30 / peak,
+              25 + i * 190 / 95, 130 - scope[i] * 30 / peak, uc.theme);
   }
   if (ui_prefs.scope == 1) {
     cv_rect(25, 124, 190, 17, uc.line);
     cv_rect(25, 124, (peak * 190) / 32768, 17, uc.theme);
     ui_center(25, 145, 190, &UI_S, "OUTPUT LEVEL", uc.mid);
-  }
-  if (ui_prefs.animate) {
-    ui_torch(8, 109, fm1_ms / 125);
-    ui_torch(220, 109, 2 + fm1_ms / 125);
   }
   }
   for (int i = 0; i < 4; i++) {
@@ -579,7 +534,7 @@ static void ui_preset_list(void) {
     int y = 83 + (int)row * 19;
     int chosen = p == preset;
     if (chosen)
-      ui_sword(10, y + 3);
+      ui_cursor(10, y + 3);
     ui_fit(29, y, 172, &UI_S, ui_preset_name(p), chosen ? uc.accent : uc.text);
     char b[12];
     ui_int(b, p < FACTORY_COUNT ? preset_programs[p]
@@ -591,7 +546,7 @@ static void ui_save_list(void) {
   for (uint32_t i = 0; i < 3; i++) {
     int y = 89 + (int)i * 31;
     if (i == ui.slot)
-      ui_sword(10, y + 4);
+      ui_cursor(10, y + 4);
     char b[16];
     ui_int(b, i + 1);
     cv_text(29, y, &UI_S, b, uc.dim);
@@ -641,7 +596,7 @@ static void ui_layer_list(void) {
 }
 static const char *ui_menu_label(uint32_t t, uint32_t row) {
   static const char *const names[5][5] = {
-      {"COLOR", "STYLE", "ANIM", "SCOPE", "NOTE NAMES"},
+      {"COLOR", "STYLE", "REFRESH", "SCOPE", "NOTE NAMES"},
       {"HOLD", "KNOB ACCEL", "", "", ""},
       {"TUNING", "MASTER", "AMP 1", "AMP 2", ""},
       {"CHANNEL", "WIND CC7", "LEARN", "CLEAR LEARN", ""},
@@ -653,10 +608,12 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
   int32_t v = ui_menu_value(t, r);
   if (t == 0) {
     if (r == 0) {
-      static const char *const a[] = {"CRYPT", "GREEN", "NIGHT", "MONO"};
+      static const char *const a[] = {"BLUE", "GREEN", "AMBER", "MONO"};
       str_cpy(s, a[v % 4], 32);
     } else if (r == 1)
-      str_cpy(s, v ? "LINE" : "STONE", 32);
+      str_cpy(s, v ? "OUTLINE" : "FILLED", 32);
+    else if (r == 2)
+      str_cpy(s, v ? "NORMAL" : "LOW", 32);
     else if (r == 3) {
       static const char *const a[] = {"WAVE", "LEVEL", "OFF"};
       str_cpy(s, a[v % 3], 32);
@@ -688,7 +645,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.6-rc1", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc1", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -707,7 +664,7 @@ static void ui_draw_menu(void) {
     char b[32];
     int hot = i == ui.menu_row;
     if (hot)
-      ui_sword(10, y + 4);
+      ui_cursor(10, y + 4);
     ui_fit(29, y, 119, &UI_S, ui_menu_label(ui.menu_tab, i),
            hot ? uc.accent : uc.text);
     ui_menu_text(ui.menu_tab, i, b);
@@ -900,7 +857,7 @@ static int ui_same_text(const char *a,const char *b) {
 }
 static void draw_panel(uint32_t full) {
   static uint32_t initialized,perf_draw_at,model_at,pending_full;
-  static uint32_t old_layout[16],old_header[5],old_hot,old_learn,old_anim;
+  static uint32_t old_layout[16],old_header[5],old_hot,old_learn;
   static uint32_t old_gauge[4],old_id[4];
   static char old_value[4][32],old_name[13],old_footer[32],old_notice[64];
   static IFWFixedPatch old_patch;
@@ -922,7 +879,6 @@ static void draw_panel(uint32_t full) {
   uint32_t header[5]={meter.held,(uint32_t)meter.note,patch_dirty,
       !!ui.notice_until,ui_prefs.names};
   uint32_t hot=ui.hot+(ui.hot_until?16u:0u);
-  uint32_t anim=ui_prefs.animate?fm1_ms/125u:0u;
   if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||
      ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {
     ui_widgets=15u;ui_widget_cursor=0;
@@ -955,52 +911,35 @@ static void draw_panel(uint32_t full) {
       old_env[i]=env;
     }
     if(page==UP_HOME) {
-      if((ui_prefs.scope<2 && memcmp((const void *)scope,old_scope,sizeof old_scope)) || old_anim!=anim)ui_widgets|=16u;
+      if(ui_prefs.scope<2 && memcmp((const void *)scope,old_scope,sizeof old_scope))ui_widgets|=16u;
       memcpy(old_scope,(const void *)scope,sizeof old_scope);
     }
   }
-  old_anim=anim;initialized=1;
+  initialized=1;
   if(page==UP_PERF && fm1_ms-perf_draw_at>=200u) {
     perf_snapshot();perf_draw_at=fm1_ms;ui_widgets|=6u;
-  }
-  if(full && ui_widgets) {
-    if(!ui_priority_widgets)ui_priority_at=fm1_ms;
-    ui_priority_widgets|=ui_widgets;
   }
   } /* model sampling: at most 50 Hz unless an input changes the screen */
   /* A full stage includes both home damage rectangles. It always supersedes
    * them, including when a menu opens while animation is waiting. */
-  if(ui_widgets&4u) {ui_widgets&=~48u;ui_priority_widgets&=~48u;}
+  if(ui_widgets&4u)ui_widgets&=~48u;
   ui_drawing=ui_widgets!=0;
   if(!ui_widgets){last_draw=fm1_ms;return;}
 #if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
-  /* Audio has priority in the cooperative scheduler. With two queued blocks
-   * the next widget may render while DMA continues playing those blocks. */
+  /* Audio preempts drawing at interrupt priority. Only the LCD owns this
+   * canvas, and visual updates coalesce independently of the sample clock. */
   uint32_t eligible=ui_widgets;
   /* A changing scope cannot monopolize the SPI bus at audio-slice rate. */
   for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
-    if(fm1_ms-ui_widget_draw_at[i]<50u)eligible&=~(1u<<i);
+    if(fm1_ms-ui_widget_draw_at[i]<(ui_prefs.animate?50u:100u))eligible&=~(1u<<i);
   if(!eligible)return;
-  if(!audio_can_draw()) {
-    /* Background animation waits for audio headroom. Explicit controls retain
-     * service under sustained overload so the user can navigate and diagnose. */
-    if(fm1_ms-ui_priority_at<50u)return;
-    eligible&=ui_priority_widgets;
-    /* Bounded fairness: keep the waveform alive with one completed block in
-     * reserve. Coalesce to 10 Hz; never draw into an empty audio queue. */
-    if(audio_queued()) {
-      for(unsigned i=4;i<UI_WIDGET_COUNT;i++)
-        if(fm1_ms-ui_widget_draw_at[i]>=100u)eligible|=ui_widgets&(1u<<i);
-    }
-    if(!eligible)return;
-  }
 #else
   uint32_t eligible=ui_widgets;
 #endif
   ui_palette();
   uint32_t widget=ui_widget_cursor;
   for(uint32_t i=0;i<UI_WIDGET_COUNT;i++,widget=(widget+1u)%UI_WIDGET_COUNT)if(eligible&(1u<<widget))break;
-  static const uint16_t y[UI_WIDGET_COUNT]={0,24,76,204,96,187},h[UI_WIDGET_COUNT]={24,52,128,36,88,3};
+  static const uint16_t y[UI_WIDGET_COUNT]={0,24,76,204,96,187},h[UI_WIDGET_COUNT]={24,52,128,36,70,3};
 #ifdef IFW_TARGET
   uint32_t draw_start=fm1_ticks();
 #endif
@@ -1012,8 +951,7 @@ static void draw_panel(uint32_t full) {
   uint32_t draw_ticks=fm1_ticks()-draw_start;
   if(draw_ticks>ui_widget_max_ticks[widget])ui_widget_max_ticks[widget]=draw_ticks;
 #endif
-  ui_widgets&=~(1u<<widget);ui_priority_widgets&=~(1u<<widget);
-  ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
+  ui_widgets&=~(1u<<widget);ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
   ui_widget_draw_at[widget]=fm1_ms;
   if(widget==2)ui_widget_draw_at[4]=ui_widget_draw_at[5]=fm1_ms;
   ui_drawing=ui_widgets!=0;

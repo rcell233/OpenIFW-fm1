@@ -8,6 +8,7 @@ typedef struct {
     uint64_t total_ticks;
 } IFWAudioPerf;
 static volatile IFWAudioPerf audio_perf;
+static volatile uint32_t audio_underruns;
 static IFWAudioPerf perf_view;
 static volatile uint32_t perf_mode; /* 0 synth, 1 diagnostic sine, 2 mute; not saved */
 static uint32_t perf_freeze,perf_phase;
@@ -17,6 +18,10 @@ static void perf_reset(void) {
     uint32_t irq=irq_save();
 #endif
     memset((void *)&audio_perf,0,sizeof audio_perf);
+#if !defined(IFW_HOST) && !defined(IFW_EMU)
+    memset((void *)&platform_perf,0,sizeof platform_perf);
+    audio_underruns=0;
+#endif
     audio_perf.magic=0x50465749u;audio_perf.tag=0x31524550u;
     perf_view=audio_perf;perf_freeze=0;
 #if !defined(IFW_HOST) && !defined(IFW_EMU)

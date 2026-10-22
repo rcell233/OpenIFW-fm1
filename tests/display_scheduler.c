@@ -1,12 +1,10 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Execute the production display scheduler with target DMA/headroom gates.
- * In particular a one-block queue must not starve a moving home waveform.
+ * Execute the production display scheduler with the target LCD DMA gate.
+ * Audio now preempts drawing; waveform updates never depend on queue depth.
  */
 #include <stdint.h>
-static uint32_t lcd_busy,test_ready=1,test_queued=2;
+static uint32_t lcd_busy,test_ready=1;
 static int ifw_display_ready(void) {return (int)test_ready;}
-static uint32_t audio_queued(void) {return test_queued;}
-static int audio_can_draw(void) {return test_queued>=2u;}
 #define IFW_DISPLAY_SCHEDULER_TEST
 #define IFW_HOST
 #define main panel_simulator_main
@@ -28,6 +26,8 @@ static void pixels(void) {
         ui_paint();cv_oy=0;cv_blit(0,y);
     }
     memcpy(expected,fb,sizeof expected);
+    if(memcmp(actual,expected,sizeof actual))for(unsigned i=0;i<240u*240u;i++)
+        if(actual[i]!=expected[i]) {fprintf(stderr,"display differs at (%u,%u), t=%u, dirty=%u\n",i%240u,i/240u,fm1_ms,ui_widgets);break;}
     assert(!memcmp(actual,expected,sizeof actual));
 }
 int main(void) {
@@ -42,23 +42,20 @@ int main(void) {
     assert(ui_widget_updates[1]==at);
     assert(!memcmp(actual,cv_px,sizeof(uint16_t)*cv_w*cv_h));
     test_ready=1;draw_panel(0);drain();assert(ui_widget_updates[1]>at);pixels();
-    /* Continuous low headroom used to leave only the centre line on screen.
-     * Test both extrema: the entire +/-43 pixel trace must be repainted. */
-    test_queued=1;at=ui_widget_updates[4];
+    /* Both waveform extrema must update without a foreground PCM queue. */
+    ui_prefs.animate=1;at=ui_widget_updates[4];
     for(unsigned t=0;t<250;t++) {
         fm1_ms++;
-        for(unsigned i=0;i<96;i++)scope[i]=(int16_t)((i&1)?30000: -30000);
-        meter.env[0]=INT32_MAX;draw_panel(0);
+        for(unsigned i=0;i<96;i++)scope[i]=(int16_t)(((i+t/20u)&1)?30000: -30000);
+        meter.env[0]=(t/20u)&1u?INT32_MAX:INT32_MAX/2;draw_panel(0);
     }
+    assert(ui_widget_updates[4]>at && ui_widget_updates[4]-at<=5);
+    assert(ui_widget_updates[5]);fm1_ms+=100;draw_panel(0);drain();pixels();
+    /* Legacy ANIM=OFF selects a lower refresh rate, never a frozen waveform. */
+    ui_prefs.animate=0;draw_panel(1);drain();at=ui_widget_updates[4];
+    for(unsigned t=0;t<250;t++) {fm1_ms++;scope[t%96]=(int16_t)(t*37);draw_panel(0);}
     assert(ui_widget_updates[4]>at && ui_widget_updates[4]-at<=3);
-    assert(ui_widget_updates[5]);pixels();
-    /* With no completed audio block, animation waits; it recovers when one
-     * becomes available. The gate never pretends a background draw succeeded. */
-    test_queued=0;at=ui_widget_updates[4];
-    for(unsigned t=0;t<150;t++) {fm1_ms++;scope[t%96]=(int16_t)(t*37);draw_panel(0);}
-    assert(ui_widget_updates[4]==at && (ui_widgets&16u));
-    test_queued=1;fm1_ms+=100;draw_panel(0);
-    assert(ui_widget_updates[4]>at);pixels();
-    puts("PASS target display gates: busy DMA invalidation, 1-block waveform fairness, extrema, empty-queue recovery, exact pixels");
+    fm1_ms+=100;draw_panel(0);drain();pixels();
+    puts("PASS target display: busy DMA preserves input/canvas; waveform extrema, normal/low refresh both live, exact pixels");
     return 0;
 }

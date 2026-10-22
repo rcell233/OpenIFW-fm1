@@ -20,6 +20,9 @@
  * 12 taps a phase, Q15, Felucca's 24 x Q30 made smaller) into the ring. 44.1 kHz, the rate until a host asks
  * for another, sends the samples as before, bit for bit. */
 #include "../hal/fm1_usb.h"   /* registers; relative, so the loader and the host tests find it too */
+#ifndef FELUCCA_LOADER
+#include "diagnostics_protocol.h"
+#endif
 #ifndef FELUCCA_CDC
 #define FELUCCA_CDC 0
 #endif
@@ -141,6 +144,9 @@ static struct {
     volatile uint8_t ota_req;    /* F0 22 24 35 7F F7: M-UPGRADE upgrade command (FELUCCA_OTA) */
     uint8_t rx_pend;             /* EP1 OUT packet seen, not yet taken (the MIDI ring was too full) */
     uint32_t rx_held, rx_bad;    /* packets held back (NAK) for room, malformed events ignored */
+#ifndef FELUCCA_LOADER
+    volatile uint8_t diag_req,diag_sequence;
+#endif
 } usb;
 
 #if FELUCCA_OTA
@@ -706,6 +712,11 @@ static void sysex_byte(uint8_t b)
             ok = usb.sysex[i] == UBOOT_KEY[i];
         if (ok)
             usb.uboot_req = 1;
+#ifndef FELUCCA_LOADER
+        else if (ifw_diag_sequence(usb.sysex,usb.sx_len)>=0) {
+            usb.diag_sequence=usb.sysex[7];usb.diag_req=1;
+        }
+#endif
 #if FELUCCA_OTA
         else if (usb.sx_len == 6u && usb.sysex[1] == 0x22 && usb.sysex[2] == 0x24 && usb.sysex[3] == 0x35 &&
                  usb.sysex[4] == 0x7F)

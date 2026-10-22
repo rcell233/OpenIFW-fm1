@@ -1,11 +1,11 @@
 {
-  "version": "0.4.6-rc2",
+  "version": "0.4.7-rc1",
   "identity": "FM-1_982",
-  "appBytes": 264916,
+  "appBytes": 270716,
   "packageBytes": 610161,
-  "sha256": "22ba5f9c4e92388c299870de28d50179bc93718034c00da66e5cc3e946d20e9f",
+  "sha256": "eee0eb4f134389919779fcea5c2779d35f938359df3e297fb48b0810a68e0f8f",
   "hardwareTested": false,
-  "ramDataBss": 81872,
+  "ramDataBss": 75600,
   "poolBytes": 324936,
   "limits": {
     "app": 581564,
@@ -15,11 +15,12 @@
   "sampleRate": 44100,
   "framesPerBlock": 256,
   "cpuMeasured": false,
-  "ramCodeBytes": 20944,
+  "ramCodeBytes": 22552,
   "ramFlashDriverBytes": 2848,
-  "ramDspBytes": 18096,
+  "ramDspBytes": 18700,
+  "ramIrqBytes": 1004,
   "dspPlacement": "ram",
-  "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",
+  "linkerSha256": "5cbbdcf895d499639d2bb85d0b6dcd294d873e792d88798a67e0dfecacf0b3b4",
   "ramTables": {
     "ifw_sine_table": 29392896,
     "ifw_ap_table": 29428124,
@@ -28,7 +29,7 @@
     "ifw_f3_table": 29407240,
     "decay_curve_q31": 29433644
   },
-  "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+  "audioScheduling": "ALNK-ISR-private-render-guarded-DMA-commit",
   "experimental": true,
   "stage": "release-candidate"
 }

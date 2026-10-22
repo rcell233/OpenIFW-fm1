@@ -1,0 +1,34 @@
+{
+  "version": "0.4.6-rc2",
+  "identity": "FM-1_982",
+  "appBytes": 264916,
+  "packageBytes": 610161,
+  "sha256": "22ba5f9c4e92388c299870de28d50179bc93718034c00da66e5cc3e946d20e9f",
+  "hardwareTested": false,
+  "ramDataBss": 81872,
+  "poolBytes": 324936,
+  "limits": {
+    "app": 581564,
+    "ram": 98304,
+    "pool": 344064
+  },
+  "sampleRate": 44100,
+  "framesPerBlock": 256,
+  "cpuMeasured": false,
+  "ramCodeBytes": 20944,
+  "ramFlashDriverBytes": 2848,
+  "ramDspBytes": 18096,
+  "dspPlacement": "ram",
+  "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",
+  "ramTables": {
+    "ifw_sine_table": 29392896,
+    "ifw_ap_table": 29428124,
+    "ifw_ap_half_table": 29422604,
+    "ifw_alpha_table": 29396996,
+    "ifw_f3_table": 29407240,
+    "decay_curve_q31": 29433644
+  },
+  "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+  "experimental": true,
+  "stage": "release-candidate"
+}

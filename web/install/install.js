@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.6-rc2';
+import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.7-rc1';
 const $=id=>document.getElementById(id),button=$('install'),status=$('status'),bar=$('progress');
 const requestedRecovery=new URL(globalThis.location?.href??import.meta.url).searchParams.get('recovery');
-const rollback=['0.4.1','0.4.4'].includes(requestedRecovery)?requestedRecovery:null;
+const rollback=['0.4.1','0.4.4','0.4.6-rc2'].includes(requestedRecovery)?requestedRecovery:null;
 let verified=null,busy=false;
 const log=s=>{$('log').textContent+=(new Date().toLocaleTimeString()+' '+s+'\n');};
 const say=(s,state='')=>{status.textContent=s;status.className='status '+state;};
@@ -30,7 +30,7 @@ async function prepare(){
     $('download').href=new URL('../firmware/'+m.file,import.meta.url).href;
     $('download').hidden=false;
     $('recovery-note').hidden=!rollback;
-    if(rollback)$('recovery-note').textContent=rollback==='0.4.4'?'当前选择 0.4.4 回退包：已收到设备正常启动的反馈，仍有 UI 卡顿和少量破音。':'当前选择 0.4.1 恢复包：此前可启动，原有声音问题仍然存在。';
+    if(rollback)$('recovery-note').textContent=rollback==='0.4.6-rc2'?'当前选择 0.4.6-rc2 回退包：用户反馈界面较流畅，爆音仍未解决。':rollback==='0.4.4'?'当前选择 0.4.4 回退包：已收到设备正常启动的反馈，仍有 UI 卡顿和少量破音。':'当前选择 0.4.1 恢复包：此前可启动，原有声音问题仍然存在。';
     if(!navigator.requestMIDIAccess){say('这个浏览器无法执行网页安装，请使用桌面版 Chrome 或 Edge。','error');button.textContent='请使用 Chrome / Edge';return;}
     button.textContent='Install '+m.version;button.disabled=false;
     say(rollback?`回退包 ${rollback} 已准备好，点 Install 开始。`:m.experimental?`候选版 ${m.version} 已准备好，实机声音和操作流畅度待验收。`:'固件已准备好。接上 FM-1 后，点 Install 开始。');

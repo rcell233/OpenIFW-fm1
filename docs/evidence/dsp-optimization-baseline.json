@@ -2,9 +2,9 @@
   "baselineCommit": "4ce7b7dd632cb08b3346a29ce0551293f71831da",
   "purpose": "Exact-output performance changes against immutable 0.4.0 PCM/state goldens; 0.4.6-rc2 adds route-planned waveform evaluation with old-CV materialization, exact cached BLEP division, bounded phaser arithmetic, amp/glide coefficient caches, settled smoothing and convex delay interpolation. No presets, tables, routing order, envelopes or mono/Legato algorithms change. The target compiler fully unrolls the fixed four-oscillator loop without changing evaluation order.",
   "optimizedSha256": {
-    "firmware/src/fixed/synth.c": "13795bca5d3e1ada9cc7a2b517494848f69d7219e7d6e035f2b43cfef41df98c",
-    "firmware/src/fixed/synth.h": "7a27886a5e40adcd36d4ca2d6323cb98cf7ab2105a52a38c247743d3e1f48d7b",
-    "firmware/src/fixed/effects.c": "1d8bd0b95c83040767f04654c8f9614209870a72932c8911145c331e9765c15f",
+    "firmware/src/fixed/synth.c": "d02cb5fc0b09449cb98f6b732f8be7eb0cab2ae20ea8905436a8370b0b8044bf",
+    "firmware/src/fixed/synth.h": "e9fa4098fedd17344c9b360f9c42f88b47ff705a693534c9715a44e2197e5646",
+    "firmware/src/fixed/effects.c": "48dc590f5c6385bd39bcd40f3d8ce1cb7ab3c9079ab62d6bac60319d2d9e1ee5",
     "firmware/src/fixed/math.h": "8ac25ad217b2ad95787ef32f7c663b10fc63e1d2317aacd3a1c5dbfe3028dbf4",
     "firmware/src/fixed/math.c": "2e942203d3112cd92c905604c92d2e358c4774b988ef967f801f8816caecc1d7"
   },
@@ -362,6 +362,9 @@
   ],
   "targetSourceSha256": {
     "firmware/src/dsp.c": "b87ee2f721da6e2ca917e18ade2cafc56296fef2770f2347b271d8b8c004b905",
-    "firmware/hal/ifw_dsp.h": "f4fa49f1c49f4abecabecd450c545c82589518de5580013300425a236d2e262d"
+    "firmware/hal/ifw_dsp.h": "f4fa49f1c49f4abecabecd450c545c82589518de5580013300425a236d2e262d",
+    "firmware/hal/fm1_input.h": "1597bf9870ecdfa1dc5865fc64465431e58b2f668963c550a4b13f4281e64f6c",
+    "firmware/hal/fm1_time.h": "6d8e2660c284f4dbf5d0bdab8f658bfaa504b0f2899d71400095cf9760142750",
+    "firmware/hal/fm1_isr.S": "e2674298d784c71fcf814e773f797ad0ae11c57c8b9d8ae1f609598eb8dcfd22"
   }
 }

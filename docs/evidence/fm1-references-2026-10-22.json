@@ -1,0 +1,62 @@
+[
+  {
+    "localDirectory": "felucca-reference",
+    "commit": "63f88ec18b71c6ed4371d03d6f04dd93f4193ad3",
+    "url": "https://github.com/hugelton/Felucca.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "felucca-bsp",
+    "commit": "33cac693903e753e8783baeed05c19cadfb04812",
+    "url": "https://github.com/hugelton/felucca-bsp.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "sloop-reference",
+    "commit": "ec9e53721cc576816a5750220391f2d0217c01cb",
+    "url": "https://github.com/isod89/sloop-fm1.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "dxsloop-reference",
+    "commit": "eeec0a6c1c7f9a93865983a8c7f7cc42102e7472",
+    "url": "https://github.com/zvenson/dxsloop.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "obervave-reference",
+    "commit": "7e1ccf9ca9e96a14a961e48ea8fe6efa907422df",
+    "url": "https://github.com/zvenson/obervave.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "x0x-reference",
+    "commit": "54194c54bb01e9d9b3fe9d641b3ddfa512ac04a3",
+    "url": "https://github.com/charlesvestal/fm1-x0x.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "official-reference",
+    "commit": "4c7496daac04a95ff10d1afdcc8f9ead2dbabc41",
+    "url": "https://github.com/m-vave/fm1_open.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "ghoulbox-reference",
+    "commit": "f23fbc593f8af29dfa01174278f08ee79155ed27",
+    "url": "https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "dinghy-reference",
+    "commit": "d44df7db09b98ccad2f1233b8f83f5f09c04829e",
+    "url": "https://github.com/zvenson/dinghy.git",
+    "cloned": true
+  },
+  {
+    "localDirectory": "felucca-reference/firmware/engines",
+    "commit": "c46e0086f69bdc26df1cd144dca9e683cc4531dd",
+    "url": "https://github.com/hugelton/Felucca-Engines.git",
+    "cloned": true
+  }
+]

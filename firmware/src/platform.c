@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* OpenIFW's platform fork of Dinghy / Felucca. Changes are explicit here:
- * audio rendering runs in the foreground; the ALNK ISR only publishes completed
- * blocks. Boot guard, updater, codec setup, input scanning and watchdog stay shared.
+ * the ALNK ISR renders privately and commits only a completed, on-time block.
+ * Boot guard, updater, codec setup, input scanning and watchdog stay shared.
  *
  *   boot + boot guard   a firmware that crashes at boot falls back to the USB rescue, then to the ROM
  *   USB rescue          OCT- held at power-on: no audio, only the updater (the web installer still works)
@@ -192,7 +192,10 @@ static void midi_send(uint32_t st, uint32_t d1, uint32_t d2)   /* from the main 
 /* ---- the timer: 10 kHz key scan, milliseconds, USB at 2 kHz. It outranks the audio ISR; nested in a
  * render it only scans, counts and feeds the USB audio stream (as sloopDX main.c) */
 static volatile uint8_t in_audio;
-void fm1_timer5_irq(void)
+static volatile struct {
+    uint32_t scans,scan_ticks,scan_max_ticks,usb_polls,usb_ticks,usb_max_ticks;
+} platform_perf;
+__attribute__((section(".ram_irq"))) void fm1_timer5_irq(void)
 {
     static uint32_t sub, owed, last, acc;
     uint32_t t0 = fm1_ticks(), usb_due = sub % 5u == 0u;
@@ -211,11 +214,17 @@ void fm1_timer5_irq(void)
     if (in_audio) {
         if (usb_due)
             uac_service();
-        return;
+    }else {
+        if (owed) {
+            uint32_t t=fm1_ticks();usb_poll();t=fm1_ticks()-t;
+            platform_perf.usb_polls++;platform_perf.usb_ticks+=t;
+            if(t>platform_perf.usb_max_ticks)platform_perf.usb_max_ticks=t;
+        }
+        owed = 0;
     }
-    if (owed)
-        usb_poll();
-    owed = 0;
+    uint32_t ticks=fm1_ticks()-t0;
+    platform_perf.scans++;platform_perf.scan_ticks+=ticks;
+    if(ticks>platform_perf.scan_max_ticks)platform_perf.scan_max_ticks=ticks;
 }
 extern void isr_timer5(void);
 
@@ -225,12 +234,8 @@ static volatile int32_t master_q12 = 2048;
 static void app_audio(int32_t *out, uint32_t n);
 static void app_main(void);
 
-/* Bounded DMA consumer, implemented in audio_output.h after the application
- * declares its render callbacks. No synthesis runs at interrupt priority. */
+/* Audio ISR, implemented after app_audio and the performance counters. */
 void fm1_alnk0_irq(void);
-static void app_audio_begin(void);
-static void app_audio_render(int32_t *out, uint32_t n);
-static void app_audio_finish(int32_t *out, uint32_t n);
 extern void isr_alnk0(void);
 
 /* ---- the main loop's duties: watchdog, USB, the installer's update request, the MASTER knob */

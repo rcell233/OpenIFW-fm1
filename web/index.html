@@ -10,17 +10,15 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22/%3E%3Crect x=%224%22 y=%224%22 width=%228%22 height=%228%22 fill=%22%23fff%22/%3E%3C/svg%3E">
 <meta name="description" content="OpenIFW FM-1 firmware simulator: the board’s C app, display and synth running together.">
 <style>
-/* DotGothic16 (SIL OFL 1.1, fonts/OFL.txt), cut to printable ASCII, for the knob labels */
-@font-face { font-family: "DotGothic16"; src: url("fonts/DotGothic16-subset.woff") format("woff"); font-display: swap; }
-:root { --bg: #100d09; --fg: #e8dcc4; --dim: #aa9b82; --rule: #64503a;
-        --body: #25201b; --tray: #15110d; --part: #383027; --edge: #67503a; --label: #e8dcc4;
-        --lit: #e89a2c; --green: #5fe08a; color-scheme: dark; }
+:root { --bg: #0d1116; --fg: #f4f7fa; --dim: #b9c2cd; --rule: #485362;
+        --body: #242b33; --tray: #151b22; --part: #36404c; --edge: #637080; --label: #f4f7fa;
+        --lit: #74c4f8; --green: #90e0a8; color-scheme: dark; }
 html, body { background: var(--bg); }
 body { margin: 0; color: var(--fg); font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
 main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 32px; }
-.site-nav { display: flex; gap: 22px; align-items: center; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid #59432b; font-size: 13px; }
+.site-nav { display: flex; gap: 22px; align-items: center; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); font-size: 13px; }
 .site-nav strong { margin-right: auto; color: var(--fg); letter-spacing: .08em; }
-.site-nav a { color: #e89a2c; text-underline-offset: 4px; }
+.site-nav a { color: var(--lit); text-underline-offset: 4px; }
 @media (orientation: portrait) and (max-width: 700px) { main { padding: 8px 8px 24px; } }
 a { color: inherit; }
 .device { position: relative; width: 100%; aspect-ratio: 1000 / 624; user-select: none; -webkit-user-select: none;
@@ -77,7 +75,7 @@ footer small { font-size: 11px; opacity: .8; }
 </head>
 <body>
 <main>
-<nav class="site-nav" aria-label="Website"><strong>OPENIFW / FM-1</strong><a href="./install/">Install on FM-1</a><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub</a></nav>
+<nav class="site-nav" aria-label="Website"><strong>OPENIFW / FM-1</strong><a href="./install/">Install on FM-1</a><a href="./diagnostics/">设备性能</a><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub</a></nav>
 <div class="device" id="device">
   <svg id="panel" viewBox="0 0 1000 624" aria-hidden="true"></svg>
   <canvas id="screen" width="240" height="240" role="img" aria-label="The screen"></canvas>
@@ -101,9 +99,9 @@ footer small { font-size: 11px; opacity: .8; }
 </p>
 
 <footer>
-  <small class="version">OpenIFW FM-1 · 0.4.6-rc2 · Firmware simulator</small><br>
-  OpenIFW by rcell233 · UI &amp; controls after <a href="https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth">Ghoulbox</a> by Jason Persinger · Panel adapted from Felucca by Leo Kuroshita, Hügelton Instruments · <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a> · browser build after charlesvestal's <a href="https://github.com/charlesvestal/fm1-x0x">X0X</a> · DotGothic16 font, <a href="fonts/OFL.txt">SIL OFL 1.1</a><br>
-  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="./firmware/OpenIFW-FM1-0.4.6-rc2.fwsc">Firmware 0.4.6-rc2</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
+  <small class="version">OpenIFW FM-1 · 0.4.7-rc1 · Firmware simulator</small><br>
+  OpenIFW by rcell233 · UI &amp; controls after <a href="https://github.com/jasonpersinger/ghoulbox-fm1-dungeon-synth">Ghoulbox</a> by Jason Persinger · Panel adapted from Felucca by Leo Kuroshita, Hügelton Instruments · <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPL-3.0</a> · browser build after charlesvestal's <a href="https://github.com/charlesvestal/fm1-x0x">X0X</a> · Inter Tight screen font, <a href="https://github.com/rcell233/OpenIFW-fm1/blob/main/assets/fonts/OFL-InterTight.txt">SIL OFL 1.1</a><br>
+  <nav><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub source</a> · <a href="THIRD_PARTY_NOTICES.md">Credits &amp; licenses</a> · <a href="https://github.com/rcell233/OpenIFW-fm1/archive/refs/heads/main.zip">Source ZIP</a> · <a href="./firmware/OpenIFW-FM1-0.4.7-rc1.fwsc">Firmware 0.4.7-rc1</a> · Factory programs: STUDIO-R</nav><small>EDIT: oscillators &amp; filters · ENV: envelopes · LFO: LFOs · SEQ: modulation matrix · ARP: amplifiers · SCL: tuning · FX: effects · GLO: control.<br>Four knobs edit the four LCD cards. Tap the active page button again or turn SELECT to cycle its pages; ALGORITHM jumps modules. PRESETS browses programs.<br>Hold HOME: menu · hold FX / EDIT / SEQ: key shortcuts · double-tap locks a layer; tap to close.<br>SAVE: user slots; turn LOAD / ERASE / SAVE, then OCT+ to confirm. Hold SAVE: undo / redo the last load.</small>
   <small>M-VAVE and FM-1 are trademarks of their respective owners. OpenIFW FM-1 is not affiliated with or endorsed by them.</small>
 </footer>
 </main>
@@ -149,7 +147,7 @@ function el(tag, attrs, parent = svg) {
   parent.appendChild(e);
   return e;
 }
-const SANS = "-apple-system, 'Helvetica Neue', Arial, sans-serif", DOT = "'DotGothic16', " + SANS;
+const SANS = "-apple-system, 'Helvetica Neue', Arial, sans-serif", DOT = SANS;
 function label(parent, x, y, s, size, font = SANS, ink = "var(--label)") {
   const t = el("text", { x, y, "text-anchor": "middle", "font-family": font,
                          "font-size": size, "font-weight": 600, fill: ink, "letter-spacing": ".04em" }, parent);
@@ -340,7 +338,6 @@ function bindKnob(k) {
 const tall = matchMedia("(orientation: portrait) and (max-width: 700px)");
 build(tall.matches ? "tall" : "wide");
 tall.addEventListener("change", () => build(tall.matches ? "tall" : "wide"));
-document.fonts?.load("16px DotGothic16").then(() => build(layout), () => {});   // the labels' width: the hit areas
 
 // the computer keyboard, every key one control: F3..A#4 on the Z (white) and A (black) rows, B4..G5 on Q..O
 // in semitones, the twelve buttons on the number row in the panel's order (held while the key is), [ ] OCT

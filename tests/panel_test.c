@@ -52,20 +52,15 @@ static void raster_tests(void) {
         ui_prefs.palette=(uint8_t)p;ui_prefs.style=(uint8_t)style;ui_palette();
         for(uint32_t y=0;y<240;y+=16) {
             cv_oy=-(int32_t)y;cv_begin(240,16,uc.bg);
-            /* Frozen original window fill, independent of the new row writer. */
-            for(int j=3;j<201;j++)for(int x=3;x<237;x++) {
-                uint32_t n=((uint32_t)x*0x9E37u)^((uint32_t)j*0x7F4Au);
-                cv_pset(x,j,style?uc.bg:((n>>7)&7u)?uc.surf:uc.stone);
-            }
-            ui_frame(0,0,240,204,uc.edge);ui_frame(1,1,238,202,uc.stone);ui_frame(2,2,236,200,uc.theme);
-            cv_rect(0,0,3,3,uc.accent);cv_rect(237,0,3,3,uc.accent);
-            cv_rect(0,201,3,3,uc.accent);cv_rect(237,201,3,3,uc.accent);
+            /* Intentional flat design: independent per-pixel rectangle oracle. */
+            for(int j=0;j<204;j++)for(int x=0;x<240;x++)
+                cv_pset(x,j,!x || x==239 || !j || j==203?uc.edge:style?uc.bg:uc.surf);
             memcpy(expected,cv_px,240u*16u*2u);cv_begin(240,16,uc.bg);
             ui_window(0,0,240,204,3);assert(!memcmp(expected,cv_px,240u*16u*2u));checks++;
         }
     }
     ui_prefs.palette=ui_prefs.style=0;cv_oy=0;
-    printf("PASS raster: %u independent font/line/stone pixel comparisons, five fonts and four palettes\n",checks);
+    printf("PASS raster: %u independent font/line/flat-panel pixel comparisons, five fonts and four palettes\n",checks);
 }
 static void render_tests(void) {
     static uint16_t expected[240*240];
@@ -117,7 +112,7 @@ static void render_tests(void) {
     draw_panel(1);
     ui_prefs.palette=1;
     for(unsigned i=0;i<32;i++)draw_panel(1);
-    assert(fb[0]==RGB(255,214,92));
+    ui_palette();assert(fb[0]==uc.line);
     while(ui_drawing)draw_panel(0);
     ui_prefs.palette=0;
     /* Menu row zero and the name text cross the cards/stage boundary. Editing

@@ -176,7 +176,15 @@ void ifw_fixed_set_patch(IFWFixedSynth *s,const IFWFixedPatch *p) {
     memset(s->wave_sources,0,sizeof s->wave_sources);
     int32_t master=ifw_div10(V(MasterLevel));s->master_gain=ifw_mul16(master,master);
     for(int i=0;i<2;i++)s->amp_depth[i]=ifw_div10(s->patch.v[P_Amp1Level+i*3+1]);
-    for(int i=0;i<4;i++)s->wave_type[i]=O(i,Waveform2);
+    s->sync_mask=s->output1_mask=s->output2_mask=0;
+    for(int i=0;i<4;i++) {
+        s->wave_type[i]=O(i,Waveform2);
+        if(O(i,Sync))s->sync_mask|=1u<<i;
+        if(O(i,Output1))s->output1_mask|=1u<<i;
+        if(O(i,Output2))s->output2_mask|=1u<<i;
+    }
+    int32_t lofi=ifw_clamp(O(3,NoiseLoFi),0,655360);
+    s->noise_period=(int32_t)(((int64_t)lofi*lofi*2)>>32);
     s->glide_static_speed=ifw_sat(((int64_t)V(GlideMinimumSpeed)+V(GlideSpeed))*256);
     s->bend_k=ifw_smooth31(V(PitchBendSmoothTime));s->glide_k=ifw_smooth31(V(GlideSmoothTime));
     for(int i=0;i<4;i++)ifw_fixed_env_configure_cv(&s->env[i],E(i,Attack),E(i,Decay),
@@ -239,10 +247,13 @@ void ifw_fixed_panic(IFWFixedSynth *s) {
 }
 static int32_t filter_tick(IFWFixedFilter *f,int32_t input) {
     int32_t x=f->res?ifw_soft20(ifw_subsat(input,ifw_mul20(f->last,f->res))):input,y=0;
-    for(int i=0;i<(f->type==0?4:2);i++) {
-        /* alpha is in 0..Q30: interpolation stays between x and z. */
-        y=ifw_lerp30(f->z[i],x,f->alpha);f->z[i]=y;
-        x=f->type==2?x-y:y;
+    /* The two/four-pole topology is fixed. Preserve each interpolation and
+     * high-pass subtraction, without indexing a variable-length inner loop. */
+    y=ifw_lerp30(f->z[0],x,f->alpha);f->z[0]=y;x=f->type==2?x-y:y;
+    y=ifw_lerp30(f->z[1],x,f->alpha);f->z[1]=y;x=f->type==2?x-y:y;
+    if(f->type==0) {
+        y=ifw_lerp30(f->z[2],x,f->alpha);f->z[2]=y;
+        y=ifw_lerp30(f->z[3],y,f->alpha);f->z[3]=y;x=y;
     }
     f->last=y;return f->type==3?ifw_sat(((int64_t)f->z[0]-y)*2):x;
 }
@@ -277,7 +288,7 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
     for(int sub=0;sub<2;sub++) {
         int32_t bus1=0,bus2=0;uint32_t previous_elapsed=0;int previous_wrap=0;
         uint64_t before=s->master_phase,next=before+s->master_step;
-        int master_wrap=before<IFW_PHASE_HALF && next>=IFW_PHASE_HALF;
+        int master_wrap=(s->sync_mask&1u) && before<IFW_PHASE_HALF && next>=IFW_PHASE_HALF;
         uint32_t master_elapsed=master_wrap?elapsed16(next-IFW_PHASE_HALF,s->master_step):0;
         s->master_phase=(uint32_t)next;
 #if defined(IFW_TARGET) && defined(__clang__)
@@ -289,11 +300,15 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
             int64_t fm=0;
             for(unsigned j=0;j<s->fm_count[i];j++) {IFWFixedMod *m=&s->mods[s->fm_index[i][j]];
                 fm+=ifw_div10(ifw_sat(((int64_t)ifw_mul20(source20(s,m->a),source20(s,m->b))*m->depth)>>12));}
-            uint32_t step=s->step[i];before=s->phase[i];next=before+step;
-            int wrap=before<IFW_PHASE_HALF && next>=IFW_PHASE_HALF;
-            uint32_t elapsed=wrap?elapsed16(next-IFW_PHASE_HALF,step):0;
-            s->phase[i]=(uint32_t)next;
-            if(O(i,Sync) && (i==0?master_wrap:previous_wrap)) {
+            uint32_t step=s->step[i],old=s->phase[i],advanced=old+step;
+            /* step < 2^31: when old < 2^31 the sum cannot wrap uint32.
+             * Only the following oscillator's hard-sync reads this fraction.
+             * The fourth oscillator has no sync consumer at all. */
+            int need_next=i<3 && (s->sync_mask&(2u<<i));
+            int wrap=need_next && old<IFW_PHASE_HALF && advanced>=IFW_PHASE_HALF;
+            uint32_t elapsed=wrap?elapsed16(advanced-IFW_PHASE_HALF,step):0;
+            s->phase[i]=advanced;
+            if((s->sync_mask&(1u<<i)) && (i==0?master_wrap:previous_wrap)) {
                 elapsed=i==0?master_elapsed:previous_elapsed;
                 s->phase[i]=IFW_PHASE_HALF+(uint32_t)(((uint64_t)step*elapsed)>>16);wrap=1;
             }
@@ -306,20 +321,20 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
             s->last_wave[i].missing=(uint8_t)(7u^mask);
             s->seed^=s->seed<<13;s->seed^=s->seed>>17;s->seed^=s->seed<<5;
             s->noise_value=(int32_t)(s->seed>>11)-IFW_Q20;s->noise_ready=1;
-            if(i==3) {if(s->noise_counter--<=0) {s->noise_held=s->noise_value;int32_t lofi=ifw_clamp(O(i,NoiseLoFi),0,655360);
-                    s->noise_counter=(int32_t)(((int64_t)lofi*lofi*2)>>32);}s->noise_value=s->noise_held;}
+            if(i==3) {if(s->noise_counter--<=0) {s->noise_held=s->noise_value;
+                    s->noise_counter=s->noise_period;}s->noise_value=s->noise_held;}
             /* Oscillator phases, noise and every modulation source above still
              * advance. A zero output coefficient has exactly zero contribution. */
             /* Levels are clamped to 0..Q20; bandlimited waves are <4*Q20
              * and noise <Q20. All four terms sum to <16*Q20, inside int32. */
             int32_t signal=0;
-            if(O(i,Output1) || O(i,Output2)) {
+            if((s->output1_mask|s->output2_mask)&(1u<<i)) {
             if(s->saw_level[i])signal+=ifw_mul20_bounded(s->raw_saw[i],s->saw_level[i]);
             if(s->wave_level[i])signal+=ifw_mul20_bounded(s->secondary[i],s->wave_level[i]);
             if(s->pulse_level[i])signal+=ifw_mul20_bounded(s->raw_pulse[i],s->pulse_level[i]);
             if(s->noise_level[i])signal+=ifw_mul20_bounded(ifw_mul20_bounded(s->noise_value,828375),s->noise_level[i]);
-            if(O(i,Output1))bus1=ifw_addsat(bus1,signal);
-            if(O(i,Output2))bus2=ifw_addsat(bus2,signal);
+            if(s->output1_mask&(1u<<i))bus1=ifw_addsat(bus1,signal);
+            if(s->output2_mask&(1u<<i))bus2=ifw_addsat(bus2,signal);
             }
             previous_wrap=wrap;previous_elapsed=elapsed;
         }

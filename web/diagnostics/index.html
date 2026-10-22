@@ -1,0 +1,18 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only -->
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设备性能 · OpenIFW FM-1</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0d1116;color:#f4f7fa;font:16px/1.7 system-ui,sans-serif}main{max-width:760px;margin:auto;padding:28px 22px}nav{display:flex;gap:24px;margin-bottom:40px}a{color:#74c4f8}h1{font-size:30px}p{color:#b9c2cd}button,select{font:inherit;padding:10px;border:1px solid #637080;background:#242b33;color:inherit;border-radius:3px}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}label{display:block;margin:14px 0}select{width:100%}.actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:24px 0}table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{text-align:left;border-bottom:1px solid #36404c;padding:9px}td:last-child{text-align:right}pre{font:12px/1.5 ui-monospace,monospace;max-height:260px;overflow:auto;white-space:pre-wrap}#status{min-height:3em}progress{width:100%;accent-color:#74c4f8}[hidden]{display:none}small{color:#b9c2cd}
+</style>
+<main><nav><a href="../">在线 Demo</a><a href="../install/">安装固件</a><a href="https://github.com/rcell233/OpenIFW-fm1">GitHub</a></nav>
+<h1>读取 FM-1 的实际性能</h1>
+<p>适用 0.4.7-rc1 及更新版本。接上 USB，用 Chrome 或 Edge 连接 MIDI 输入与输出，采集期间照常演奏、换音色、切页面。数据来自设备自身的计时器与断流计数。</p>
+<button id="connect">连接设备</button>
+<div id="ports" hidden><label>MIDI 输入<select id="input"></select></label><label>MIDI 输出<select id="output"></select></label>
+<div class="actions"><button id="capture">采集 10 秒性能</button><a id="download" hidden download="OpenIFW-FM1-performance.json">下载性能报告</a></div></div>
+<p id="status" role="status" aria-live="polite">连接后可以采集，不会更改设备音色或设置。</p><progress id="progress" value="0" max="20" hidden></progress>
+<table id="result" hidden><thead><tr><th>指标</th><th>设备读数</th></tr></thead><tbody id="rows"></tbody></table>
+<details><summary>原始数据</summary><pre id="raw"></pre></details>
+<small>XRUN 表示完整音频中断超时，DMA / missed commit 表示未能安全提交新音频，CLIP 表示数值触顶。扫描与 USB 计时可能包含在音频中断计时内，不能相加作为 CPU 占用。</small>
+<script type="module" src="./diagnostics.js?v=0.4.7-rc1"></script></main></html>

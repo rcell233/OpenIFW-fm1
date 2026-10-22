@@ -77,7 +77,7 @@ void ifw_fixed_fx_configure(IFWFixedSynth *s) {
         e->delay_time[i]=(uint32_t)ifw_clamp(s->patch.fx[i+2][IFW_FX_Time],66,65536)*22050u;
     }
 }
-static int32_t biquad(IFWFixedEffects *e,int ch,int k,int32_t x) {
+static inline __attribute__((always_inline)) int32_t biquad(IFWFixedEffects *e,int ch,int k,int32_t x) {
     int32_t *c=e->eq_coeff[k],*z=e->eq_state[ch][k];
     /* Extra four fractional bits and unbiased rounding avoid low-shelf DC drift. */
     x=ifw_sat((int64_t)x*16);
@@ -112,6 +112,9 @@ void ifw_fixed_fx_tick(IFWFixedSynth *s,int32_t input) {
              * makes this an exact bounded 32-bit product, without a divide. */
             int32_t hz=1450*65536+(ifw_sin20(phase+(ch?spread:0))>>4)*1250;
             int32_t a=ifw_allpass_a30(hz,0),y=ifw_addsat(ch?r:l,ifw_mul20(e->phaser_fb[ch],e->phaser_feedback));
+#if defined(IFW_TARGET) && defined(__clang__)
+#pragma clang loop unroll(full)
+#endif
             for(int k=0;k<6;k++) {int i=ch*6+k;int32_t v=ifw_subsat(e->phaser[i],ifw_mul30_bounded(y,a));
                 e->phaser[i]=ifw_addsat(y,ifw_mul30_bounded(v,a));y=v;}
             e->phaser_low[ch]=ifw_lerp30(e->phaser_low[ch],y,e->phaser_lowpass);

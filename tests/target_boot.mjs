@@ -29,6 +29,15 @@ async function run(script){
    const a=syms[name];assert.ok(a>=syms._data_start&&a+bytes<=syms._data_end,name+' RAM bounds');
    for(let i=0;i<bytes;i+=4)assert.equal(r32(a+i),r32(syms._data_load+a-syms._data_start+i),name+' .data copy at '+i);
  }
+ if(syms._irq_start) {
+  for(const name of ['fm1_timer5_irq','isr_timer5','isr_alnk0'])
+   assert.ok(syms[name]>=syms._irq_start&&syms[name]<syms._irq_end,name+' RAM IRQ bounds');
+  const r8=a=>(r32(a&~3)>>>((a&3)*8))&255;
+  for(const [name,bytes] of Object.entries({FM1_KEYMAP:66,FM1_ENC:28})) {
+   const a=syms[name];assert.ok(a>=syms._data_start&&a+bytes<=syms._data_end,name+' RAM map bounds');
+   for(let i=0;i<bytes;i++)assert.equal(r8(a+i),r8(syms._data_load+a-syms._data_start+i),name+' data byte '+i);
+  }
+ }
  return {emulatedMs:x.fm1_ms(),ready:r32(syms.ready),rescue:r32(syms.recovery_active)&255,
    blocks:r32(syms.audio_perf+8),audioFrames:frames,halted:x.fm1_halted()};
 }

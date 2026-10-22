@@ -33,7 +33,6 @@ static IFWFixedPatch ui_transfer;
 static volatile uint32_t ui_transfer_pending;
 /* Dirty widgets, in screen order: header, knob cards, stage, footer. */
 static uint32_t ui_drawing,ui_widgets,ui_widget_cursor,ui_force_redraw=1;
-static uint32_t ui_priority_widgets,ui_priority_at;
 /* The home plot and EG meters have separate small damage rectangles. */
 #define UI_WIDGET_COUNT 6u
 static volatile uint32_t ui_frame_count,ui_lcd_pixels;

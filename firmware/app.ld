@@ -30,8 +30,12 @@ SECTIONS
                .text.ifw_fixed_init .text.ifw_fixed_patch_default .text.ifw_fixed_set_patch
                .text.ifw_fixed_note_on .text.ifw_fixed_note_off .text.ifw_fixed_breath .text.ifw_fixed_panic
                .text.ifw_fixed_fx_reset .text.ifw_fixed_fx_configure .text.ifw_fixed_env_configure
+               .text.ifw_eq_coeff .text.ifw_smooth31 .text.ifw_linear_step31
                .text.ifw_fixed_env_configure_cv .text.ifw_mono_on .text.ifw_mono_off
                .text.ifw_mono_current .text.ifw_mono_clear)
+        /* The input IRQ and its wrappers follow DSP at the high end of RAM.
+         * Their shared Flash callees fit within the relative-call range here. */
+        *dinghy.o(.text.fm1_alnk0_irq .text.uac_service .text.usb_poll)
         KEEP(*(.text.ifw_target_test))
         *(EXCLUDE_FILE (*dsp.o) .text*)
         /* Per-sample oscillator/phaser reads must not contend for Flash with
@@ -44,7 +48,8 @@ SECTIONS
         . = ALIGN(4); _etext = .;
     } > XIP
     .ram_text : { _rt_start = .; KEEP(*(.ram_text*)) . = ALIGN(4); } > RAMTEXT AT > XIP
-    .audio_text : { _audio_start = .; *dsp.o(.text*) . = ALIGN(4); _rt_end = .; } > RAMTEXT AT > XIP
+    .audio_text : { _audio_start = .; *dsp.o(.text*) . = ALIGN(4);
+        _irq_start = .; *(.ram_irq) . = ALIGN(4); _irq_end = .; _rt_end = .; } > RAMTEXT AT > XIP
     _rt_load = LOADADDR(.ram_text);
     _audio_load = LOADADDR(.audio_text);
     .data : { . = ALIGN(4); _data_start = .;

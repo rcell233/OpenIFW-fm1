@@ -78,6 +78,8 @@ typedef struct {
     struct {uint32_t phase;uint8_t missing;} last_wave[4];
     int32_t wave_type[4];
     uint8_t wave_sources[4],wave_needed[4];
+    uint32_t sync_mask,output1_mask,output2_mask;
+    int32_t noise_period;
 } IFWFixedSynth;
 void ifw_fixed_capture_sources(IFWFixedSynth *s);
 void ifw_fixed_patch_default(IFWFixedPatch *p);

@@ -56,7 +56,7 @@ static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: MODULE";
 #include "ui/state.h"
-static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 406;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
+static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 407;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
     if(overflow)return;
@@ -64,8 +64,7 @@ static void enqueue(uint32_t type,int32_t a,int32_t b) {
     queue[w&(QSIZE-1)]=(AudioEvent){type,a,b};RING_PUBLISH();qwrite=w+1;
 }
 static int32_t midi31(uint32_t v) {return (int32_t)(v*16909320u);}
-/* Events are consumed once per 256-frame block, as in the released engine.
- * The hardware scheduler renders that block in bounded 32-frame slices. */
+/* Events are consumed once per 256-frame block, as in the released engine. */
 static void app_audio_begin(void) {
     uint32_t changed=0;
     if(overflow) {qread=qwrite;ifw_fixed_panic(&synth);ui_transfer_pending=0;RING_PUBLISH();overflow=0;}
@@ -125,7 +124,16 @@ static void app_audio_finish(int32_t *out,uint32_t n) {
  }
 static void app_audio(int32_t *out,uint32_t n) {
     if(!ready)return;
-    app_audio_begin();app_audio_render(out,n);app_audio_finish(out,n);
+    app_audio_begin();
+#ifdef IFW_TARGET
+    for(uint32_t b=0;b<n;b+=32u) {
+        uint32_t count=n-b;if(count>32u)count=32u;
+        app_audio_render(out+2u*b,count);audio_usb_tap(out+2u*b,count);
+    }
+#else
+    app_audio_render(out,n);
+#endif
+    app_audio_finish(out,n);
 }
 static uint32_t app_crc(const void *data,uint32_t n) {
     const uint8_t *p=data;uint32_t c=UINT32_MAX;
@@ -256,8 +264,32 @@ static void app_init(void) {
     enqueue(2,INT32_MAX,0);enqueue(0,108,INT32_MAX);
 #endif
     for(int i=0;i<27;i++)key_notes[i]=255;
-    ui_init();lcd_fill(0,0,240,240,RGB(14,11,8));ui_display_invalidate();draw_panel(1);
+    ui_init();ui_palette();lcd_fill(0,0,240,240,uc.bg);ui_display_invalidate();draw_panel(1);
 }
+#if !defined(IFW_HOST) && !defined(IFW_EMU)
+/* Read-only snapshot, requested by the browser. No note, patch, output mode,
+ * flash or reset operation is accepted by this protocol. */
+static void diagnostics_service(void) {
+    if(!usb.diag_req || !usb.config || mo_w-mo_r+(IFW_DIAG_BYTES+2u)/3u>MQ)return;
+    uint32_t f=irq_save(),max_draw=0;
+    for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
+    uint32_t words[IFW_DIAG_WORDS]={1,40701,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+        audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
+        audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
+        platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
+        platform_perf.usb_polls,platform_perf.usb_ticks,platform_perf.usb_max_ticks,
+        uac.underruns,uac.overruns,uac.missed,uac.stalls,uac.r48?48000u:44100u,
+        ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
+    uint8_t sequence=usb.diag_sequence;usb.diag_req=0;irq_restore(f);
+    uint8_t bytes[IFW_DIAG_BYTES];ifw_diag_encode(bytes,sequence,words);
+    for(unsigned i=0;i<IFW_DIAG_BYTES;i+=3u) {
+        unsigned n=IFW_DIAG_BYTES-i;if(n>3u)n=3u;
+        uint32_t packet=i+n==IFW_DIAG_BYTES?4u+n:4u;
+        for(unsigned k=0;k<n;k++)packet|=(uint32_t)bytes[i+k]<<(8u*(k+1u));
+        midi_out_event(packet);
+    }
+}
+#endif
 /* One main-loop iteration, shared verbatim by the board and the WASM host. */
 static void app_step(void) {
         uint32_t now=fm1_ms,gap=now-ui_poll_last;
@@ -284,7 +316,7 @@ static void app_main(void) {
 #endif
         platform_poll();
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
-        audio_service();
+        diagnostics_service();
 #endif
         app_step();
     }
