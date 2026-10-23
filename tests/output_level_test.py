@@ -30,8 +30,10 @@ for row in long['longScenes']:
     assert row['seconds']==100 and row['boundaryChannelSamples']==0,row
 unchanged=['firmware/src/fixed/synth.c','firmware/src/presets.h','firmware/src/dsp.c']
 cpu=json.loads((root/'docs/evidence/cpu-optimization-baseline.json').read_text())
+kernels=json.loads((root/'docs/evidence/dsp-kernels-baseline.json').read_text())
 assert cpu['previousSha256']['firmware/src/fixed/synth.c']==before['sourceSha256']['firmware/src/fixed/synth.c']
-expected={name:cpu['sha256'].get(name,before['sourceSha256'][name]) for name in unchanged}
+assert kernels['previousSha256']['firmware/src/fixed/synth.c']==cpu['sha256']['firmware/src/fixed/synth.c']
+expected={name:kernels['sha256'].get(name,cpu['sha256'].get(name,before['sourceSha256'][name])) for name in unchanged}
 for name in unchanged:
     assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected[name],name
 summary=dict(kind='native-output-gain-validation-not-hardware',outputGain=2,gainDb=20*math.log10(2),

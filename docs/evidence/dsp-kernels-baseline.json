@@ -1,0 +1,22 @@
+{
+  "version": "0.4.7-rc8",
+  "authorization": "User requests substantially more CPU efficiency while preserving engine sound, mono/Legato, original presets and rc5 Q23 reverb; rc6 output masks stay withdrawn.",
+  "changes": [
+    "exact shared-reciprocal division in original soft saturator",
+    "scalar and requested-output waveform paths with unchanged formulas, BLEP, order and precision"
+  ],
+  "previousSha256": {
+    "firmware/src/fixed/synth.c": "9438ec22d8827ddb003f1f57500fd9999663c7490701ac8d69f8945a57c05a3d",
+    "firmware/src/fixed/math.c": "2e942203d3112cd92c905604c92d2e358c4774b988ef967f801f8816caecc1d7",
+    "firmware/src/fixed/math.h": "8ac25ad217b2ad95787ef32f7c663b10fc63e1d2317aacd3a1c5dbfe3028dbf4"
+  },
+  "sha256": {
+    "firmware/src/fixed/synth.c": "10432246959b97db2036b230e1c1538a0c37a6d5237cbe0d0b357bf804cef51d",
+    "firmware/src/fixed/math.c": "95f14511284faecc60613d868bc8852ed1f7d9f3ff82b191488062c3586f06ca",
+    "firmware/src/fixed/math.h": "399b6f581895104bb7d04f150019ef589370060f5b8b73b307a7fde86019e14f"
+  },
+  "addedSourceSha256": {
+    "firmware/src/fixed/soft_division.h": "06ebfbdcade571f3c8c28a1af3a2cce21b7d37d3cb4cd68adcbd14dbb2b07e16"
+  },
+  "reference": "All previous PCM/state fixtures remain immutable; rc5 production trace, complete int32 saturator domain and target instruction stream equality required."
+}

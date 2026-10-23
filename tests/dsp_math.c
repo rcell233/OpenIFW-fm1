@@ -1,5 +1,15 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "synth.h"
+/* Original two-divide expression, independent of the reciprocal kernel. */
+static int32_t opt_original_soft20(int32_t x) {
+    if(!x)return 0;
+    uint32_t a=x<0?(uint32_t)(-(int64_t)x):(uint32_t)x;
+    uint32_t d=65536u+(uint32_t)(((uint64_t)a*983u)>>20);
+    uint32_t q=a/d,rem=a-q*d;
+    uint32_t (*volatile ratio16)(uint32_t,uint32_t)=ifw_ratio16;
+    int32_t out=(int32_t)((q<<16)+ratio16(rem,d));
+    return x<0?-out:out;
+}
 #ifdef IFW_TARGET
 __attribute__((noinline))
 #endif
@@ -10,12 +20,16 @@ static unsigned opt_math_checks(void) {
     void (*volatile configure_blep)(IFWFixedBlep *,uint32_t)=ifw_blep_configure;
     void (*volatile cached_waves)(uint32_t,int,uint32_t,const IFWFixedBlep *,int32_t *,int32_t *,int32_t *)=ifw_waves20_cached;
     void (*volatile masked_waves)(uint32_t,int,uint32_t,const IFWFixedBlep *,unsigned,int32_t *,int32_t *,int32_t *)=ifw_waves20_masked;
+    int32_t (*volatile saw_wave)(uint32_t,const IFWFixedBlep *)=ifw_saw20_cached;
+    int32_t (*volatile pulse_wave)(uint32_t,uint32_t,const IFWFixedBlep *)=ifw_pulse20_cached;
+    int32_t (*volatile soft20)(int32_t)=ifw_soft20;
     unsigned errors=0;uint32_t seed=0x5a123456u;
     if(ifw_udiv64(0,0)!=UINT32_MAX || ifw_udiv64(UINT64_MAX,UINT32_MAX)!=UINT32_MAX ||
        ifw_udiv64(UINT64_C(4294967296),2)!=2147483648u || ifw_udiv64(127,127)!=1)errors++;
     const int32_t edge[]={INT32_MIN,INT32_MIN+1,-1048576,-1,0,1,1048576,INT32_MAX-1,INT32_MAX};
     for(unsigned i=0;i<9;i++) {
         int32_t v=edge[i];
+        if(soft20(v)!=opt_original_soft20(v))errors++;
         if(ifw_div5(v)!=v/5 || ifw_div10(v)!=v/10 || ifw_div20(v)!=v/20 || ifw_div100(v)!=v/100)errors++;
         for(unsigned n=0;n<31;n++)if(ifw_shr0(v,n)!=v/(int32_t)(1u<<n))errors++;
         if(ifw_shr0(v,31)!=(v==INT32_MIN? -1:0))errors++;
@@ -33,6 +47,7 @@ static unsigned opt_math_checks(void) {
         seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;uint32_t step=seed;
         seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;uint32_t width=seed;
         int32_t v=(int32_t)phase;unsigned n=i%32;
+        if(soft20(v)!=opt_original_soft20(v))errors++;
         int32_t alpha=(int32_t)(step%1073741825u),from=(int32_t)phase,to=(int32_t)width;
         int32_t interpolated=(int32_t)((int64_t)from+((((int64_t)to-from)*alpha)>>30));
         if(ifw_lerp30(from,to,alpha)!=interpolated)errors++;
@@ -55,6 +70,7 @@ static unsigned opt_math_checks(void) {
         if(ratio16(phase,step)!=ratio)errors++;
         waves20(phase,step,type,width,&a,&b,&c);
         IFWFixedBlep cache;configure_blep(&cache,step);
+        if(saw_wave(phase,&cache)!=a || pulse_wave(phase,width,&cache)!=c)errors++;
         int32_t ca,cb,cc;
         cached_waves(phase,type,width,&cache,&ca,&cb,&cc);
         if(a!=ca || b!=cb || c!=cc)errors++;

@@ -69,6 +69,8 @@ typedef struct {uint32_t step,divisor,reciprocal,shift;} IFWFixedBlep;
 void ifw_blep_configure(IFWFixedBlep *b,uint32_t step);
 void ifw_waves20_cached(uint32_t phase,int type,uint32_t width,const IFWFixedBlep *b,
                         int32_t *saw,int32_t *secondary,int32_t *pulse);
+int32_t ifw_saw20_cached(uint32_t phase,const IFWFixedBlep *b);
+int32_t ifw_pulse20_cached(uint32_t phase,uint32_t width,const IFWFixedBlep *b);
 void ifw_waves20_masked(uint32_t phase,int type,uint32_t width,const IFWFixedBlep *b,
                         unsigned mask,int32_t *saw,int32_t *secondary,int32_t *pulse);
 /* Exact software 64/32 division with a 32-bit quotient. Configuration/events only. */

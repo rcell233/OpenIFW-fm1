@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "math.h"
 #include "math_tables.h"
+#include "soft_division.h"
 uint32_t ifw_udiv64(uint64_t n,uint32_t d) {
     uint32_t r=(uint32_t)(n>>32),lo=(uint32_t)n,q=0;
     if(!d || r>=d) return UINT32_MAX;
@@ -88,6 +89,14 @@ static int32_t blep_cached(uint32_t p,const IFWFixedBlep *b) {
     int32_t u=(int32_t)q*16;
     if(p<dt)return u+u-ifw_mul20_bounded(u,u)-IFW_Q20;
     u=IFW_Q20-u;return ifw_mul20_bounded(u,u);
+}
+int32_t ifw_saw20_cached(uint32_t p,const IFWFixedBlep *b) {
+    return (int32_t)(p>>11)-IFW_Q20-blep_cached(p,b);
+}
+int32_t ifw_pulse20_cached(uint32_t p,uint32_t width,const IFWFixedBlep *b) {
+    uint32_t shifted=p+width;
+    int32_t edge=blep_cached(p,b);
+    return (shifted<width?IFW_Q20:-IFW_Q20)-((int32_t)(width>>11)-IFW_Q20)+blep_cached(shifted,b)-edge;
 }
 void ifw_waves20_masked(uint32_t p,int type,uint32_t width,const IFWFixedBlep *b,
                         unsigned mask,int32_t *saw,int32_t *secondary,int32_t *pulse) {
@@ -184,7 +193,14 @@ int32_t ifw_soft20(int32_t x) {
     if(!x)return 0;
     uint32_t a=x<0?(uint32_t)(-(int64_t)x):(uint32_t)x;
     uint32_t d=65536u+(uint32_t)(((uint64_t)a*983u)>>20);
-    uint32_t whole=a/d,rem=a-whole*d,frac=ifw_ratio16(rem,d);
+    unsigned shift=16u-(unsigned)__builtin_clz(d);
+    uint32_t v=d>>shift,reciprocal=ifw_recip16_exact(v);
+    /* Normalizing the integer part rounds the divisor down. For this
+     * saturator a/d < 1067, so its estimate can be only one too high. */
+    uint32_t whole=ifw_div_recip16(a>>shift,v,reciprocal);
+    if(whole*d>a)whole--;
+    uint32_t rem=a-whole*d;
+    uint32_t frac=ifw_div_recip16(rem<<(16u-shift),v,reciprocal);
     int32_t out=(int32_t)((whole<<16)+frac);
     return x<0?-out:out;
 }

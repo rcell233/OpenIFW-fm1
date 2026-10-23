@@ -38,3 +38,4 @@ jobs:
             build/reverb-noise/*.json
             build/output-level/*.json
             build/cpu-equivalence/*.json
+            build/soft-division/*.json

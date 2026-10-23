@@ -337,7 +337,17 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
             }
             uint32_t phase=s->phase[i]+(uint32_t)fm*256u;int type=s->wave_type[i];
             unsigned mask=s->wave_needed[i];
-            if(mask==7u)ifw_waves20_cached(phase,type,s->width[i],&s->blep[i],&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
+            /* Same wave formulas, requested outputs and BLEP correction. Scalar
+             * return paths avoid generic multi-output dispatch/argument spills. */
+            if(mask==1u)s->raw_saw[i]=ifw_saw20_cached(phase,&s->blep[i]);
+            else if(mask==4u)s->raw_pulse[i]=ifw_pulse20_cached(phase,s->width[i],&s->blep[i]);
+            else if((mask==2u || mask==3u || mask==6u) && (type==0 || type==1)) {
+                s->secondary[i]=ifw_mul30_bounded(type?ifw_triangle20(phase+IFW_PHASE_HALF):
+                    ifw_sin20(phase+IFW_PHASE_HALF),1265404740);
+                if(mask&1u)s->raw_saw[i]=ifw_saw20_cached(phase,&s->blep[i]);
+                if(mask&4u)s->raw_pulse[i]=ifw_pulse20_cached(phase,s->width[i],&s->blep[i]);
+            }
+            else if(mask==7u)ifw_waves20_cached(phase,type,s->width[i],&s->blep[i],&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
             else if(mask)ifw_waves20_masked(phase,type,s->width[i],&s->blep[i],mask,&s->raw_saw[i],&s->secondary[i],&s->raw_pulse[i]);
             if(mask&2u)s->secondary_cv[i]=type<=1?ifw_mul30_bounded(s->secondary[i],911108888):s->secondary[i];
             if(mask!=7u)s->last_wave[i].phase=phase;

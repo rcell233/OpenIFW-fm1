@@ -1,0 +1,14 @@
+{
+  "divisors": 32768,
+  "divisionChecks": 7962623,
+  "softChecks": 4294967296,
+  "hash": 3525848806,
+  "fullInt32Domain": true,
+  "kind": "native-all-int32-equivalence-not-hardware",
+  "referenceCommit": "6e9f5be606ebf5cea88464b0bf2c217d10b2d879",
+  "sourceSha256": {
+    "firmware/src/fixed/soft_division.h": "06ebfbdcade571f3c8c28a1af3a2cce21b7d37d3cb4cd68adcbd14dbb2b07e16",
+    "tests/soft_division.c": "3c18368a63ca46633f6c59080a77998bb7c89d1e6defab835494946284b077d4"
+  },
+  "compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0"
+}

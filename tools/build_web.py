@@ -33,19 +33,19 @@ shutil.copy2(R/'firmware-bin/build.json',O/'firmware/build.json')
     product=release['identity'],file=filename,bytes=len(package),sha256=release['sha256'],
     hardwareTested=release['hardwareTested'],experimental=release.get('experimental',False),stage=release.get('stage','legacy')),indent=2)+'\n')
 # The byte-identical previously bootable package remains available for rescue.
-for version in ['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7']:
+for version in ['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8']:
     recovery=json.loads((R/f'firmware-bin/OpenIFW-FM1-{version}.json').read_text())
     recovery_file=f'OpenIFW-FM1-{version}.fwsc'
     recovery_bytes=(R/'firmware-bin'/recovery_file).read_bytes()
     if recovery['version']!=version or recovery['identity']!='FM-1_982' or len(recovery_bytes)!=recovery['packageBytes'] or hashlib.sha256(recovery_bytes).hexdigest()!=recovery['sha256']:
         raise SystemExit(f'Recovery package does not match the locked {version} metadata.')
     shutil.copy2(R/'firmware-bin'/recovery_file,O/'firmware'/recovery_file)
-    prefix='candidate' if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7'] else 'recovery'
+    prefix='candidate' if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8'] else 'recovery'
     (O/f'install/{prefix}-{version}.json').write_text(json.dumps(dict(schema=1,version=version,
         product=recovery['identity'],file=recovery_file,bytes=len(recovery_bytes),sha256=recovery['sha256'],
         hardwareTested=recovery['hardwareTested'],experimental=recovery.get('experimental',False),
         stage=recovery.get('stage','legacy')),indent=2)+'\n')
-    if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5']:shutil.copy2(O/f'install/{prefix}-{version}.json',O/f'install/recovery-{version}.json')
+    if version in ['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7']:shutil.copy2(O/f'install/{prefix}-{version}.json',O/f'install/recovery-{version}.json')
 tmp=R/'build/tmp';tmp.mkdir(exist_ok=True)
 env=dict(os.environ,TMPDIR=str(tmp),LD_LIBRARY_PATH=str(sdk/'lib')+(':'+os.environ['LD_LIBRARY_PATH'] if os.environ.get('LD_LIBRARY_PATH') else ''))
 cmd=[cc,'-O2','-std=c11','-ffp-contract=off','-fno-fast-math','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-misleading-indentation',

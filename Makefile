@@ -3,14 +3,14 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test soft-division-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test soft-division-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -81,6 +81,14 @@ build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h 
 build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
+soft-division-test:
+	mkdir -p build/soft-division
+	python3 tools/generate_soft_division.py --check
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Ifirmware/src/fixed tests/soft_division.c firmware/src/fixed/math.c -o build/soft-division/production
+	build/soft-division/production > build/soft-division/production.json
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -Ifirmware/src/fixed tests/soft_division.c firmware/src/fixed/math.c -o build/soft-division/sanitize
+	build/soft-division/sanitize > build/soft-division/sanitize.json
+	python3 -c 'import json; a=json.load(open("build/soft-division/production.json")); assert a==json.load(open("build/soft-division/sanitize.json")); assert a["divisors"]==32768 and a["divisionChecks"]==7962623 and a["softChecks"]==2097152; print("PASS exact division: every normalized divisor, 7,962,623 boundaries, 2,097,152 original-saturator comparisons; ASan/UBSan identical")'
 cpu-equivalence-test:
 	mkdir -p build/cpu-equivalence
 	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -Ifirmware/src/fixed -Ifirmware/src tests/cpu_equivalence.c firmware/src/dsp.c -o build/cpu-equivalence/production

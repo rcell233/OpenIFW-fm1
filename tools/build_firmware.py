@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc7'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc8'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -128,7 +128,7 @@ for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
         raise SystemExit('Recovery build requires original Flash input/IRQ placement: '+name)
 for name in ['FM1_KEYMAP','FM1_ENC']:
     if sym(name)<0x02000120:raise SystemExit('Original input map unexpectedly placed in RAM: '+name)
-hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31']
+hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31','ifw_recip16_seed']
 if ram_audio:
     for name in hot_tables:
         if not sym('_data_start')<=sym(name)<sym('_data_end'):

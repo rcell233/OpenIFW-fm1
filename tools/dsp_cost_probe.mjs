@@ -20,7 +20,9 @@ const x=(await WebAssembly.instantiate(wasm,{env:{fm1_jit_compile:()=>0}})).inst
 x.fm1_jit(0,0);
 const p=x.fm1_alloc(fw.length);new Uint8Array(x.memory.buffer,p,fw.length).set(fw);
 if(x.fm1_boot_fwsc(p,fw.length,0,0,240))throw Error('Firmware boot failed');
-x.fm1_audit_div_cycles(48);x.fm1_audit_spi_timing(1);
+const divCycles=Number(process.env.IFW_SIM_DIV_CYCLES??48);
+if(!Number.isInteger(divCycles)||divCycles<1||divCycles>256)throw Error('Bad divide-cycle assumption');
+x.fm1_audit_div_cycles(divCycles);x.fm1_audit_spi_timing(1);
 const eventNote=/^\d+$/.test(note)?Number(note):null;
 if(eventNote!==null&&(eventNote<0||eventNote>127))throw Error('Bad note number');
 if(eventNote===null&&!/^(F3|F#3|G3|G#3|A3|A#3|B3|[A-G]#?4|C5|C#5|D5|D#5|E5|F5|F#5|G5)$/.test(note))
@@ -80,7 +82,8 @@ const profile=[...counts].sort((a,b)=>b[1]-a[1]);
 const dspFunctions=profile.filter(([k])=>/^(ifw_|filter_tick|source20|update_controls|configure_|amp_gain|oscillator_sample|filter3_tick|reverb_half_tick|wet_mix)/.test(k));
 const sum=rows=>rows.reduce((n,[,v])=>n+v,0),s=[...dsp].sort((a,b)=>a-b),pcnt=p=>s[Math.ceil(p*s.length)-1];
 const result={kind:'pi32v2-instruction-model-not-hardware',hardwareMeasured:false,cycleAccurate:false,
- assumptions:'240 MHz; non-divide instructions 1 cycle; divides 48 cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model',
+ assumptions:`240 MHz; non-divide instructions 1 cycle; divides ${divCycles} cycles; SPI peripheral 60 MHz; no cache/Flash/bus/USB-host model`,
+ dividerCyclesAssumption:divCycles,
  firmwareSha256:sha(fw),emulatorSha256:sha(wasm),preset,actualPreset:r(symbols.preset),probe,note,script,
  input:eventNote===null?'panel-key':'AudioEvent-queue',noteInjectedAt,currentNote,monoCount,
  patchWords:modifications[probe],originalWords,startMs,endMs:x.fm1_ms(),blockFrames:256,blockBudgetUs:256/44100*1e6,
