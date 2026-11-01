@@ -49,10 +49,14 @@ const candidateMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-r
 const candidateBytes=new Uint8Array(readFileSync('build/web/firmware/'+candidateMeta.file));
 const candidate=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(candidateMeta)):new Response(candidateBytes),'candidate-0.4.7-rc2.json');
 eq(candidate.meta.version,'0.4.7-rc2');eq(candidate.meta.experimental,true);
-ok(candidate.meta.sha256!==rc2.meta.sha256);eq(meta.version,'0.4.7-rc11','UI candidate is the default');
-const repairedMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-rc11.json'));
-const repaired=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(repairedMeta)):new Response(bytes),'candidate-0.4.7-rc11.json');
-eq(repaired.meta.sha256,meta.sha256);eq(repaired.meta.version,'0.4.7-rc11');
+ok(candidate.meta.sha256!==rc2.meta.sha256);eq(meta.version,'0.4.7-rc12','UI candidate is the default');
+const repairedMeta=JSON.parse(readFileSync('build/web/install/candidate-0.4.7-rc12.json'));
+const repaired=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(repairedMeta)):new Response(bytes),'candidate-0.4.7-rc12.json');
+eq(repaired.meta.sha256,meta.sha256);eq(repaired.meta.version,'0.4.7-rc12');
+const rc11Meta=JSON.parse(readFileSync('build/web/install/recovery-0.4.7-rc11.json'));
+const rc11Bytes=new Uint8Array(readFileSync('build/web/firmware/'+rc11Meta.file));
+const rc11=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(rc11Meta)):new Response(rc11Bytes),'recovery-0.4.7-rc11.json');
+eq(rc11.meta.version,'0.4.7-rc11');eq(rc11.meta.sha256,'48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733');
 const rc10Meta=JSON.parse(readFileSync('build/web/install/recovery-0.4.7-rc10.json'));
 const rc10Bytes=new Uint8Array(readFileSync('build/web/firmware/'+rc10Meta.file));
 const rc10=await loadFirmware('https://example.test/install/install.js',async u=>String(u).endsWith('.json')?new Response(JSON.stringify(rc10Meta)):new Response(rc10Bytes),'recovery-0.4.7-rc10.json');
@@ -199,7 +203,7 @@ async function page({midi=true,denied=false,secure=true,downloadFail=false,recov
   const source=readFileSync('build/web/install/install.js','utf8').replace(/^import .*;\n/m,'').replaceAll('import.meta.url',JSON.stringify('https://rcell233.github.io/OpenIFW-fm1/install/install.js'));
   vm.runInNewContext(source,{document:{getElementById:el,querySelectorAll:()=>stages},navigator:midi?{async requestMIDIAccess(options){permissions++;eq(options.sysex,true);if(denied)throw new DOMException('Permission denied','NotAllowedError');return {};}}:{},isSecureContext:secure,URL,Date,console,
     addEventListener:(k,f)=>handlers[k]=f,errorText,location:{href:'https://example.test/install/'+(rollbackVersion?'?recovery='+rollbackVersion:selectCandidate?'?candidate='+(typeof selectCandidate==='string'?selectCandidate:'0.4.7-rc2'):'')},
-    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return ['candidate-0.4.7-rc2.json','recovery-0.4.7-rc2.json'].includes(release)?candidate:['candidate-0.4.7-rc3.json','recovery-0.4.7-rc3.json'].includes(release)?previousGain:release==='candidate-0.4.7-rc11.json'?repaired:['candidate-0.4.7-rc10.json','recovery-0.4.7-rc10.json'].includes(release)?rc10:['candidate-0.4.7-rc9.json','recovery-0.4.7-rc9.json'].includes(release)?rc9:['candidate-0.4.7-rc8.json','recovery-0.4.7-rc8.json'].includes(release)?rc8:['candidate-0.4.7-rc7.json','recovery-0.4.7-rc7.json'].includes(release)?rc7:['candidate-0.4.7-rc5.json','recovery-0.4.7-rc5.json'].includes(release)?rc5:['candidate-0.4.7-rc4.json','recovery-0.4.7-rc4.json'].includes(release)?previousReverb:release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
+    loadFirmware:async(_url,_fetch,release)=>{if(downloadFail)throw Object.assign(new Error('download failed'),{code:'download'});return ['candidate-0.4.7-rc2.json','recovery-0.4.7-rc2.json'].includes(release)?candidate:['candidate-0.4.7-rc3.json','recovery-0.4.7-rc3.json'].includes(release)?previousGain:release==='candidate-0.4.7-rc12.json'?repaired:['candidate-0.4.7-rc11.json','recovery-0.4.7-rc11.json'].includes(release)?rc11:['candidate-0.4.7-rc10.json','recovery-0.4.7-rc10.json'].includes(release)?rc10:['candidate-0.4.7-rc9.json','recovery-0.4.7-rc9.json'].includes(release)?rc9:['candidate-0.4.7-rc8.json','recovery-0.4.7-rc8.json'].includes(release)?rc8:['candidate-0.4.7-rc7.json','recovery-0.4.7-rc7.json'].includes(release)?rc7:['candidate-0.4.7-rc5.json','recovery-0.4.7-rc5.json'].includes(release)?rc5:['candidate-0.4.7-rc4.json','recovery-0.4.7-rc4.json'].includes(release)?previousReverb:release==='recovery-0.4.6-rc2.json'?rc2:release==='recovery-0.4.4.json'?stable:release==='recovery-0.4.1.json'?recovery:verified;},
     installFirmware:async(_v,_a,step)=>{installs++;step('write',1);await new Promise(r=>allow=r);step('done','FM-1_982');},
   });
   for(let i=0;i<20;i++)await Promise.resolve();return state;
@@ -216,16 +220,18 @@ const network=await page({downloadFail:true});eq(network.el('install').disabled,
 const previous=await page({recovery:'0.4.4'});eq(previous.el('install').textContent,'Install 0.4.4');eq(previous.permissions,0);eq(previous.el('recovery-note').hidden,false);ok(previous.el('recovery-note').textContent.includes('0.4.4'));
 const fluent=await page({recovery:'0.4.6-rc2'});eq(fluent.el('install').textContent,'Install 0.4.6-rc2');eq(fluent.permissions,0);eq(fluent.el('recovery-note').hidden,false);ok(fluent.el('recovery-note').textContent.includes('0.4.6-rc2'));
 const optIn=await page({candidate:true});eq(optIn.el('install').textContent,'Install 0.4.7-rc2');eq(optIn.permissions,0);
-const current=await page({candidate:'0.4.7-rc11'});eq(current.el('install').textContent,'Install 0.4.7-rc11');eq(current.permissions,0);ok(current.el('status').textContent.includes('界面更新'));
+const current=await page({candidate:'0.4.7-rc12'});eq(current.el('install').textContent,'Install 0.4.7-rc12');eq(current.permissions,0);ok(current.el('status').textContent.includes('输出恢复'));
 ok(current.el('status').textContent.includes('待验收'));
 const rc7Page=await page({recovery:'0.4.7-rc7'});eq(rc7Page.el('install').textContent,'Install 0.4.7-rc7');ok(rc7Page.el('recovery-note').textContent.includes('本轮内核优化前'));
 const rc5Page=await page({recovery:'0.4.7-rc5'});eq(rc5Page.el('install').textContent,'Install 0.4.7-rc5');ok(rc5Page.el('recovery-note').textContent.includes('CPU 优化前'));
 const oldReverb=await page({recovery:'0.4.7-rc4'});eq(oldReverb.el('install').textContent,'Install 0.4.7-rc4');ok(oldReverb.el('recovery-note').textContent.includes('Q15 混响'));
 const oldGain=await page({candidate:'0.4.7-rc3'});eq(oldGain.el('install').textContent,'Install 0.4.7-rc3');eq(oldGain.permissions,0);
 const oldGainRecovery=await page({recovery:'0.4.7-rc3'});eq(oldGainRecovery.el('install').textContent,'Install 0.4.7-rc3');ok(oldGainRecovery.el('recovery-note').textContent.includes('原输出音量'));
+const previousTheme=await page({recovery:'0.4.7-rc11'});eq(previousTheme.el('install').textContent,'Install 0.4.7-rc11');ok(previousTheme.el('recovery-note').textContent.includes('LOUD'));
+const previousThemeCandidate=await page({candidate:'0.4.7-rc11'});eq(previousThemeCandidate.el('install').textContent,'Install 0.4.7-rc11');
 const previousFont=await page({recovery:'0.4.7-rc10'});eq(previousFont.el('install').textContent,'Install 0.4.7-rc10');ok(previousFont.el('recovery-note').textContent.includes('ALGORITHM'));
 const previousUi=await page({recovery:'0.4.7-rc9'});eq(previousUi.el('install').textContent,'Install 0.4.7-rc9');ok(previousUi.el('recovery-note').textContent.includes('界面更新前'));
 const previousOutput=await page({recovery:'0.4.7-rc8'});eq(previousOutput.el('install').textContent,'Install 0.4.7-rc8');ok(previousOutput.el('recovery-note').textContent.includes('输出总线'));
-const previousBoot=await page({recovery:'0.4.7-rc2'});eq(previousBoot.el('install').textContent,'Install 0.4.7-rc2');ok(previousBoot.el('recovery-note').textContent.includes('JUDD'));eq(ui.el('install').textContent,'Install 0.4.7-rc11');
+const previousBoot=await page({recovery:'0.4.7-rc2'});eq(previousBoot.el('install').textContent,'Install 0.4.7-rc2');ok(previousBoot.el('recovery-note').textContent.includes('JUDD'));eq(ui.el('install').textContent,'Install 0.4.7-rc12');
 mkdirSync('build/installer',{recursive:true});writeFileSync('build/installer/results.json',JSON.stringify({checks,firmwareSha256:meta.sha256,fullImageBytes:verified.image.length,fullInstall:true,candidateFirmwareSha256:candidate.meta.sha256,candidateFullInstall:true,defaultVersion:meta.version,previousCandidateRecovery:true,previousReverbRecovery:true,resume:true,rescueInstall:true,rescueReturnRejected:true,rollbackFirmwareSha256:recovery.meta.sha256,rollbackFullImageBytes:recovery.image.length,rollbackFullInstall:true,errors:['corrupt package','corrupt loader','wrong model','foreign loader','unplug','mismatch','rescue after reboot','bounds','timeouts','multiple devices','permission denied'],pageLifecycle:true,realHardwareFlashed:false},null,2)+'\n');
 console.log(`PASS installer: ${checks} checks; complete ${verified.image.length}-byte USB-MIDI image transfer, resume, error paths and permission UI. No real device was flashed.`);

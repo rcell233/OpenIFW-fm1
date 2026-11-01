@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc11'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc12'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -128,7 +128,7 @@ for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
         raise SystemExit('Recovery build requires original Flash input/IRQ placement: '+name)
 for name in ['FM1_KEYMAP','FM1_ENC']:
     if sym(name)<0x02000120:raise SystemExit('Original input map unexpectedly placed in RAM: '+name)
-hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31','ifw_recip16_seed','ifw_bus_gain_q14']
+hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31','ifw_recip16_seed']
 if ram_audio:
     for name in hot_tables:
         if not sym('_data_start')<=sym(name)<sym('_data_end'):
@@ -154,11 +154,10 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
     audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
-    outputMode="LOUD",outputDriveGain=4,outputDriveDb=12.041199827,
-    outputBypassGain=2,outputBypassExactRc8=True,outputGainIsDynamic=True,
-    outputCeilingDbFS=-6.581174386,outputBus=dict(stereoLinked=True,thresholdQ15=24576,
-        kneeQ15=28672,ceilingQ15=30720,attackDivisor=4,releaseDivisor=4096,
-        lookaheadFrames=0,tableBytes=1026,modeSwitchFrames=256),
+    outputMode="NORMAL",outputDriveGain=2,outputDriveDb=6.020599913,
+    outputBypassGain=2,outputBypassExactRc8=True,outputGainIsDynamic=False,
+    outputCeilingDbFS=-6.020599913,outputBus=dict(enabled=False,
+        stereoLinked=False,softClipping=False,tableBytes=0),
     reverbSampleRate=44100//reverb_div,
     reverbTopology='stereo-8comb-4allpass' if reverb_div==1 else 'shared-4comb-2allpass-stereo-taps',
     fxProfile='full-rate-regression-only' if reverb_div==1 else 'half-rate-Q23-room',

@@ -109,9 +109,9 @@ output-level-test:
 output-bus-test:
 	mkdir -p build/output-bus
 	python3 tools/generate_output_bus.py --check
-	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/native
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src -DIFW_OUTPUT_BUS=1 tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/native
 	build/output-bus/native > build/output-bus/native.json
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/sanitize
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src -DIFW_OUTPUT_BUS=1 tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/sanitize
 	build/output-bus/sanitize --arithmetic-only > build/output-bus/sanitize.json
 	python3 -c 'import json; a=json.load(open("build/output-bus/native.json")); b=json.load(open("build/output-bus/sanitize.json")); assert a["arithmeticChecks"]==b["arithmeticChecks"]==1104971; assert len(a["scenes"])==294; assert all(s["gainDb"]>=0 and s["loudDacPeak"]<=0.46875 and s["rawClips"]==0 for s in a["scenes"]); print("PASS output bus: 1,104,971 arithmetic checks; ASan/UBSan; 288 factory and 6 dense-note scenes")'
 hardware-path-test: build/dsp-irq-stream build/dsp-irq-stream-legacy build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
@@ -152,6 +152,7 @@ web-test: web
 	node tests/ui_themes.mjs
 	node tests/output_gain.mjs
 	node tests/output_bus.mjs
+	node tests/output_restore.mjs
 	node tests/installer_test.mjs
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin

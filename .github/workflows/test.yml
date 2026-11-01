@@ -42,3 +42,4 @@ jobs:
             build/ui-refresh/*.json
             build/output-bus/*.json
             build/sloop-ui/*.json
+            build/output-restore/*.json

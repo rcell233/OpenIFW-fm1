@@ -59,6 +59,9 @@ static void raster_tests(void) {
     }
     for(uint32_t p=0;p<UI_THEME_COUNT;p++)for(uint32_t style=0;style<2;style++) {
         ui_prefs.palette=(uint8_t)p;ui_prefs.style=(uint8_t)style;ui_palette();
+        assert(uc.bg==RGB(0,0,0));
+        assert(uc.surf==ui_mix(RGB(0,0,0),RGB(238,238,242),5));
+        assert(uc.knob[0]==ui_themes[p].color[0]);
         for(uint32_t y=0;y<240;y+=16) {
             cv_oy=-(int32_t)y;cv_begin(240,16,uc.bg);
             /* Intentional flat design: independent per-pixel rectangle oracle. */

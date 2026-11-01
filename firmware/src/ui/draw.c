@@ -19,7 +19,7 @@ static void ui_palette(void) {
   static int32_t previous=-1;
   uint32_t n=ui_prefs.palette%UI_THEME_COUNT;
   if(previous==(int32_t)n)return;
-  previous=(int32_t)n;uc.bg=ui_themes[n].bg;
+  previous=(int32_t)n;uc.bg=RGB(0,0,0);
   uc.text=RGB(238,238,242);uc.mid=RGB(163,164,170);uc.dim=RGB(120,122,128);
   uc.line=RGB(39,41,45);uc.surf=ui_mix(uc.bg,uc.text,5);uc.lift=uc.line;
   for(unsigned i=0;i<4;i++) {
@@ -586,7 +586,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc11", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc12", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {

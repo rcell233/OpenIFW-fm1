@@ -1,6 +1,6 @@
 # 0.4.7-rc2 面板与操作
 
-rc11 采用 SLOOP 风格的黑底、细分隔线、四旋钮分色与大号数值，使用同源 Terminus Bold 8×16 字体及整数放大的 16×32 字体。57 页的参数映射、音色、OSC / FM、调制、包络、Mono / Legato、混响与 LOUD / NORMAL 输出不变。SELECT / ALGORITHM 的导航分工按用户要求调整如下；实际屏幕见 [界面与配色](UI_0.4.7-rc11.md)，逐页映射在 `ui-pages.json`。
+rc12 保留 rc11 的 SLOOP 风格：黑底、细分隔线、四旋钮分色与大号数值，使用同源 Terminus Bold 8×16 字体及整数放大的 16×32 字体。57 页的参数映射、音色、OSC / FM、调制、包络、Mono / Legato、混响保持不变；输出按用户要求恢复为 rc8 NORMAL，AUDIO → OUTPUT 只读，所有主题的页面背景固定黑色。SELECT / ALGORITHM 的导航分工按用户要求调整如下；实际屏幕见 [界面与配色](OUTPUT_RESTORE_0.4.7-rc12.md)，逐页映射在 `ui-pages.json`。
 
 | 控件 | 操作 |
 | --- | --- |

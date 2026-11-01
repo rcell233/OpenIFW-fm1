@@ -10,11 +10,16 @@ def sha(data):return hashlib.sha256(data).hexdigest()
 authorized_ui={"firmware/src/ui/controls.c","firmware/src/ui/state.h","firmware/src/ui/font.h"}
 for path,expected in lock['sha256'].items():
     if path in authorized_ui:continue
-    assert sha((root/path).read_bytes())==expected,'UI-only release changed: '+path
+    data=(root/path).read_bytes()
+    if path=='firmware/src/output_bus.h':
+        # rc12 explicitly restores NORMAL; no DSP implementation changes.
+        data=data.replace(b'#define IFW_OUTPUT_BUS 0 /* Historical LOUD path is opt-in for regression tests only. */',b'#define IFW_OUTPUT_BUS 1')
+        data=data.replace(b'b->mode=IFW_OUTPUT_BUS && mode==IFW_OUTPUT_LOUD;',b'b->mode=mode==IFW_OUTPUT_LOUD;')
+    assert sha(data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
 app=app.replace(b"SELECT: PAGES / ALG: COLOR",b"SELECT: PAGES / ALG: MODULE")
 assert sha(app)==lock['appIgnoringDiagnosticReleaseSha256'],'Audio/app bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]
 scheduler=scheduler.replace(b'  uint32_t layout_changed=!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout);\n  if(layout_changed || ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;\n    /* Color changes update the pending bands in place: rapid turns must not\n     * keep restarting at the header and starve the rest of the display. */\n    if(layout_changed)ui_widget_cursor=0;',b'  if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||\n     ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;ui_widget_cursor=0;')
 assert sha(scheduler)==lock['displaySchedulerSha256'],'Display scheduling/damage geometry changed'
-print(f"PASS UI-only scope: {len(lock['sha256'])-len(authorized_ui)} exact rc9 audio/platform/page-map files, unchanged audio bridge; only explicit hint/palette-cursor edits in the UI scheduler")
+print(f"PASS scope (explicit output rollback normalized): {len(lock['sha256'])-len(authorized_ui)} exact rc9 audio/platform/page-map files, unchanged audio bridge; only explicit hint/palette-cursor edits in the UI scheduler")

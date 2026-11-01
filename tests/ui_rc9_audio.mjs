@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 const referenceSha='accc8ae24fc6b3b99ef7187829a3c6d9e9c5d3bcfd37229de51c52e6734b7428';
 const fixture='docs/evidence/ui-rc9-audio.json';
 const recording=process.argv[2]==='--record-baseline';
-const wasm=readFileSync(recording?process.argv[3]:'build/web/openifw.wasm');
+const wasm=readFileSync(recording?process.argv[3]:'build/test-web/openifw-historical-loud.wasm');
 const sha=b=>createHash('sha256').update(b).digest('hex');
 if(recording)assert.equal(sha(wasm),referenceSha,'Only published rc9 can establish this baseline');
 const module=await WebAssembly.compile(wasm),rows=[];let samples=0,stateChecks=0;
@@ -40,5 +40,5 @@ else {
  assert.deepEqual(result,JSON.parse(readFileSync(fixture)),'UI-only update changed rc9 PCM or control state');
  mkdirSync('build/ui-refresh',{recursive:true});
  writeFileSync('build/ui-refresh/audio.json',JSON.stringify({...result,currentWasmSha256:sha(wasm),exact:true},null,2)+'\n');
- console.log(`PASS rc9 audio: ${samples} exact channel samples and ${stateChecks} exact control/playing-state checks during dense notes, edits and page changes.`);
+ console.log(`PASS historical LOUD regression (test-only build): ${samples} exact channel samples and ${stateChecks} exact control/playing-state checks during dense notes, edits and page changes.`);
 }

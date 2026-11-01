@@ -48,7 +48,7 @@ for(let theme=0;theme<8;theme++) {
  eq(nor[3840+8],((theme+1)%8)%4,'rc10 base palette remains valid');
  eq(nor[3840+59],0xb0|((theme+1)%8),'versioned extended theme');
  const reboot=await make(nor);
- eq(reboot.web_ui_palette(),(theme+1)%8);eq(patch(reboot),before);eq(reboot.web_output_mode(),1);
+ eq(reboot.web_ui_palette(),(theme+1)%8);eq(patch(reboot),before);eq(reboot.web_output_mode(),0);
 }
 // Naming: PRESETS picks letters, SELECT moves cursor; ALGORITHM is still color.
 const e=await make();advance(e,40);button(e,7);button(e,13);eq(e.web_ui_naming(),1);

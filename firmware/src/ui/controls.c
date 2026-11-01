@@ -36,8 +36,13 @@ static void ui_storage_load(void) {
         ui_prefs.palette=p.theme_extension & 7u;
     }
   }
+#if IFW_OUTPUT_BUS
   if (ui_prefs.output != 0xa0u && ui_prefs.output != 0xa1u)
     ui_prefs.output = 0xa1u; /* rc8 reserved=0, new installs, invalid settings */
+#else
+  /* Restore the original output even when rc9–rc11 saved LOUD. No boot write. */
+  ui_prefs.output = 0xa0u;
+#endif
   ui_prefs.used &= 7;
   if (!saved.magic)
     ui_prefs.used = 0;
@@ -340,9 +345,11 @@ static void ui_menu_edit(int32_t d) {
     static const uint16_t ids[] = {226, P_MasterLevel, P_Amp1Level,
                                    P_Amp2Level};
     if (r == 4) {
+#if IFW_OUTPUT_BUS
       uint32_t mode=(uint32_t)ifw_clamp((ui_prefs.output==0xa1u)+d,0,1);
       ui_prefs.output=(uint8_t)(0xa0u+mode);
       enqueue(10,(int32_t)mode,0);
+#endif
     } else edit_value(ids[r], d, 0);
   }
   if (t == 3) {
