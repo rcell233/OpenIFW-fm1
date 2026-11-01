@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.7-rc9';
+import {loadFirmware,installFirmware,errorText} from './controller.js?v=0.4.7-rc10';
 const $=id=>document.getElementById(id),button=$('install'),status=$('status'),bar=$('progress');
 const requestedRecovery=new URL(globalThis.location?.href??import.meta.url).searchParams.get('recovery');
-const rollback=['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8'].includes(requestedRecovery)?requestedRecovery:null;
+const rollback=['0.4.1','0.4.4','0.4.6-rc2','0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8','0.4.7-rc9'].includes(requestedRecovery)?requestedRecovery:null;
 const requestedCandidate=new URL(globalThis.location?.href??import.meta.url).searchParams.get('candidate');
-const candidate=['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8','0.4.7-rc9'].includes(requestedCandidate)?requestedCandidate:null;
+const candidate=['0.4.7-rc2','0.4.7-rc3','0.4.7-rc4','0.4.7-rc5','0.4.7-rc7','0.4.7-rc8','0.4.7-rc9','0.4.7-rc10'].includes(requestedCandidate)?requestedCandidate:null;
 let verified=null,busy=false;
 const log=s=>{$('log').textContent+=(new Date().toLocaleTimeString()+' '+s+'\n');};
 const say=(s,state='')=>{status.textContent=s;status.className='status '+state;};
@@ -32,10 +32,10 @@ async function prepare(){
     $('download').href=new URL('../firmware/'+m.file,import.meta.url).href;
     $('download').hidden=false;
     $('recovery-note').hidden=!rollback;
-    if(rollback)$('recovery-note').textContent=rollback==='0.4.7-rc8'?'当前选择 0.4.7-rc8 回退包：恢复加入输出总线限幅前的版本，保留 CPU 优化与 Q23 混响。':rollback==='0.4.7-rc7'?'当前选择 0.4.7-rc7 回退包：保留上一轮 CPU 优化，恢复本轮内核优化前的实现。':rollback==='0.4.7-rc5'?'当前选择 0.4.7-rc5 回退包：保留 Q23 混响降噪和约 6 dB 输出增益，恢复 CPU 优化前的实现。':rollback==='0.4.7-rc4'?'当前选择 0.4.7-rc4 回退包：保留约 6 dB 输出增益，恢复之前的 Q15 混响。':rollback==='0.4.7-rc3'?'当前选择 0.4.7-rc3 回退包：保留半速混响优化，恢复较低的原输出音量。':rollback==='0.4.7-rc2'?'当前选择 0.4.7-rc2 回退包：已确认可以运行，JUDD 正常，Daisy / Tresure 仍会爆音。':rollback==='0.4.6-rc2'?'当前选择 0.4.6-rc2 回退包：用户反馈界面较流畅，爆音仍未解决。':rollback==='0.4.4'?'当前选择 0.4.4 回退包：已收到设备正常启动的反馈，仍有 UI 卡顿和少量破音。':'当前选择 0.4.1 恢复包：此前可启动，原有声音问题仍然存在。';
+    if(rollback)$('recovery-note').textContent=rollback==='0.4.7-rc9'?'当前选择 0.4.7-rc9 回退包：保留 LOUD / NORMAL 输出总线处理，恢复本轮界面更新前的外观。':rollback==='0.4.7-rc8'?'当前选择 0.4.7-rc8 回退包：恢复加入输出总线限幅前的版本，保留 CPU 优化与 Q23 混响。':rollback==='0.4.7-rc7'?'当前选择 0.4.7-rc7 回退包：保留上一轮 CPU 优化，恢复本轮内核优化前的实现。':rollback==='0.4.7-rc5'?'当前选择 0.4.7-rc5 回退包：保留 Q23 混响降噪和约 6 dB 输出增益，恢复 CPU 优化前的实现。':rollback==='0.4.7-rc4'?'当前选择 0.4.7-rc4 回退包：保留约 6 dB 输出增益，恢复之前的 Q15 混响。':rollback==='0.4.7-rc3'?'当前选择 0.4.7-rc3 回退包：保留半速混响优化，恢复较低的原输出音量。':rollback==='0.4.7-rc2'?'当前选择 0.4.7-rc2 回退包：已确认可以运行，JUDD 正常，Daisy / Tresure 仍会爆音。':rollback==='0.4.6-rc2'?'当前选择 0.4.6-rc2 回退包：用户反馈界面较流畅，爆音仍未解决。':rollback==='0.4.4'?'当前选择 0.4.4 回退包：已收到设备正常启动的反馈，仍有 UI 卡顿和少量破音。':'当前选择 0.4.1 恢复包：此前可启动，原有声音问题仍然存在。';
     if(!navigator.requestMIDIAccess){say('这个浏览器无法执行网页安装，请使用桌面版 Chrome 或 Edge。','error');button.textContent='请使用 Chrome / Edge';return;}
     button.textContent='Install '+m.version;button.disabled=false;
-    say(rollback?`回退包 ${rollback} 已准备好，点 Install 开始。`:m.version==='0.4.7-rc9'?`输出音量候选 ${m.version} 已准备好：默认 LOUD，新增效果器后增益、立体声限幅和峰值软削波；HOME → AUDIO → OUTPUT 可选 NORMAL 恢复 rc8 输出。首次试音请先调低 MASTER，实机待验收。`:m.version==='0.4.7-rc8'?`CPU 优化候选 ${m.version} 已准备好，精确整数除法与波形计算路径已优化；音色回归一致，实际设备效果待验收。`:m.version==='0.4.7-rc7'?`CPU 优化候选 ${m.version} 已准备好，滤波器循环和速率系数计算已优化；实机爆音原因尚未确认，仍需验收。`:m.version==='0.4.7-rc5'?`混响降噪候选 ${m.version} 已准备好，保留约 6 dB 输出增益；首次试音请先调低 MASTER，实机声音待验收。`:m.version==='0.4.7-rc4'?`音量修复候选 ${m.version} 已准备好，输出提高约 6 dB；首次试音请先调低 MASTER，实机待验收。`:m.version==='0.4.7-rc3'?`性能修复候选 ${m.version} 已准备好，声音尚待实机验收。`:`候选 ${m.version} 已准备好；部分音色仍有爆音反馈。`);
+    say(rollback?`回退包 ${rollback} 已准备好，点 Install 开始。`:m.version==='0.4.7-rc10'?`界面更新候选 ${m.version} 已准备好：新版参数卡片、音色标题、效果器与调制视图；音频引擎、操作逻辑及 LOUD / NORMAL 输出保持 rc9 原样。软件测试通过，实机待验收。`:m.version==='0.4.7-rc9'?`输出音量候选 ${m.version} 已准备好：默认 LOUD，新增效果器后增益、立体声限幅和峰值软削波；HOME → AUDIO → OUTPUT 可选 NORMAL 恢复 rc8 输出。首次试音请先调低 MASTER，实机待验收。`:m.version==='0.4.7-rc8'?`CPU 优化候选 ${m.version} 已准备好，精确整数除法与波形计算路径已优化；音色回归一致，实际设备效果待验收。`:m.version==='0.4.7-rc7'?`CPU 优化候选 ${m.version} 已准备好，滤波器循环和速率系数计算已优化；实机爆音原因尚未确认，仍需验收。`:m.version==='0.4.7-rc5'?`混响降噪候选 ${m.version} 已准备好，保留约 6 dB 输出增益；首次试音请先调低 MASTER，实机声音待验收。`:m.version==='0.4.7-rc4'?`音量修复候选 ${m.version} 已准备好，输出提高约 6 dB；首次试音请先调低 MASTER，实机待验收。`:m.version==='0.4.7-rc3'?`性能修复候选 ${m.version} 已准备好，声音尚待实机验收。`:`候选 ${m.version} 已准备好；部分音色仍有爆音反馈。`);
   }catch(e){button.textContent='重新读取固件';button.disabled=false;say(errorText(e),'error');log(e.message);}
 }
 button.addEventListener('click',async()=>{

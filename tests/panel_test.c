@@ -48,6 +48,15 @@ static void raster_tests(void) {
         memcpy(expected,cv_px,w*h*2u);cv_begin(w,h,0x3A5Cu);
         cv_line(x,y,x1,y1,color);assert(!memcmp(expected,cv_px,w*h*2u));checks++;
     }
+    /* Text equal to its flat surface must disappear cleanly: a black-matte
+     * renderer would leave dark halos. Include all clipping positions/fonts. */
+    for(unsigned f=0;f<5;f++)for(unsigned n=0;n<16;n++) {
+        uint16_t bg=(uint16_t)(0x4321u+n*1733u);
+        cv_oy=-(int32_t)(n%3)*8;cv_begin(96,32,bg);
+        ifw_text_on((int)n-9,4,fonts[f],"Ag09 W",bg,bg);
+        for(unsigned i=0;i<96u*32u;i++)assert(cv_px[i]==swap16(bg));
+        checks++;
+    }
     for(uint32_t p=0;p<4;p++)for(uint32_t style=0;style<2;style++) {
         ui_prefs.palette=(uint8_t)p;ui_prefs.style=(uint8_t)style;ui_palette();
         for(uint32_t y=0;y<240;y+=16) {
@@ -112,8 +121,12 @@ static void render_tests(void) {
     draw_panel(1);
     ui_prefs.palette=1;
     for(unsigned i=0;i<32;i++)draw_panel(1);
-    ui_palette();assert(fb[0]==uc.line);
-    while(ui_drawing)draw_panel(0);
+    ui_palette();while(ui_drawing)draw_panel(0);
+    memcpy(expected,fb,sizeof expected);
+    for(uint32_t y=0;y<240;y+=60) {
+        cv_begin(240,60,uc.bg);cv_oy=-(int32_t)y;ui_paint();cv_oy=0;cv_blit(0,y);
+    }
+    assert(!memcmp(expected,fb,sizeof expected));
     ui_prefs.palette=0;
     /* Menu row zero and the name text cross the cards/stage boundary. Editing
      * them must invalidate both widgets, so no half-old glyph can remain. */

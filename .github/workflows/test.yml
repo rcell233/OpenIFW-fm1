@@ -39,3 +39,5 @@ jobs:
             build/output-level/*.json
             build/cpu-equivalence/*.json
             build/soft-division/*.json
+            build/ui-refresh/*.json
+            build/output-bus/*.json

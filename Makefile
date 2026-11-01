@@ -141,11 +141,13 @@ web:
 	python3 tools/build_web.py
 web-test: web
 	python3 tests/ui_engine_unchanged.py
+	python3 tests/ui_visual_freeze.py
 	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/emu-native
 	node tests/web_test.mjs
 	node tests/ui_test.mjs
 	node tests/octave_config.mjs
 	node tests/ui_audio_unchanged.mjs
+	node tests/ui_rc9_audio.mjs
 	node tests/output_gain.mjs
 	node tests/output_bus.mjs
 	node tests/installer_test.mjs

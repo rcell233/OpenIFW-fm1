@@ -3,20 +3,22 @@
  * do not decode every glyph row once for every 16-row strip of the screen.
  * Keep the vendor renderer available as an independent pixel oracle.
  */
-static int32_t cv_text(int32_t x,int32_t y,const felucca_font_t *f,
-                       const char *s,uint16_t c) {
+static int32_t ifw_text_on(int32_t x,int32_t y,const felucca_font_t *f,
+                          const char *s,uint16_t c,uint16_t background) {
     int32_t top=y+cv_oy,first=top<0?-top:0,last=(int32_t)cv_h-top;
     if(last>f->h)last=f->h;
     if(first>=last)return x+text_w(f,s);
     /* Store the byte-swapped ramp used by the DMA canvas. Colors recur across
      * font sizes and strips; building 48 integer divisions per label is waste. */
-    static struct {uint16_t color,pixel[16];uint8_t valid;} cache[8];
-    uint32_t slot=(c^(c>>8))&7u;
-    if(!cache[slot].valid || cache[slot].color!=c) {
+    static struct {uint16_t color,background,pixel[16];uint8_t valid;} cache[16];
+    uint32_t slot=(c^(c>>8)^background^(background>>5))&15u;
+    if(!cache[slot].valid || cache[slot].color!=c || cache[slot].background!=background) {
         uint32_t r=c>>11,g=(c>>5)&63u,b=c&31u;
+        uint32_t br=background>>11,bg=(background>>5)&63u,bb=background&31u;
         for(uint32_t a=0;a<16u;a++)
-            cache[slot].pixel[a]=swap16(((r*a/15u)<<11)|((g*a/15u)<<5)|(b*a/15u));
-        cache[slot].color=c;cache[slot].valid=1;
+            cache[slot].pixel[a]=swap16((((r*a+br*(15u-a))/15u)<<11)|
+                (((g*a+bg*(15u-a))/15u)<<5)|((b*a+bb*(15u-a))/15u));
+        cache[slot].color=c;cache[slot].background=background;cache[slot].valid=1;
     }
     const uint16_t *ramp=cache[slot].pixel;
     for(;*s;s++) {
@@ -34,6 +36,12 @@ static int32_t cv_text(int32_t x,int32_t y,const felucca_font_t *f,
         x+=f->adv[gi];
     }
     return x;
+}
+/* Preserve the vendor's black-matte text semantics for the platform and its
+ * independent pixel oracle. UI labels specify their actual flat surface. */
+static int32_t cv_text(int32_t x,int32_t y,const felucca_font_t *f,
+                       const char *s,uint16_t c) {
+    return ifw_text_on(x,y,f,s,c,0);
 }
 static void cv_line(int32_t x0,int32_t y0,int32_t x1,int32_t y1,uint16_t c) {
     int32_t a=y0+cv_oy,b=y1+cv_oy;

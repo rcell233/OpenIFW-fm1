@@ -1,0 +1,91 @@
+{
+  "referenceWasmSha256": "accc8ae24fc6b3b99ef7187829a3c6d9e9c5d3bcfd37229de51c52e6734b7428",
+  "samples": 3686400,
+  "stateChecks": 108000,
+  "rows": [
+    {
+      "program": 4,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "79421dc9d9812edf44c966ed636eb8254e39c20ec9834bce0737ecdce5687073",
+      "stateSha256": "5fd76a433273cb0f01c7bd70bf38df20442a723805f9b4dc6c722983bf153648"
+    },
+    {
+      "program": 4,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "ce2b73460ce3508b1e54f411e62da0891276bb61152542e609033295a8e96b39",
+      "stateSha256": "5fd76a433273cb0f01c7bd70bf38df20442a723805f9b4dc6c722983bf153648"
+    },
+    {
+      "program": 18,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "fb68d36c1d1d9d91800d01e14143a1f1416e6b0c5b7d0fffa7664b8d36c3d2c5",
+      "stateSha256": "62aee873afff36b25fa99409afc5b0e9c76d6b3b7cfe581d45f7b238d7158da3"
+    },
+    {
+      "program": 18,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "641a6ff864c4081589f226605fb6624a6d215f1eed16de50d35306629ecb4d13",
+      "stateSha256": "62aee873afff36b25fa99409afc5b0e9c76d6b3b7cfe581d45f7b238d7158da3"
+    },
+    {
+      "program": 14,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "9982d91a4f569d8bd65e008b3b95646271058194a77c4dd79900d68cf72e9e01",
+      "stateSha256": "7ebc0b3ddd045ec712a787fed88edd5a6d6a2d7cf6f2d8dd6469f23458aea2dd"
+    },
+    {
+      "program": 14,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "39f835894cebd2228d1b553d094de924126684c5e2a156667ccd86a3e6506143",
+      "stateSha256": "7ebc0b3ddd045ec712a787fed88edd5a6d6a2d7cf6f2d8dd6469f23458aea2dd"
+    },
+    {
+      "program": 10,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "67eefa58696b6e26d9144c62f384b848d90f50e7c9a886aa0f9829dac7574166",
+      "stateSha256": "aa2d10939ca11692589c4c82e6b2f031a6dde4040c886e223a97a1dd17845afb"
+    },
+    {
+      "program": 10,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "f387c2ba375c3370fb5f0b97ccdae0cb1d6aea3902c45f83705e20872859706b",
+      "stateSha256": "aa2d10939ca11692589c4c82e6b2f031a6dde4040c886e223a97a1dd17845afb"
+    },
+    {
+      "program": 8,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "d3a95b466e2496c6a7ef31a1c6f14ce384b97782bf9809867ad85cf075e4eb2c",
+      "stateSha256": "ba7e0c87bbe107921086142b8f2afc02180edcb6e0ee1e2243f91391bbb3c269"
+    },
+    {
+      "program": 8,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "57abb326e9ca00a2ba7379993e2a27d07ce3bfa7f337d35e12668e3be69104de",
+      "stateSha256": "ba7e0c87bbe107921086142b8f2afc02180edcb6e0ee1e2243f91391bbb3c269"
+    },
+    {
+      "program": 21,
+      "master": 512,
+      "frames": 153600,
+      "pcmSha256": "63d8e346c628b3af5a1ba1c0a8fec74eba611e4e744d30cd909e5c42895ab263",
+      "stateSha256": "5c5140379e085be4590a333e2668856df866eb0a7c141fe7c0f89f42e1d88b2a"
+    },
+    {
+      "program": 21,
+      "master": 1023,
+      "frames": 153600,
+      "pcmSha256": "a89352472bc6787e23929ac906d0ea6c2892fe96bd4375f8a03025f93e29cc73",
+      "stateSha256": "5c5140379e085be4590a333e2668856df866eb0a7c141fe7c0f89f42e1d88b2a"
+    }
+  ]
+}
