@@ -11,7 +11,8 @@ typedef struct {
   uint32_t magic, crc;
   uint8_t palette, style, animate, hold, accel, names, scope, filter;
   uint16_t favorites;
-  uint8_t used, reserved;
+  /* Reuse the old reserved byte: 0xa0=NORMAL, 0xa1=LOUD; other values migrate. */
+  uint8_t used, output;
   char user_name[3][13];
 } IFWUiPrefs;
 _Static_assert(sizeof saved <= UI_PREFS_AT, "UI preferences overlap patch data");

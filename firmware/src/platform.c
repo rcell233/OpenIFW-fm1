@@ -236,6 +236,7 @@ static void app_audio(int32_t *out, uint32_t n);
 static void app_audio_begin(void);
 static void app_audio_render(int32_t *out,uint32_t n);
 static void app_audio_finish(int32_t *out,uint32_t n);
+static void app_output(int32_t *out,uint32_t n,int32_t master);
 static void app_main(void);
 
 /* Audio ISR, implemented after app_audio and the performance counters. */

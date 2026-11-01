@@ -35,7 +35,12 @@ assert cpu['previousSha256']['firmware/src/fixed/synth.c']==before['sourceSha256
 assert kernels['previousSha256']['firmware/src/fixed/synth.c']==cpu['sha256']['firmware/src/fixed/synth.c']
 expected={name:kernels['sha256'].get(name,cpu['sha256'].get(name,before['sourceSha256'][name])) for name in unchanged}
 for name in unchanged:
-    assert hashlib.sha256((root/name).read_bytes()).hexdigest()==expected[name],name
+    data=(root/name).read_bytes()
+    if name=='firmware/src/dsp.c':
+        suffix=b'/* Separate output dynamics; the original engine above is unchanged. */\n#include \"output_bus.c\"\n'
+        assert data.endswith(suffix)
+        data=data[:-len(suffix)]
+    assert hashlib.sha256(data).hexdigest()==expected[name],name
 summary=dict(kind='native-output-gain-validation-not-hardware',outputGain=2,gainDb=20*math.log10(2),
     factoryCases=288,presetIdentityExact=True,fxPrecisionChange=True,outputBoundaryChannelSamples=0,
     fullBreathMaxAbsRmsDeltaDb=max(abs(r['rmsDeltaDb']) for r in loudness if r['breath']==1),

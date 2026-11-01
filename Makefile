@@ -3,14 +3,15 @@ CFLAGS ?= -O2 -g -std=c11 -Wall -Wextra -Werror -Wpedantic -ffp-contract=off
 REFERENCE = src/reference/host.c src/reference/engine.c src/reference/effects.c src/reference/params.c firmware/src/control/mono.c
 HEADERS = src/reference/engine.h src/reference/internal.h src/reference/params.h src/reference/envelope_curve.h firmware/src/control/mono.h
 FIXED = firmware/src/fixed/synth.c firmware/src/fixed/effects.c firmware/src/fixed/math.c firmware/src/fixed/envelope.c firmware/src/control/mono.c
-.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test soft-division-test
+APP_DSP = $(FIXED) firmware/src/output_bus.c
+.PHONY: all test sanitize clean tables fixed-test firmware-check web web-test panel-test panel-host firmware factory-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
 all: build/ifw-reference
 build/ifw-reference: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test reverb-noise-test cpu-equivalence-test soft-division-test
+test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -78,7 +79,7 @@ build/audio-scheduler: tests/audio_scheduler.c tests/audio_output_rc1.h firmware
 build/audio-scheduler-rc2: tests/audio_scheduler_rc2.c tests/audio_output_rc2.h firmware/src/audio_perf.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
-build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h
+build/audio-scheduler-production: tests/audio_scheduler_rc2.c firmware/src/audio_output.h firmware/src/audio_perf.h firmware/src/output_level.h firmware/src/output_bus.c firmware/src/output_bus.h firmware/src/output_bus_table.h
 	mkdir -p build
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -DIFW_PRODUCTION_AUDIO_TEST -fsanitize=address,undefined -fno-omit-frame-pointer tests/audio_scheduler_rc2.c -o $@
 soft-division-test:
@@ -105,6 +106,14 @@ output-level-test:
 	python3 tests/output_level_test.py
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/output_level_test.c firmware/src/dsp.c -lm -o build/output-level/arithmetic-sanitize
 	build/output-level/arithmetic-sanitize --arithmetic-only > build/output-level/arithmetic-sanitize.json
+output-bus-test:
+	mkdir -p build/output-bus
+	python3 tools/generate_output_bus.py --check
+	$(CC) -O3 -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/native
+	build/output-bus/native > build/output-bus/native.json
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -iquotefirmware/src/fixed -iquotefirmware/src tests/output_bus_test.c $(FIXED) -lm -o build/output-bus/sanitize
+	build/output-bus/sanitize --arithmetic-only > build/output-bus/sanitize.json
+	python3 -c 'import json; a=json.load(open("build/output-bus/native.json")); b=json.load(open("build/output-bus/sanitize.json")); assert a["arithmeticChecks"]==b["arithmeticChecks"]==1104971; assert len(a["scenes"])==294; assert all(s["gainDb"]>=0 and s["loudDacPeak"]<=0.46875 and s["rawClips"]==0 for s in a["scenes"]); print("PASS output bus: 1,104,971 arithmetic checks; ASan/UBSan; 288 factory and 6 dense-note scenes")'
 hardware-path-test: build/dsp-irq-stream build/dsp-irq-stream-legacy build/audio-scheduler build/audio-scheduler-rc2 build/audio-scheduler-production
 	mkdir -p build/target-audit
 	ASAN_OPTIONS=detect_leaks=0 build/audio-scheduler > build/target-audit/scheduler.json
@@ -124,28 +133,29 @@ hardware-path-test: build/dsp-irq-stream build/dsp-irq-stream-legacy build/audio
 	python3 tests/audio_deadline.py --pipeline-042
 panel-test:
 	mkdir -p build
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/panel_test.c $(FIXED) -o build/panel-test
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/panel_test.c $(APP_DSP) -o build/panel-test
 	ASAN_OPTIONS=detect_leaks=0 build/panel-test
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/display_scheduler.c $(FIXED) -o build/display-scheduler
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/display_scheduler.c $(APP_DSP) -o build/display-scheduler
 	ASAN_OPTIONS=detect_leaks=0 build/display-scheduler
 web:
 	python3 tools/build_web.py
 web-test: web
 	python3 tests/ui_engine_unchanged.py
-	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Ivendor/dinghy/firmware/gen tests/emu_native.c $(FIXED) -o build/emu-native
+	$(CC) -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/emu-native
 	node tests/web_test.mjs
 	node tests/ui_test.mjs
 	node tests/octave_config.mjs
 	node tests/ui_audio_unchanged.mjs
 	node tests/output_gain.mjs
+	node tests/output_bus.mjs
 	node tests/installer_test.mjs
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(FIXED) -o build/ui-sanitize
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin
 firmware:
 	python3 tools/build_firmware.py
-build/fm1-host: firmware/src/app.c $(FIXED) firmware/src/panel_params.h firmware/src/presets.h $(wildcard firmware/src/ui/*) tests/panel_host.c
+build/fm1-host: firmware/src/app.c $(APP_DSP) firmware/src/panel_params.h firmware/src/presets.h $(wildcard firmware/src/ui/*) tests/panel_host.c
 	mkdir -p build
-	$(CC) -O2 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -DIFW_HOST -Ivendor/dinghy/firmware/gen firmware/src/app.c $(FIXED) -o $@
+	$(CC) -O2 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -DIFW_HOST -Ivendor/dinghy/firmware/gen firmware/src/app.c $(APP_DSP) -o $@
 panel-host: build/fm1-host
 	mkdir -p build/panel
 	build/fm1-host build/panel/openifw tests/panel-script.txt

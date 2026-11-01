@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc8'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc9'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -56,11 +56,11 @@ if baseline_dir:
         shutil.copy2(baseline_dir/rel,STAGE/'firmware/src'/rel)
     b.VERSION='0.4.0-perf';b.CFLAGS.append('-DIFW_DSP_BASELINE')
     shutil.copy2(V/'firmware/app.ld',STAGE/'firmware/app.ld')
-dsp_files=['fixed/synth.c','fixed/effects.c','fixed/math.c','fixed/envelope.c','control/mono.c'] if baseline_dir else ['dsp.c']
+dsp_files=['fixed/synth.c','fixed/effects.c','fixed/math.c','fixed/envelope.c','control/mono.c','output_bus.c'] if baseline_dir else ['dsp.c']
 for flag,suffix,files in [
     ('IFW_DSP_STRESS','-stress',[('stress_patch.h','dsp_stress.h')]),
     ('IFW_DSP_SELFTEST','-test',[('dsp_optimization.c','dsp_selftest.h'),('dsp_math.c','dsp_math_test.h')]),
-    ('IFW_DSP_ISR_TEST','-irqtest',[('dsp_irq_stream.c','dsp_irq_stream.h')])]:
+    ('IFW_DSP_ISR_TEST','-irqtest',[('dsp_irq_stream.c','dsp_irq_stream.h'),('output_bus_stream.h','output_bus_stream.h')])]:
     if os.environ.get(flag)=='1':
         b.VERSION+=suffix;b.CFLAGS.append('-D'+flag)
         for source,name in files:shutil.copy2(R/'tests'/source,STAGE/'firmware/src'/name)
@@ -120,7 +120,7 @@ if image[sym('_rt_load')-0x02000120:][:len(ramcode)]!=ramcode:
 if ram_audio and (sym('_audio_start')!=sym('_rt_start')+len(blobs['.ram_text']) or
                   sym('_audio_load')!=sym('_rt_load')+len(blobs['.ram_text'])):
     raise SystemExit('Audio section run/load addresses are not adjacent to the driver')
-for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process']:
+for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process','ifw_output_bus_process']:
     if ram_audio and not sym('_audio_start')<=sym(name)<sym('_rt_end'):
         raise SystemExit('Hot DSP escaped the audio RAM section: '+name)
 for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
@@ -128,7 +128,7 @@ for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:
         raise SystemExit('Recovery build requires original Flash input/IRQ placement: '+name)
 for name in ['FM1_KEYMAP','FM1_ENC']:
     if sym(name)<0x02000120:raise SystemExit('Original input map unexpectedly placed in RAM: '+name)
-hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31','ifw_recip16_seed']
+hot_tables=['ifw_sine_table','ifw_ap_table','ifw_ap_half_table','ifw_alpha_table','ifw_f3_table','decay_curve_q31','ifw_recip16_seed','ifw_bus_gain_q14']
 if ram_audio:
     for name in hot_tables:
         if not sym('_data_start')<=sym(name)<sym('_data_end'):
@@ -154,7 +154,11 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
     audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
-    outputGain=2,outputGainDb=6.020599913,outputCeilingDbFS=-6.020599913,
+    outputMode="LOUD",outputDriveGain=4,outputDriveDb=12.041199827,
+    outputBypassGain=2,outputBypassExactRc8=True,outputGainIsDynamic=True,
+    outputCeilingDbFS=-6.581174386,outputBus=dict(stereoLinked=True,thresholdQ15=24576,
+        kneeQ15=28672,ceilingQ15=30720,attackDivisor=4,releaseDivisor=4096,
+        lookaheadFrames=0,tableBytes=1026,modeSwitchFrames=256),
     reverbSampleRate=44100//reverb_div,
     reverbTopology='stereo-8comb-4allpass' if reverb_div==1 else 'shared-4comb-2allpass-stereo-taps',
     fxProfile='full-rate-regression-only' if reverb_div==1 else 'half-rate-Q23-room',

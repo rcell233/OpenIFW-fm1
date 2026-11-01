@@ -13,3 +13,5 @@
 #undef M
 #include "fixed/synth.c"
 #include "control/mono.c"
+/* Separate output dynamics; the original engine above is unchanged. */
+#include "output_bus.c"

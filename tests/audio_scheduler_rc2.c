@@ -50,6 +50,9 @@ static void app_audio_finish(int32_t *out,uint32_t n) {
 }
 #include "../firmware/src/audio_perf.h"
 #ifdef IFW_PRODUCTION_AUDIO_TEST
+#include "../firmware/src/output_bus.c"
+static IFWOutputBus test_bus;
+static void app_output(int32_t *out,uint32_t n,int32_t master) {ifw_output_bus_process(&test_bus,out,n,master);}
 #include "../firmware/src/audio_output.h"
 #else
 #include "audio_output_rc2.h"
@@ -79,6 +82,9 @@ static void clock_advance(double until) {
     now=until;
 }
 static void reset(double ratio) {
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+    ifw_output_bus_init(&test_bus,IFW_OUTPUT_NORMAL);
+#endif
     now=0;frame_cost=ratio;played=rendered=begun=finished=block_frame=0;
     captured_param=input_param=irqs=tapped=invalid_dma=publications=stalls=0;
     observed_write=active_render=pending=in_audio=0;perf_phase=0;

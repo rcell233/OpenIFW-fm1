@@ -598,7 +598,7 @@ static const char *ui_menu_label(uint32_t t, uint32_t row) {
   static const char *const names[5][5] = {
       {"COLOR", "STYLE", "REFRESH", "SCOPE", "NOTE NAMES"},
       {"HOLD", "KNOB ACCEL", "", "", ""},
-      {"TUNING", "MASTER", "AMP 1", "AMP 2", ""},
+      {"TUNING", "MASTER", "AMP 1", "AMP 2", "OUTPUT"},
       {"CHANNEL", "WIND CC7", "LEARN", "CLEAR LEARN", ""},
       {"SAVE SETUP", "ALL PARAMS", "VERSION", "PERFORMANCE", "PANIC"}};
   return names[t % 5][row % 5];
@@ -630,6 +630,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
     return;
   }
   if (t == 2) {
+    if (r == 4) {str_cpy(s,v ? "LOUD" : "NORMAL",32);return;}
     ui_fixed(s, v, 1);
     return;
   }
@@ -645,7 +646,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc8", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc9", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {

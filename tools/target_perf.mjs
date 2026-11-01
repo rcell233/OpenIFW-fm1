@@ -78,6 +78,8 @@ if(syms.symbols.dsp_check){const a=syms.symbols.dsp_check;result.targetRegressio
  hashes:Array.from({length:16},(_,i)=>r32(a+8+i*4)),mathErrors:r32(a+72)};}
 if(syms.symbols.irq_check){const a=syms.symbols.irq_check;result.irqRegression={ready:r32(a)===0x4b435249,
  blocks:r32(a+4),frames:r32(a+8),done:r32(a+12),hashes:Array.from({length:24},(_,i)=>r32(a+16+i*4))};}
+if(syms.symbols.output_bus_check){const a=syms.symbols.output_bus_check;result.outputBusRegression={
+ ready:r32(a)===0x42574649,blocks:r32(a+4),pcm:r32(a+8),state:r32(a+12)};}
 if(syms.symbols.bootguard&&syms.symbols.ifw_boot_progress){const b=syms.symbols.bootguard,p=syms.symbols.ifw_boot_progress;
  result.boot={firmwareCode:r32(p+4),stage:r32(p+8),failed:r32(b+4),pending:r32(b+8),
   rescue:!!r32(syms.symbols.recovery_active),entryReason:r32(syms.symbols.ifw_boot_reason)};}

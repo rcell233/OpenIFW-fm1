@@ -2,7 +2,7 @@
 // Compare production x2 with the same DSP/UI at x1; only the final PCM changes.
 import assert from 'node:assert/strict';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
-const production=await WebAssembly.compile(readFileSync('build/web/openifw.wasm'));
+const production=await WebAssembly.compile(readFileSync('build/test-web/openifw-half-rate-rc8.wasm'));
 const unity=await WebAssembly.compile(readFileSync('build/test-web/openifw-half-rate-x1.wasm'));
 const ceiling=32767/65536,lsb=1/65536;
 let samples=0,stateChecks=0,roundingSteps=0;

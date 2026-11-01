@@ -26,7 +26,12 @@ for p,h in cpu['sha256'].items():
 for p,h in {**kernels['sha256'],**kernels['addedSourceSha256']}.items():
     assert hashlib.sha256((root/p).read_bytes()).hexdigest()==h,'Authorized kernel source changed: '+p
 for p,h in extra.items():
-    if hashlib.sha256((root/p).read_bytes()).hexdigest()!=h:raise SystemExit('Target DSP helper changed: '+p)
+    data=(root/p).read_bytes()
+    if p=='firmware/src/dsp.c':
+        suffix=b'/* Separate output dynamics; the original engine above is unchanged. */\n#include \"output_bus.c\"\n'
+        assert data.endswith(suffix)
+        data=data[:-len(suffix)]
+    if hashlib.sha256(data).hexdigest()!=h:raise SystemExit('Target DSP helper changed: '+p)
 allowed={'firmware/src/fixed/synth.c','firmware/src/fixed/synth.h',
          'firmware/src/fixed/effects.c','firmware/src/fixed/math.h','firmware/src/fixed/math.c'}
 if set(optimized)!=allowed:raise SystemExit('Unexpected DSP optimization exception')

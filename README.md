@@ -1,24 +1,24 @@
-> **2026-10-23：0.4.7-rc6 已撤回。** 已移除该版新增的输出过渡和欠载淡出/恢复淡入，当前候选 0.4.7-rc8 只做保持结果一致的 CPU 优化；网页预览正常不能排除设备超时。
+> **2026-10-23：0.4.7-rc6 已撤回。** 已移除该版新增的输出过渡和欠载淡出/恢复淡入，rc9 新增的独立输出动态处理仅用于音量管理，不处理或掩盖 CPU 欠载；网页预览正常不能排除设备超时。
 
 # OpenIFW-fm1
 
-**最新候选 [0.4.7-rc8](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc8&v=0.4.7-rc8)：优化精确整数除法和实际波形输出的计算路径，音频、调制、包络、Mono/Legato 与音色参数保持一致。相对 rc7，同条件模型的六个持续音预设平均 DSP 耗时减少 3.1%–8.2%；Daisy 密集演奏 P99 再降 7.7%，相对 rc5 累计约 10%。全部 int32 输入的非线性函数结果精确一致，旧音频 / 状态黄金值保持不变。模型结果不代替实机声音验收。[改动与证据](docs/KERNELS_0.4.7-rc8.md)。**
+**最新候选 [0.4.7-rc9](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc9&v=0.4.7-rc9)：新增可旁路的效果器后输出增益、左右联动峰值限幅和软削波。默认 LOUD；A4 测试中，Tresure / Judd 平均电平约提高 6 dB，Daisy 约 5.3 dB，Wanna 约 2.8 dB。NORMAL 与 rc8 原样输出逐采样一致。OSC、调制、包络、Mono/Legato、原始预设和 Q23 混响不变。目标指令模型中，新增总线使 DSP 块中位耗时增加约 1.9%–2.8%；实机待验收。[使用方式、测试和边界](docs/OUTPUT_BUS_0.4.7-rc9.md)。**
 
-OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc8**；[0.4.7-rc7](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc7&v=0.4.7-rc8) 可回退本轮内核优化；[0.4.7-rc5](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc5&v=0.4.7-rc7) 保留为 CPU 优化前的回退包；[0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5) 保留为回退包，可恢复之前的混响；rc3 仍可恢复较低的原输出音量。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md)、[rc3 效果器优化](docs/FX_0.4.7-rc3.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。
+OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc9**；[0.4.7-rc8](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc8&v=0.4.7-rc9) 可回退本轮输出处理；[0.4.7-rc7](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc7&v=0.4.7-rc8) 可回退本轮内核优化；[0.4.7-rc5](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc5&v=0.4.7-rc7) 保留为 CPU 优化前的回退包；[0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5) 保留为回退包，可恢复之前的混响；rc3 仍可恢复较低的原输出音量。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md)、[rc3 效果器优化](docs/FX_0.4.7-rc3.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。
 
-2026-11-01 的音量复核见 [rc8 与当前固件的输出对比](docs/OUTPUT_VOLUME_0.4.7-rc8.md)：288 个出厂场景、600 秒长演奏及 Felucca / Ghoulbox / Melodee 的 84 个对照场景，分别检查软件增益、DAC 标定与 USB 电平。当前 +6 dB 仍有效；继续增加 Q15 限幅前增益会削波，报告提出独立 DAC 输出校准方案。本轮未改变发布固件或预设。[早期 rc3 对比](docs/OUTPUT_LEVEL_0.4.7-rc3.md) 保留。
+2026-11-01 的音量复核见 [rc8 与当前固件的输出对比](docs/OUTPUT_VOLUME_0.4.7-rc8.md)：288 个出厂场景、600 秒长演奏及 Felucca / Ghoulbox / Melodee 的 84 个对照场景，分别检查软件增益、DAC 标定与 USB 电平。该报告确认 rc8 的 +6 dB 有效，也指出直接增加限幅前增益会削波。rc9 随后采用独立输出动态处理控制峰值，保留原 DAC 标定；并保留 rc8 的精确旁路。[早期 rc3 对比](docs/OUTPUT_LEVEL_0.4.7-rc3.md) 保留。
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 
 ## 从网页安装
 
-在桌面版 Chrome / Edge 打开 [候选安装页](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc8&v=0.4.7-rc8)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.7-rc8**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
+在桌面版 Chrome / Edge 打开 [候选安装页](https://rcell233.github.io/OpenIFW-fm1/install/?candidate=0.4.7-rc9&v=0.4.7-rc9)，用 USB 数据线将 FM-1 直接接到电脑并打开电源，点击 **Install 0.4.7-rc9**，允许浏览器使用 MIDI / SysEx。网页先核对固件 SHA-256、包内 CRC、升级 loader 与设备型号，再执行准备、写入、重启与身份确认。无需安装 Python、驱动工具或命令行升级器。
 
 安装会替换当前固件；请先备份要保留的设备音色 / 配置，写入时不要断电、拔线或关闭页面。兼容的升级模式可在重连后再次点击 Install 恢复。每次只连接一台要安装的 FM-1。
 
-网页安装协议验证完整镜像传输、身份确认和 rc5 原包回退。rc8 保留 rc5 混响精度和 rc4 输出增益；软件回归与目标指令测试不代替完整的设备声音验收。
+长按 HOME → ALGORITHM 选 AUDIO → PRESETS 选 OUTPUT → 旋钮 1 选择 LOUD / NORMAL。到 SYS → SAVE SETUP，用 OCT+ 确认，可保留选择。升级旧配置默认 LOUD；首次试音先调低 MASTER。NORMAL 恢复 rc8 的输出幅度和波形。安装协议验证完整镜像、身份与 rc8 原包回退；软件及目标指令测试不代替实机声音验收。
 
-如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认按钮为 **Install 0.4.7-rc8** 后安装。可[回退到 0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5)；0.4.7-rc3 和更早的 0.4.7-rc2、0.4.6-rc2、0.4.4、0.4.1 恢复入口也保留。救援身份 FM-1_000 不会被当作安装成功。
+如果设备当前显示 **OPENIFW FM1 USB RESCUE / CONNECT USB**，保持 USB 连接、松开全部按键，尤其 OCT−，在安装页确认按钮为 **Install 0.4.7-rc9** 后安装。可[回退到 0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5)；0.4.7-rc3 和更早的 0.4.7-rc2、0.4.6-rc2、0.4.4、0.4.1 恢复入口也保留。救援身份 FM-1_000 不会被当作安装成功。
 
 ## 保留的合成行为
 
@@ -62,11 +62,11 @@ sh build.sh --firmware
 
 SDK 锁定 `AC79NN_SDK_V1.2.1_2023-12-13`，三个打包文件需通过 SHA-256 校验。构建在 `build/target-source` 中临时接入新 app；vendor 中 Dinghy 平台、HAL 和升级 loader 的原始源码保留不动；自有 platform / USB 与恢复诊断在 firmware 下，输入/时间/ISR 使用原始 vendor 文件。链接脚本沿用原分区和启动复制机制，将热 DSP 和查表放入预算内 RAM；输入和 ISR 使用原始 vendor 文件并在 Flash 执行。构建重新创建暂存源码并检查链接布局、复制镜像与 DSP 地址。HAL 算术适配封装 pi32v2 饱和加减，不改设备寄存器或时钟。
 
-当前候选：[OpenIFW-FM1-0.4.7-rc8.fwsc](firmware-bin/OpenIFW-FM1-0.4.7-rc8.fwsc)，资源与 SHA-256 见同目录 `OpenIFW-FM1-0.4.7-rc8.json`。
+当前候选：[OpenIFW-FM1-0.4.7-rc9.fwsc](firmware-bin/OpenIFW-FM1-0.4.7-rc9.fwsc)，资源与 SHA-256 见同目录 `OpenIFW-FM1-0.4.7-rc9.json`。
 
-输出 `build/firmware/OpenIFW-FM1-0.4.7-rc8.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
+输出 `build/firmware/OpenIFW-FM1-0.4.7-rc9.fwsc`、`openifw.elf`、`openifw.bin`、反汇编和资源报告。实验固件身份为 `FM-1_982`；没有提交到固件 Hub。不要把 Dinghy baseline 包当成本项目固件。
 
-当前包信息见 `firmware-bin/build.json` 和 [rc8 验证证据](docs/evidence/dsp-kernels-0.4.7-rc8.json)；data+bss 83,776 B / 98,304 B，pool 285,208 B / 344,064 B，RAM code 21,328 B / 24,576 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
+当前包信息见 `firmware-bin/build.json` 和 [rc9 验证证据](docs/evidence/output-bus-0.4.7-rc9.json)；data+bss 84,848 B / 98,304 B，pool 285,208 B / 344,064 B，RAM code 21,884 B / 24,576 B。编译成功和主机测试不代替真机测试。启动、OCT− 开机救援、USB MIDI、USB Audio、升级协议和 Flash 分区沿用平台；本项目只在原有 4 KiB settings sector 保存三个用户音色和配置。
 
 真机验证步骤和实时预算见 [硬件验证](docs/HARDWARE_TEST.md)。优先使用本项目的 [网页安装器](https://rcell233.github.io/OpenIFW-fm1/install/)，也可沿用 [Dinghy 文档](vendor/dinghy/README.md) 的 `tools/fm1_install.py`；此开发环境没有连接或刷写任何设备。
 

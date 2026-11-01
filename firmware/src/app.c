@@ -17,10 +17,13 @@
 #endif
 #include "fixed/synth.h"
 #include "audio_perf.h"
+#include "output_bus.h"
+static IFWOutputBus output_bus;
 #include "panel_params.h"
 #include "presets.h"
 #ifdef IFW_DSP_ISR_TEST
 #include "dsp_irq_stream.h"
+#include "output_bus_stream.h"
 #endif
 #ifdef IFW_DSP_STRESS
 #include "dsp_stress.h"
@@ -79,6 +82,7 @@ static void app_audio_begin(void) {
         case 5:if(e.a<(int32_t)FACTORY_COUNT)make_preset(&synth.patch,(uint32_t)e.a);else synth.patch=saved.user[e.a-FACTORY_COUNT];changed=1;break;
         case 6:synth.bend_target=e.a;break;case 7:synth.vibrato=e.a;break;case 8:synth.glide=e.a;break;
         case 9:synth.patch=ui_transfer;RING_PUBLISH();ui_transfer_pending=0;changed=1;break;
+        case 10:ifw_output_bus_mode(&output_bus,(uint32_t)e.a);break;
         }
     }
     if(changed)ifw_fixed_set_patch(&synth,&synth.patch);
@@ -103,6 +107,18 @@ static void app_audio_render(int32_t *out,uint32_t n) {
         }
     }else ifw_fixed_process(&synth,out,n);
  }
+#ifdef IFW_TARGET
+__attribute__((noinline,section(".text.audio_entry")))
+#endif
+static void app_output(int32_t *out,uint32_t n,int32_t master) {
+#ifdef IFW_DSP_ISR_TEST
+    master=output_stream_prepare(&output_bus,out);
+#endif
+    ifw_output_bus_process(&output_bus,out,n,master);
+#ifdef IFW_DSP_ISR_TEST
+    output_stream_hash(&output_bus,out,n);
+#endif
+}
 static void app_audio_finish(int32_t *out,uint32_t n) {
 #ifdef IFW_DSP_ISR_TEST
     irq_stream_end(&synth);
@@ -248,6 +264,7 @@ static void app_init(void) {
 #endif
     perf_mode=0;perf_phase=0;perf_reset();
     storage_load();make_preset(&edit_patch,0);
+    ifw_output_bus_init(&output_bus,ui_prefs.output==0xa1u?IFW_OUTPUT_LOUD:IFW_OUTPUT_NORMAL);
 #ifdef IFW_TARGET
     ifw_boot_mark(8);
 #endif
@@ -279,7 +296,7 @@ static void diagnostics_service(void) {
     if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40708,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40709,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
@@ -288,7 +305,7 @@ static void diagnostics_service(void) {
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
     if(boot) {
         uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
-        uint32_t report[IFW_BOOT_WORDS]={1,40708,recovery_active,ifw_boot_reason,
+        uint32_t report[IFW_BOOT_WORDS]={1,40709,recovery_active,ifw_boot_reason,
             fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
             valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
             valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,

@@ -27,7 +27,7 @@ static void audio_service(void) {
     if(audio_offset==HALF_FRAMES) {
         app_audio_finish(out,HALF_FRAMES);
         int32_t master=master_q12;
-        for(uint32_t i=0;i<HALF_WORDS;i++)out[i]=ifw_output_sample(out[i],master);
+        app_output(out,HALF_FRAMES,master);
     }
     in_audio=saved_audio;audio_render_ticks+=fm1_ticks()-t0;
     if(audio_offset==HALF_FRAMES) {
