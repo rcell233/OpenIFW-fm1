@@ -57,7 +57,7 @@ static volatile int16_t scope[96];
 static uint8_t key_notes[27],midi_down[128],sustain_hold[128],sustain;
 static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
-static const char *notice="SELECT: PAGES / ALG: MODULE";
+static const char *notice="SELECT: PAGES / ALG: COLOR";
 #include "ui/state.h"
 static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 407;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
@@ -296,7 +296,7 @@ static void diagnostics_service(void) {
     if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40710,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40711,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
@@ -305,7 +305,7 @@ static void diagnostics_service(void) {
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
     if(boot) {
         uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
-        uint32_t report[IFW_BOOT_WORDS]={1,40710,recovery_active,ifw_boot_reason,
+        uint32_t report[IFW_BOOT_WORDS]={1,40711,recovery_active,ifw_boot_reason,
             fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
             valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
             valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,

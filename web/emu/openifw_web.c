@@ -77,6 +77,8 @@ EXPORT uint32_t web_held(void) {return meter.held;}
 EXPORT int32_t web_note(void) {return meter.note;}
 EXPORT uint32_t web_env_stage(uint32_t i) {return i<4?synth.env[i].stage:0;}
 EXPORT int32_t web_env_level(uint32_t i) {return i<4?synth.env[i].level:0;}
+EXPORT uint32_t web_ui_palette(void) {return ui_prefs.palette;}
+EXPORT uint32_t web_ui_palette_count(void) {return UI_THEME_COUNT;}
 EXPORT uint32_t web_ui_menu(void) {return ui.menu;}
 EXPORT uint32_t web_ui_layer(void) {return ui.layer;}
 EXPORT uint32_t web_ui_confirm(void) {return ui.confirm;}

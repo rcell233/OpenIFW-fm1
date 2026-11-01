@@ -1,13 +1,13 @@
 # 0.4.7-rc2 面板与操作
 
-UI 参照 Ghoulbox 的四卡片、页面组、列表、长按快捷层和分类菜单。`firmware/src/ui/` 是显示与操作层；原始音色、包络、调制与单音 / Legato 的输出行为维持 0.3；DSP 实现只作通过旧黄金音频验证的等价性能优化。当前视觉使用纯深色面板、单线边框与 Inter Tight 抗锯齿字体，去掉石纹、火焰与剑形光标；按钮、旋钮、菜单和保存逻辑不变。实际 240×240 C 帧缓冲见 [界面概览](evidence/ui-0.4.7-rc1.png)，逐页映射在 `ui-pages.json`。
+rc11 采用 SLOOP 风格的黑底、细分隔线、四旋钮分色与大号数值，使用同源 Terminus Bold 8×16 字体及整数放大的 16×32 字体。57 页的参数映射、音色、OSC / FM、调制、包络、Mono / Legato、混响与 LOUD / NORMAL 输出不变。SELECT / ALGORITHM 的导航分工按用户要求调整如下；实际屏幕见 [界面与配色](UI_0.4.7-rc11.md)，逐页映射在 `ui-pages.json`。
 
 | 控件 | 操作 |
 | --- | --- |
 | 四旋钮 | 从左到右编辑屏幕四个卡片；当前旋钮高亮，数值和枚举按步进变化 |
 | 页面按钮 | 首次返回该组上次使用的子页；重复按依次翻页 |
-| SELECT | 当前组上一页 / 下一页；在列表中移动行 |
-| ALGORITHM | EDIT 中跳振荡器 / 滤波器等模块，FX 中跳效果器，SEQ 中选调制槽；菜单中选分类 |
+| SELECT | 当前组上一页 / 下一页；列表选择；菜单中选分类；命名时移动光标 |
+| ALGORITHM | 所有页面均循环切换 8 套配色，包含菜单、快捷层和确认窗口；不改声音或导航 |
 | PRESETS | 打开音色列表并加载音色；菜单中选行 |
 | MASTER | 原有硬件总音量；始终独立于当前页 |
 | HOME | 返回 HOME；在 HOME 再按切到 MIX。长按打开 / 关闭分类菜单 |
@@ -37,9 +37,9 @@ FX 每页只映射该效果器使用的字段。Delay 的 TIME / FDBK / MIX / BY
 
 预设页的旋钮为编号、固定 IFW 核心、收藏和 ALL / FAV / FACT / USER 过滤。空用户槽不进入浏览列表。六个原始 JSON 的名称、ProgramIndex 和数值原样保留；收藏和过滤不改写音色。
 
-SAVE 页的四旋钮为 SLOT / LOAD / ERASE / SAVE。旋钮向右选择操作，OCT+ 执行；覆盖、擦除或加载时丢弃当前编辑需要 OCT+ 确认，OCT− 取消。保存时可用琴键输入 A–Z、G5 输入空格，SELECT / PRESETS 选字母，ALGORITHM 或第二旋钮移光标；最多 12 字符。OCT+ 排队保存，声音静音至少 1 秒且音频事件队列为空后写 Flash。擦除槽不会改变当前发声音色。长按 SAVE 交换最近加载前后的音色，支持一次撤销 / 重做。
+SAVE 页的四旋钮为 SLOT / LOAD / ERASE / SAVE。旋钮向右选择操作，OCT+ 执行；覆盖、擦除或加载时丢弃当前编辑需要 OCT+ 确认，OCT− 取消。保存时可用琴键输入 A–Z、G5 输入空格，PRESETS 或第一旋钮选字母，SELECT 或第二旋钮移光标；最多 12 字符。OCT+ 排队保存，声音静音至少 1 秒且音频事件队列为空后写 Flash。擦除槽不会改变当前发声音色。长按 SAVE 交换最近加载前后的音色，支持一次撤销 / 重做。
 
-HOME 菜单分 DISP / CTRL / AUDIO / MIDI / SYS。ALGORITHM 选分类，PRESETS 或 SELECT 选行，任意参数旋钮或 OCT± 改值；HOME 关闭。配色、实心 / 线框、REFRESH NORMAL / LOW、示波器模式、音名、长按阈值、加速、收藏和用户名称存在原 settings sector 尾部，保留旧版 patch 格式和 CRC。旧的样式和动画位沿用存储位置；REFRESH 的 NORMAL / LOW 分别把动态更新限制在最高 20 / 10 Hz，两者均继续刷新波形。SCOPE OFF 才关闭波形，不能把 LOW 当作停止波形。
+HOME 菜单分 DISP / CTRL / AUDIO / MIDI / SYS。SELECT 选分类，PRESETS 选行，任意参数旋钮或 OCT± 改值；HOME 关闭。配色有 SLOOP / FOREST / AMBER / MONO / OCEAN / VIOLET / EMBER / ICE；ALGORITHM 向两侧循环。配色、实心 / 线框、REFRESH NORMAL / LOW、示波器模式、音名、长按阈值、加速、收藏和用户名称存在原 settings sector 尾部，保留旧版 patch 格式和 CRC。旧的样式和动画位沿用存储位置；REFRESH 的 NORMAL / LOW 分别把动态更新限制在最高 20 / 10 Hz，两者均继续刷新波形。SCOPE OFF 才关闭波形，不能把 LOW 当作停止波形。
 
 MIDI 保持原有语义：Note On / Off、最后按键优先、CC7 Breath、CC9 Vibrato、CC5 Glide、14 位 Pitch Bend、CC64 Sustain、CC120/123 Panic。Program Change 使用 4、18、14、10、8、21。CC20–23 仍可对当前真实参数做绝对值编辑；列表动作不通过该通道触发。NRPN 0–228 的参数传输格式未改。
 
@@ -49,3 +49,5 @@ MIDI 保持原有语义：Note On / Off、最后按键优先、CC7 Breath、CC9 
 0.4.7-rc2 恢复前台 32 帧调度和音频余量绘图；一块余量时波形仍有最高 10 Hz 的更新机会。另可在网页诊断中读取启动信息，救援模式也支持。
 
 GLO 的第三页为 PERFORMANCE；也可长按 HOME，在 SYS 选 PERFORMANCE 并向右操作打开。K1 为 SYNTH / SINE / MUTE，K2 向右清零统计，K3 冻结读数，K4 为只读状态。SINE 为低电平 440 Hz，MUTE 为全零，均临时跳过 DSP；退出该页自动回到 SYNTH，重启也默认 SYNTH，不保存到音色或配置。网页显示 TIMING: DEVICE ONLY / N.A.，不把电脑 CPU 当作设备测量。真机统计项见 [硬件验证](HARDWARE_TEST.md)。
+
+切配色只更新 RAM 中的显示设置，不排队音频事件，不修改当前页、音色或编辑参数，不在演奏中写 Flash。保存仍须 SYS → SAVE SETUP 确认。偏好记录保持原 60 字节和 CRC，基础 palette 字段保留 0–3；扩展主题写入原记录末尾的预留字节，旧版回退仍能读取其他设置。连续切色更新现有待绘制区域，不把刷新游标不断重置到页首；音频优先级、DMA gate、六个矩形和动态刷新节奏保留。

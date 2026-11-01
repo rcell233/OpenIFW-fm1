@@ -41,3 +41,4 @@ jobs:
             build/soft-division/*.json
             build/ui-refresh/*.json
             build/output-bus/*.json
+            build/sloop-ui/*.json

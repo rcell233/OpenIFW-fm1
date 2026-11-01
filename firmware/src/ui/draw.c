@@ -1,31 +1,32 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Controls adapted from GHOULBOX (Jason Persinger, 2026), built on Felucca
- * (Leo Kuroshita / Hügelton Instruments). Restrained surface hierarchy and Inter Tight text.
+ * (Leo Kuroshita / Hügelton Instruments). Pixel typography and four-color parameter organization inspired
+ * by SLOOP (isod89); Terminus Bold, SIL OFL 1.1.
  * Displays only; no oscillator, envelope, modulation or effect
  * state is advanced.
  */
 typedef struct {
   uint16_t bg, surf, text, theme, accent, edge, mid, dim, line, select, lift;
+  uint16_t knob[4], knob_dim[4];
 } IFWUiColors;
 static IFWUiColors uc;
-static uint16_t ui_mix(uint16_t a, uint16_t b, uint32_t n) {
-  uint32_t r = ((a >> 11) * (100 - n) + (b >> 11) * n) / 100,
-           g = (((a >> 5) & 63) * (100 - n) + ((b >> 5) & 63) * n) / 100,
-           v = ((a & 31) * (100 - n) + (b & 31) * n) / 100;
-  return (uint16_t)(r << 11 | g << 5 | v);
+static uint16_t ui_mix(uint16_t a,uint16_t b,uint32_t n) {
+  return (uint16_t)((((a>>11)*(100-n)+(b>>11)*n)/100)<<11 |
+      ((((a>>5)&63)*(100-n)+((b>>5)&63)*n)/100)<<5 |
+      ((a&31)*(100-n)+(b&31)*n)/100);
 }
 static void ui_palette(void) {
-  static const uint16_t p[4][5] = {
-      {RGB(13,17,21),RGB(27,33,39),RGB(236,240,242),RGB(143,208,222),RGB(232,195,138)},
-      {RGB(14,18,17),RGB(28,35,31),RGB(237,241,237),RGB(164,212,178),RGB(232,203,148)},
-      {RGB(19,17,15),RGB(36,32,28),RGB(243,238,229),RGB(231,193,135),RGB(247,218,169)},
-      {RGB(12,13,15),RGB(29,31,34),RGB(244,244,244),RGB(214,220,225),RGB(255,255,255)}};
-  uint32_t n=ui_prefs.palette%4;
-  uc.bg=p[n][0];uc.surf=p[n][1];uc.text=p[n][2];uc.theme=p[n][3];uc.accent=p[n][4];
-  uc.edge=ui_mix(uc.bg,uc.theme,28);
-  uc.mid=ui_mix(uc.bg,uc.text,78);uc.dim=ui_mix(uc.bg,uc.text,58);
-  uc.line=ui_mix(uc.bg,uc.text,17);uc.select=ui_mix(uc.bg,uc.theme,16);
-  uc.lift=ui_mix(uc.surf,uc.text,8);
+  static int32_t previous=-1;
+  uint32_t n=ui_prefs.palette%UI_THEME_COUNT;
+  if(previous==(int32_t)n)return;
+  previous=(int32_t)n;uc.bg=ui_themes[n].bg;
+  uc.text=RGB(238,238,242);uc.mid=RGB(163,164,170);uc.dim=RGB(120,122,128);
+  uc.line=RGB(39,41,45);uc.surf=ui_mix(uc.bg,uc.text,5);uc.lift=uc.line;
+  for(unsigned i=0;i<4;i++) {
+    uc.knob[i]=ui_themes[n].color[i];uc.knob_dim[i]=ui_mix(uc.bg,uc.knob[i],27);
+  }
+  uc.theme=uc.knob[0];uc.accent=uc.knob[3];uc.edge=uc.line;
+  uc.select=ui_mix(uc.bg,uc.theme,20);
 }
 static void ui_frame(int x, int y, int w, int h, uint16_t c) {
   cv_rect(x, y, w, 1, c);
@@ -41,22 +42,12 @@ static void ui_cursor(int x, int y) {
   cv_rect(x+3,y,3,10,uc.theme);
 }
 
-/* Fixed-radius flat fills: no alpha layers, gradients, trig, or image assets. */
-static void ui_round(int x,int y,int w,int h,uint16_t fill) {
-  if(w<8 || h<8){cv_rect(x,y,w,h,fill);return;}
-  cv_rect(x+3,y,w-6,1,fill);cv_rect(x+1,y+1,w-2,2,fill);
-  cv_rect(x,y+3,w,h-6,fill);cv_rect(x+1,y+h-3,w-2,2,fill);
-  cv_rect(x+3,y+h-1,w-6,1,fill);
-}
-static uint16_t ui_surface(int selected) {
-  return ui_prefs.style?uc.bg:selected?uc.select:uc.surf;
-}
+/* Rectangular pixel surfaces, matching the font's integer grid. */
+static void ui_round(int x,int y,int w,int h,uint16_t fill) {cv_rect(x,y,w,h,fill);}
+static uint16_t ui_surface(int selected) {return ui_prefs.style?uc.bg:selected?uc.select:uc.bg;}
 static void ui_panel(int x,int y,int w,int h,int selected) {
-  uint16_t fill=ui_surface(selected);
-  if(selected || ui_prefs.style) {
-    ui_round(x,y,w,h,selected?uc.edge:uc.line);
-    ui_round(x+1,y+1,w-2,h-2,fill);
-  } else ui_round(x,y,w,h,fill);
+  cv_rect(x,y,w,h,ui_surface(selected));
+  if(selected || ui_prefs.style)ui_frame(x,y,w,h,selected?uc.theme:uc.line);
 }
 static int32_t ui_text(int32_t x,int32_t y,const felucca_font_t *f,const char *s,uint16_t c) {
   return ifw_text_on(x,y,f,s,c,uc.bg);
@@ -365,14 +356,19 @@ static void ui_header(void) {
 }
 static void ui_cards(void) {
   for(uint32_t k=0;k<4;k++) {
-    int x=4+(int)k*59;uint32_t id=control_id(k);
-    int hot=ui.hot_until && ui.hot==k;uint16_t bg=ui_surface(hot);
-    char value[32];ui_panel(x,28,55,44,hot);
-    ui_fit_on(x+6,30,43,&UI_S,ui_card_label(k),hot?uc.accent:uc.mid,bg);
-    ui_value(id,value,1);
-    ui_fit_on(x+6,44,43,&UI_M,value,id==UI_NONE?uc.dim:uc.text,bg);
-    cv_rect(x+6,66,43,2,uc.line);
-    if(id!=UI_NONE)cv_rect(x+6,66,(int32_t)ui_gauge(id)*43/100,2,hot?uc.accent:uc.theme);
+    int x=4+(int)k*60;uint32_t id=control_id(k);
+    int hot=ui.hot_until && ui.hot==k;
+    uint16_t color=id==UI_NONE?uc.dim:hot?uc.text:uc.knob[k];
+    char value[32];
+    if(k<3)cv_rect(x+55,28,1,44,uc.line);
+    cv_rect(x,32,2,8,uc.knob[k]);
+    ui_fit(x+6,28,48,&UI_S,ui_card_label(k),uc.mid);
+    ui_value(id,value,1);ui_fit(x,46,54,&UI_S,value,color);
+    cv_rect(x,68,51,1,uc.line);
+    if(id!=UI_NONE) {
+      int end=(int)ui_gauge(id)*50/100;
+      cv_rect(x,67,end,3,uc.knob_dim[k]);cv_rect(x+end,65,1,6,color);
+    }
   }
 }
 static void ui_scope(void) {
@@ -381,10 +377,10 @@ static void ui_scope(void) {
   if(top<166 && bottom>76) {
     const felucca_font_t *font=text_w(&UI_L,ui_preset_name(preset))<=216?&UI_L:&UI_M;
     ui_fit(12,78,216,font,ui_preset_name(preset),uc.text);
-    ui_round(12,108,216,56,ui_surface(0));
+
     uint16_t plot=ui_surface(0);
-    for(int x=24;x<=216;x+=48)cv_rect(x,116,1,40,uc.line);
-    cv_rect(22,136,196,1,uc.edge);
+
+    cv_rect(12,136,216,1,uc.line);
     int32_t peak=1024;
     for(unsigned i=0;i<96;i++){int32_t a=scope[i]<0?-scope[i]:scope[i];if(a>peak)peak=a;}
     if(ui_prefs.scope==0) {
@@ -399,19 +395,26 @@ static void ui_scope(void) {
   }
   for(int i=0;i<4;i++) {
     int x=21+i*51;char name[4]={'E','G',(char)('1'+i),0};
-    ui_text(x,169,&UI_S,name,uc.dim);
+    ui_text(x,169,&UI_S,name,uc.knob[i]);
     cv_rect(x,187,42,3,uc.line);
-    int w=(meter.env[i]>>24)*42/127;cv_rect(x,187,w,3,uc.theme);
+    int w=(meter.env[i]>>24)*42/127;cv_rect(x,187,w,3,uc.knob[i]);
+  }
+}
+static void ui_value_grid(int top,int row_height) {
+  cv_rect(120,top,1,row_height*2-2,uc.line);
+  cv_rect(8,top+row_height-2,224,1,uc.line);
+  for(uint32_t k=0;k<4;k++) {
+    int x=8+(int)(k%2)*120,y=top+(int)(k/2)*row_height;
+    uint32_t id=control_id(k);char value[32];ui_value(id,value,0);
+    ui_fit(x,y,108,&UI_S,ui_card_label(k),uc.knob[k]);
+    const felucca_font_t *font=text_w(&UI_L,value)<=108?&UI_L:&UI_S;
+    ui_fit(x,y+16,108,font,value,id==UI_NONE?uc.dim:uc.text);
   }
 }
 static void ui_detail(void) {
-  uint32_t id=control_id(ui.hot);if(id>=237)return;
-  char value[32],knob[4]={'K',(char)('1'+ui.hot),0};
-  ui_panel(8,80,224,58,0);uint16_t bg=ui_surface(0);
-  ui_value(id,value,0);
-  ui_fit_on(16,84,170,&UI_S,panel_params[id].name,uc.mid,bg);
-  ui_tag(194,84,30,knob,uc.theme,uc.select);
-  ui_fit_on(16,103,206,&UI_L,value,uc.text,bg);
+  uint32_t id=control_id(ui.hot);
+  if(id<237)ui_fit(8,78,224,&UI_S,panel_params[id].name,uc.knob[ui.hot%4]);
+  ui_value_grid(98,52);
 }
 static void ui_env_graph(void) {
   uint32_t eg=page>=UP_EG1&&page<=UP_EG4?page-UP_EG1:0,base=P_Eg1Attack+eg*5;
@@ -422,30 +425,27 @@ static void ui_env_graph(void) {
   ui_text(12,80,&UI_S,ui_pages[page].title,uc.mid);
   ui_tag(192,80,36,word(&edit_patch,base+4)?"TRIG":"LEG",uc.theme,uc.select);
   int px[]={22,a,d,r,218},py[]={163,108,sustain,sustain,163};
-  /* A few vertical spans tint the envelope area; no alpha framebuffer. */
-  for(int segment=0;segment<4;segment++) {
-    int width=px[segment+1]-px[segment];if(width<1)continue;
-    int yq=py[segment]*256,step=(py[segment+1]-py[segment])*512/width;
-    for(int x=px[segment];x<px[segment+1];x+=2,yq+=step)
-      cv_rect(x,yq/256,2,164-yq/256,uc.select);
-    cv_line(px[segment],py[segment],px[segment+1],py[segment+1],uc.theme);
-  }
+  for(int segment=0;segment<4;segment++)
+    cv_line(px[segment],py[segment],px[segment+1],py[segment+1],uc.knob[segment]);
   cv_rect(22,164,197,1,uc.line);
   for(int i=1;i<4;i++)cv_rect(px[i]-2,py[i]-2,4,4,uc.text);
   cv_rect(23,177,194,3,uc.line);cv_rect(23,177,(meter.env[eg]>>24)*194/127,3,uc.theme);
-  ui_center(8,186,224,&UI_S,word(&edit_patch,base+4)?"RETRIGGER ON":"RETRIGGER OFF / LEGATO",uc.dim);
+  ui_center(8,186,224,&UI_S,word(&edit_patch,base+4)?"RETRIGGER ON":"LEGATO / RETRIGGER OFF",uc.dim);
 }
 static void ui_mod_graph(void) {
   char value[32],n[16];uint32_t base=P_Mod1Source1+ui.mod_slot*4;
   ui_text(12,80,&UI_S,"MODULATION ROUTE",uc.mid);
   str_cpy(value,"SLOT ",32);ui_int(n,ui.mod_slot+1);ui_append(value,n,32);
   ui_tag(175,80,53,value,uc.theme,uc.select);
-  ui_panel(12,106,98,30,0);ui_panel(130,106,98,30,0);
-  ui_value(base,value,0);ui_fit_on(20,113,82,&UI_S,value,uc.text,ui_surface(0));
-  ui_value(base+1,value,0);ui_fit_on(138,113,82,&UI_S,value,uc.text,ui_surface(0));
-  ui_text(117,113,&UI_S,"x",uc.dim);
-  cv_rect(120,138,1,9,uc.edge);cv_line(117,144,120,147,uc.edge);cv_line(123,144,120,147,uc.edge);
-  ui_value(base+2,value,0);ui_center(12,151,216,&UI_M,value,uc.theme);
+  /* Stacked full-width sources keep names like OSC 2 TRI +/- readable in
+   * the eight-pixel font; no ambiguous two-column ellipses. */
+  ui_text(12,106,&UI_S,"1",uc.knob[1]);ui_value(base,value,0);
+  ui_fit(36,106,192,&UI_S,value,uc.text);
+  ui_text(12,130,&UI_S,"2",uc.knob[2]);ui_value(base+1,value,0);
+  ui_fit(36,130,192,&UI_S,value,uc.text);
+  cv_rect(12,150,216,1,uc.line);
+  ui_text(12,155,&UI_S,">",uc.knob[3]);ui_value(base+2,value,0);
+  ui_fit(36,155,192,&UI_S,value,uc.theme);
   ui_text(12,181,&UI_S,"DEPTH",uc.dim);ui_value(base+3,value,0);
   ui_right(228,177,&UI_M,value,uc.text);
 }
@@ -466,22 +466,12 @@ static void ui_fx_graph(void) {
   static const char *const names[]={"PHA","CHO","D1","D2","REV"};
   int fx=ui_effect_index();
   for(uint32_t i=0;i<5;i++) {
-    int x=12+(int)i*44,selected=fx==(int)i,off=ui_fx_disabled(i);
-    uint16_t bg=selected?uc.select:uc.surf,fg=off?uc.dim:selected?uc.text:uc.theme;
-    ui_round(x,86,40,23,bg);
-    ifw_text_on(x+(40-text_w(&UI_S,names[i]))/2,90,&UI_S,names[i],fg,bg);
-    if(selected)cv_rect(x+6,107,28,2,uc.theme);
-    if(off)cv_rect(x+9,114,22,1,uc.line);
-    if(i<4)cv_rect(x+40,97,4,1,uc.edge);
+    int x=8+(int)i*46,selected=fx==(int)i,off=ui_fx_disabled(i);
+    uint16_t bg=selected?uc.knob[0]:uc.bg,fg=selected?uc.bg:off?uc.dim:uc.text;
+    cv_rect(x,78,40,18,bg);ifw_text_on(x+(40-text_w(&UI_S,names[i]))/2,79,&UI_S,names[i],fg,bg);
+    if(!selected && off)cv_rect(x+3,95,34,1,uc.line);
   }
-  ui_fit(12,123,150,&UI_M,ui_pages[page].title,uc.text);
-  if(fx>=0)ui_tag(170,125,58,ui_fx_disabled((uint32_t)fx)?"BYPASS":"ACTIVE",uc.theme,uc.select);
-  cv_rect(12,149,216,1,uc.line);
-  uint32_t id=control_id(ui.hot);
-  if(id<237) {
-    char v[32];ui_fit(12,154,216,&UI_S,panel_params[id].name,uc.mid);
-    ui_value(id,v,0);ui_fit(12,171,216,&UI_L,v,uc.text);
-  }
+  ui_value_grid(101,50);
 }
 static void ui_preset_list(void) {
   uint32_t list[PRESET_COUNT],n=0,pos=0;
@@ -559,8 +549,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
   int32_t v = ui_menu_value(t, r);
   if (t == 0) {
     if (r == 0) {
-      static const char *const a[] = {"BLUE", "GREEN", "AMBER", "MONO"};
-      str_cpy(s, a[v % 4], 32);
+      str_cpy(s, ui_themes[v % UI_THEME_COUNT].name, 32);
     } else if (r == 1)
       str_cpy(s, v ? "OUTLINE" : "FILLED", 32);
     else if (r == 2)
@@ -597,7 +586,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc10", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc11", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -611,12 +600,12 @@ static void ui_draw_menu(void) {
     int y=63+(int)i*28,hot=i==ui.menu_row;char b[32];
     uint16_t bg=hot?uc.select:uc.bg;
     if(hot){ui_round(8,y,224,26,bg);cv_rect(8,y+8,2,10,uc.theme);}
-    ui_fit_on(18,y+5,123,&UI_S,ui_menu_label(ui.menu_tab,i),hot?uc.text:uc.mid,bg);
+    ui_fit_on(14,y+5,120,&UI_S,ui_menu_label(ui.menu_tab,i),hot?uc.text:uc.mid,bg);
     ui_menu_text(ui.menu_tab,i,b);
     ifw_text_on(221-text_w(&UI_M,b),y+2,&UI_M,b,hot?uc.theme:uc.text,bg);
   }
   cv_rect(8,209,224,1,uc.line);
-  ui_center(8,211,224,&UI_S,"ALGO TAB  /  PRESET ROW",uc.mid);
+  ui_center(8,211,224,&UI_S,"SELECT TAB / PRESET ROW",uc.mid);
   ui_center(8,224,224,&UI_S,"KNOB VALUE  /  HOME CLOSE",uc.dim);
 }
 static void ui_footer(void) {
@@ -630,7 +619,7 @@ static void ui_footer(void) {
     ui_right(228,210,&UI_S,value,uc.dim);
   }
   const char *context=ui.layer?(ui.layer_locked?"LOCKED / TAP BUTTON TO CLOSE":"HOLD / RELEASE TO CLOSE"):
-      page==UP_HOME?"OPENIFW  /  MONOPHONIC SYNTH":ui_preset_name(preset);
+      page==UP_HOME?"ALGORITHM: COLOR":ui_preset_name(preset);
   ui_fit(12,224,216,&UI_S,context,uc.mid);
 }
 static void ui_dialog(void) {
@@ -652,8 +641,8 @@ static void ui_name_screen(void) {
   char prefix[13];str_cpy(prefix,ui.name,sizeof prefix);prefix[ui.name_pos%13u]=0;
   int x=20+text_w(font,prefix),w=font->adv[glyph(font,(uint8_t)ui.name[ui.name_pos])];
   if(x<220)cv_rect(x,101,w<220-x?w:220-x,2,uc.theme);
-  ui_text(12,128,&UI_S,"SELECT / PRESETS: LETTER",uc.mid);
-  ui_text(12,148,&UI_S,"ALGORITHM: CURSOR",uc.mid);
+  ui_text(12,128,&UI_S,"PRESETS: LETTER",uc.mid);
+  ui_text(12,148,&UI_S,"SELECT: CURSOR",uc.mid);
   ui_text(12,179,&UI_S,"OCT- ERASE / OCT+ SAVE",uc.theme);
   ui_footer();
 }
@@ -726,34 +715,24 @@ static void ui_stage(void) {
       uint32_t id = control_id((uint32_t)i);
       cv_rect(26 + i * 51, 96, 20, 77, uc.line);
       int n = (int)ui_gauge(id) * 73 / 100;
-      cv_rect(29 + i * 51, 172 - n, 14, n, uc.theme);
+      cv_rect(29 + i * 51, 172 - n, 14, n, uc.knob[i]);
     }
     ui_center(8, 182, 224, &UI_S, "ONE VOICE / TWO AMP BRANCHES", uc.mid);
     return;
   }
-  ui_detail();
-  if (kind == UK_VOICE) {
-    ui_center(8, 144, 224, &UI_S, "MONO / LAST NOTE PRIORITY", uc.theme);
-    ui_center(8, 166, 224, &UI_S, "RETRIGGER IS SET PER EG", uc.mid);
-  } else if (kind == UK_ROUTE) {
-    ui_center(8, 146, 224, &UI_S, "OSC -> FILTER -> AMP", uc.theme);
-    ui_center(8, 168, 224, &UI_S, "BREATH x EG / ORIGINAL ROUTING", uc.mid);
-  } else if (kind == UK_LFO) {
-    int id = page == UP_LFO2 || page == UP_LFO2SYNC ? 1 : 0;
-    int type = word(&edit_patch, (uint32_t)P_Lfo1Waveform + (uint32_t)id * 6);
+  if(kind==UK_LFO) {
+    uint32_t index=page==UP_LFO2 || page==UP_LFO2SYNC?1:0;
+    uint32_t id=control_id(ui.hot);char value[32];ui_value(id,value,0);
+    ui_fit(8,80,224,&UI_S,id<237?panel_params[id].name:ui_pages[page].title,uc.knob[ui.hot%4]);
+    ui_fit(8,97,224,&UI_L,value,uc.text);
+    int type=word(&edit_patch,(uint32_t)P_Lfo1Waveform+index*6);
     int32_t previous=ifw_wave20(0,0,type,IFW_PHASE_HALF);
-    for (int i=1;i<180;i++) {
+    cv_rect(12,166,216,1,uc.line);
+    for(int i=1;i<180;i++) {
       int32_t next=ifw_wave20((uint32_t)i*23860929u,0,type,IFW_PHASE_HALF);
-      cv_line(29+i-1,163-(previous>>16),29+i,163-(next>>16),uc.theme);previous=next;
+      cv_line(29+i-1,166-(previous>>16),29+i,166-(next>>16),uc.knob[index]);previous=next;
     }
-  } else {
-    ui_text(12,151,&UI_S,ui_pages[page].title,uc.theme);
-    for(uint32_t k=0;k<4;k++) {
-      int x=12+(int)k*55;uint32_t id=control_id(k);
-      cv_rect(x,180,46,3,uc.line);
-      cv_rect(x,180,(int)ui_gauge(id)*46/100,3,k==ui.hot?uc.accent:uc.theme);
-    }
-  }
+  } else ui_detail();
 }
 static void ui_paint(void) {
   int32_t top=-cv_oy,bottom=top+(int32_t)cv_h;
@@ -803,9 +782,12 @@ static void draw_panel(uint32_t full) {
   uint32_t header[5]={meter.held,(uint32_t)meter.note,patch_dirty,
       !!ui.notice_until,ui_prefs.names};
   uint32_t hot=ui.hot+(ui.hot_until?16u:0u);
-  if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||
-     ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {
-    ui_widgets=15u;ui_widget_cursor=0;
+  uint32_t layout_changed=!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout);
+  if(layout_changed || ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {
+    ui_widgets=15u;
+    /* Color changes update the pending bands in place: rapid turns must not
+     * keep restarting at the header and starve the rest of the display. */
+    if(layout_changed)ui_widget_cursor=0;
     memcpy(old_layout,layout,sizeof layout);ui_force_redraw=0;
   }
   if(memcmp(header,old_header,sizeof header) || !ui_same_text(notice,old_notice))ui_widgets|=1u;

@@ -30,8 +30,11 @@ static void ui_storage_load(void) {
       p.magic == 0x55465749u &&
       p.crc == app_crc((const uint8_t *)&p + 8, sizeof p - 8)) {
     if (p.palette < 4 && p.style < 2 && p.animate < 2 && p.hold <= 8 &&
-        p.accel < 2 && p.names < 2 && p.scope < 3 && p.filter < 4)
+        p.accel < 2 && p.names < 2 && p.scope < 3 && p.filter < 4) {
       ui_prefs = p;
+      if ((p.theme_extension & 0xf8u)==0xb0u && (p.theme_extension & 3u)==p.palette)
+        ui_prefs.palette=p.theme_extension & 7u;
+    }
   }
   if (ui_prefs.output != 0xa0u && ui_prefs.output != 0xa1u)
     ui_prefs.output = 0xa1u; /* rc8 reserved=0, new installs, invalid settings */
@@ -43,10 +46,12 @@ static void ui_storage_load(void) {
     ui_prefs.user_name[i][12] = 0;
 }
 static int ui_storage_write(void) {
-  ui_prefs.magic = 0x55465749u;
-  ui_prefs.crc = app_crc((const uint8_t *)&ui_prefs + 8, sizeof ui_prefs - 8);
-  return fl_write(SETTINGS_AT + UI_PREFS_AT, (const uint8_t *)&ui_prefs,
-                  sizeof ui_prefs);
+  IFWUiPrefs p=ui_prefs;
+  p.magic=0x55465749u;
+  p.palette=ui_prefs.palette & 3u;
+  p.theme_extension=(uint8_t)(0xb0u | ui_prefs.palette);
+  p.crc=app_crc((const uint8_t *)&p+8,sizeof p-8);
+  return fl_write(SETTINGS_AT+UI_PREFS_AT,(const uint8_t *)&p,sizeof p);
 }
 static void ui_before_preset(void) {
   ui.undo = edit_patch;
@@ -322,7 +327,7 @@ static void ui_menu_edit(int32_t d) {
   if (t == 0) {
     uint8_t *p[] = {&ui_prefs.palette, &ui_prefs.style, &ui_prefs.animate,
                     &ui_prefs.scope, &ui_prefs.names};
-    uint8_t max[] = {3, 1, 1, 2, 1};
+    uint8_t max[] = {UI_THEME_COUNT-1, 1, 1, 2, 1};
     *p[r] = (uint8_t)ifw_clamp(*p[r] + d, 0, max[r]);
   }
   if (t == 1) {
@@ -696,67 +701,43 @@ static void ui_poll(uint32_t pressed, uint32_t released) {
     }
   }
 }
-static void ui_module(int32_t d) {
-  if (ui_group() == UG_MOD) {
-    ui.mod_slot = (uint16_t)ifw_clamp((int32_t)ui.mod_slot + d, 0, 7);
-    dirty = 1;
-    return;
-  }
-  if (ui_group() == UG_EDIT) {
-    static const uint16_t p[] = {UP_OSC1,    UP_OSC2,    UP_OSC3,
-                                 UP_OSC4,    UP_FILTER1, UP_FILTER2,
-                                 UP_FILTER3, UP_VOICE,   UP_SMOOTH};
-    uint32_t n = 0;
-    while (n + 1 < sizeof p / sizeof *p && p[n + 1] <= page)
-      n++;
-    n = (uint32_t)ifw_clamp((int32_t)n + d, 0,
-                            (int32_t)(sizeof p / sizeof *p) - 1);
-    ui_show(p[n]);
-    return;
-  }
-  if (ui_group() == UG_FX) {
-    static const uint16_t p[] = {UP_FX,      UP_PHASER,   UP_DELAY1,
-                                 UP_DELAY2,  UP_REVERB,   UP_CHORUS,
-                                 UP_EXCITER, UP_ENHANCER, UP_EQ};
-    uint32_t n = 0;
-    while (n + 1 < sizeof p / sizeof *p && p[n + 1] <= page)
-      n++;
-    n = (uint32_t)ifw_clamp((int32_t)n + d, 0,
-                            (int32_t)(sizeof p / sizeof *p) - 1);
-    ui_show(p[n]);
-    return;
-  }
-  ui_next_page(d);
-}
 static void ui_encoders(void) {
   int32_t select = fm1_enc_take(ENC_SELECT),
           algorithm = fm1_enc_take(ENC_ALGORITHM),
           presets = fm1_enc_take(ENC_PRESETS);
+  /* A palette detent never queues audio, loads a preset, changes a page, or
+   * writes Flash. Persist it only through the existing quiet-gated SAVE SETUP. */
+  if (algorithm) {
+    int32_t next=((int32_t)ui_prefs.palette+algorithm%(int32_t)UI_THEME_COUNT)%(int32_t)UI_THEME_COUNT;
+    if(next<0)next+=(int32_t)UI_THEME_COUNT;
+    ui_prefs.palette=(uint8_t)next;
+    ui_message(ui_themes[next].name);
+  }
   if (ui.confirm) { /* never navigate a list behind its confirmation */
   } else if (ui.menu) {
-    if (algorithm) {
-      ui.menu_tab = (uint16_t)ifw_clamp((int32_t)ui.menu_tab + algorithm, 0, 4);
+    if (select) {
+      ui.menu_tab = (uint16_t)ifw_clamp((int32_t)ui.menu_tab + select, 0, 4);
       ui.menu_row = 0;
       dirty = 1;
     }
-    if (select || presets) {
+    if (presets) {
       ui.menu_row =
-          (uint16_t)ifw_clamp((int32_t)ui.menu_row + select + presets, 0,
+          (uint16_t)ifw_clamp((int32_t)ui.menu_row + presets, 0,
                               (int32_t)ui_menu_count(ui.menu_tab) - 1);
       dirty = 1;
     }
   } else if (ui.naming) {
-    if (select || presets)
-      ui_knob(0, select + presets);
-    if (algorithm)
-      ui_knob(1, algorithm);
+    if (presets)
+      ui_knob(0, presets);
+    if (select)
+      ui_knob(1, select);
   } else if (ui.layer) {
     if (presets)
       ui_message("RELEASE LAYER TO LOAD SOUND");
-    if (select || algorithm) {
+    if (select) {
       if (ui.layer == 5) {
         ui.mod_slot = (uint16_t)ifw_clamp(
-            (int32_t)ui.mod_slot + select + algorithm, 0, 7);
+            (int32_t)ui.mod_slot + select, 0, 7);
         dirty = 1;
       }
     }
@@ -774,8 +755,6 @@ static void ui_encoders(void) {
       } else
         ui_next_page(select);
     }
-    if (algorithm)
-      ui_module(algorithm);
   }
   for (uint32_t k = 0; k < 4; k++) {
     int32_t n = fm1_enc_take(ENC_KNOB1 + k);

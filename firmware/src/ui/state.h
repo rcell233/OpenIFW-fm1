@@ -3,6 +3,7 @@
  * engines.
  */
 #include "font.h"
+#include "themes.h"
 #include "pages.h"
 #define UI_NONE 65535u
 #define UI_PREFS_AT 3840u
@@ -14,7 +15,11 @@ typedef struct {
   /* Reuse the old reserved byte: 0xa0=NORMAL, 0xa1=LOUD; other values migrate. */
   uint8_t used, output;
   char user_name[3][13];
+  /* This byte was tail padding in rc10's 60-byte record. The serialized base
+   * palette stays 0..3 so older firmware retains the other preferences. */
+  uint8_t theme_extension;
 } IFWUiPrefs;
+_Static_assert(sizeof(IFWUiPrefs)==60,"Keep the existing preference record size");
 _Static_assert(sizeof saved <= UI_PREFS_AT, "UI preferences overlap patch data");
 _Static_assert(UI_PREFS_AT + sizeof(IFWUiPrefs) <= 4096,
                "UI preferences exceed settings sector");

@@ -19,7 +19,7 @@ function str(e,p){const b=new Uint8Array(e.memory.buffer);let s='';while(b[p])s+
 const screenNames=[];
 function shot(e,name){let turns=0;while(e.web_ui_draw_pending()&&turns++<32)e.web_render(256);assert.ok(!e.web_ui_draw_pending(),'display pass did not complete');const b=Buffer.alloc(240*240*3),fb=new Uint16Array(e.memory.buffer,e.web_screen(),57600);for(let i=0;i<fb.length;i++){const v=fb[i],p=(v>>8|v<<8)&65535;b[i*3]=((p>>11)&31)*255/31;b[i*3+1]=((p>>5)&63)*255/63;b[i*3+2]=(p&31)*255/31;}writeFileSync(`${O}/${name}.ppm`,Buffer.concat([Buffer.from('P6\n240 240\n255\n'),b]));screenNames.push(name);}
 const buttons={HOME:6,EDIT:4,ENV:2,LFO:3,MOD:9,FX:0,TUNE:1,AMP:8,GLOBAL:5,SAVE:7};
-function go(e,key){const p=pages[id(key)];if(p.group==='ADVANCED'){hold(e,6);release(e);enc(e,1,4);enc(e,2,1);enc(e,3,1);}else if(p.group==='PRESETS'){enc(e,2,e.web_preset()===5?-1:1);}else if(pages[e.web_page()].group!==p.group){tap(e,buttons[p.group]);}
+function go(e,key){const p=pages[id(key)];if(p.group==='ADVANCED'){hold(e,6);release(e);enc(e,0,4);enc(e,2,1);enc(e,3,1);}else if(p.group==='PRESETS'){enc(e,2,e.web_preset()===5?-1:1);}else if(pages[e.web_page()].group!==p.group){tap(e,buttons[p.group]);}
  const list=pages.flatMap((p,i)=>p.group===pages[id(key)].group?[i]:[]),delta=list.indexOf(id(key))-list.indexOf(e.web_page());if(delta)enc(e,0,delta);eq(e.web_page(),id(key),key+' navigation');}
 
 // All named pages have the advertised four controls, including both matrix sources.
@@ -43,7 +43,7 @@ eq(Array.from(new Float32Array(diagnostic.memory.buffer,diagnostic.web_out_l(),1
 eq(patch(diagnostic),diagnosticPatch,'diagnostics changed preset');
 go(diagnostic,'HOME');eq(diagnostic.web_perf_mode(),0,'leaving diagnostics must restore synth');
 
-go(e,'OSC3TUNE');go(e,'EG2');tap(e,4);eq(e.web_page(),id('OSC3TUNE'));tap(e,4);eq(e.web_page(),id('OSC3ROUTE'));enc(e,1,1);eq(e.web_page(),id('OSC4'));
+go(e,'OSC3TUNE');go(e,'EG2');tap(e,4);eq(e.web_page(),id('OSC3TUNE'));tap(e,4);eq(e.web_page(),id('OSC3ROUTE'));enc(e,0,1);eq(e.web_page(),id('OSC4'));
 
 // The press timestamp must work on even and odd milliseconds, without false holds.
 for(let n=0;n<12;n++){go(e,'HOME');tap(e,0);eq(e.web_ui_layer(),0);eq(pages[e.web_page()].group,'FX');advance(e,n%2?7:12);}
@@ -65,8 +65,8 @@ tap(e,9);eq(e.web_page(),id('MOD2'));eq(e.web_ui_control_id(1),105);enc(e,4,1);s
 
 // The menu opens only on hold. Its palette and tabs do not alter the patch.
 go(e,'HOME');stable=patch(e);hold(e,6);eq(e.web_ui_menu(),1);release(e);
-for(let t=0;t<5;t++){if(t)enc(e,1,1);shot(e,'MENU-'+t);}enc(e,1,-4);enc(e,3,1);eq(patch(e),stable);shot(e,'MENU-GREEN');
-enc(e,1,3);enc(e,2,3);enc(e,3,1);eq(e.web_ui_confirm(),4);shot(e,'MENU-CONFIRM');tap(e,12);eq(e.web_ui_confirm(),0);tap(e,6);eq(e.web_ui_menu(),0);
+for(let t=0;t<5;t++){if(t)enc(e,0,1);shot(e,'MENU-'+t);}enc(e,0,-4);enc(e,3,1);eq(patch(e),stable);shot(e,'MENU-GREEN');
+enc(e,0,3);enc(e,2,3);enc(e,3,1);eq(e.web_ui_confirm(),4);shot(e,'MENU-CONFIRM');tap(e,12);eq(e.web_ui_confirm(),0);tap(e,6);eq(e.web_ui_menu(),0);
 
 // Save is explicit, quiet gated, and restores the exact user patch through CRC boot.
 const s=await make();advance(s,40);go(s,'HOME');enc(s,3,2);stable=patch(s);s.web_keys(1<<7);advance(s,40);tap(s,7);eq(s.web_page(),id('SAVE'));eq(s.web_flash_writes_count(),0);tap(s,13);eq(s.web_ui_naming(),1);shot(s,'NAME');s.web_keys(0);advance(s,20);s.web_keys(1);advance(s,20);s.web_keys(0);advance(s,20);eq(s.web_held(),0);s.web_midi(0x90,60,100);advance(s,20);tap(s,13);eq(s.web_ui_naming(),0);eq(s.web_flash_writes_count(),0,'save wrote while sounding');s.web_midi(0x80,60,0);s.web_keys(0);advance(s,12000);assert.ok(s.web_flash_writes_count()>0);checks++;eq(s.web_preset(),6);

@@ -16,13 +16,13 @@ function string(e,p){const mem=new Uint8Array(e.memory.buffer);return new TextDe
 const patch=e=>Buffer.from(new Uint8Array(e.memory.buffer,e.web_patch(),916));
 const e=await make();advance(e,50);assert.equal(e.web_output_mode(),1);
 const original=patch(e);button(e,6,550);assert.equal(e.web_ui_menu(),1);
-enc(e,1,2);enc(e,2,4);
+enc(e,0,2);enc(e,2,4);
 assert.equal(string(e,e.web_ui_control_name(0)),'OUTPUT');
 assert.equal(string(e,e.web_ui_control_value(0)),'LOUD');
 enc(e,3,-1);assert.equal(e.web_output_mode(),0);
 assert.equal(string(e,e.web_ui_control_value(0)),'NORMAL');
 assert.deepEqual(patch(e),original);assert.equal(e.web_flash_writes_count(),0);
-enc(e,1,2);enc(e,3,1);assert.equal(e.web_ui_confirm(),5);button(e,13);advance(e,2500);
+enc(e,0,2);enc(e,3,1);assert.equal(e.web_ui_confirm(),5);button(e,13);advance(e,2500);
 assert.ok(e.web_flash_writes_count()>0);
 const normalNor=new Uint8Array(e.memory.buffer,e.web_nor(),4096).slice();
 const reboot=await make(current,normalNor);assert.equal(reboot.web_output_mode(),0);

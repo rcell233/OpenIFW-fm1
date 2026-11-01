@@ -57,7 +57,7 @@ static void raster_tests(void) {
         for(unsigned i=0;i<96u*32u;i++)assert(cv_px[i]==swap16(bg));
         checks++;
     }
-    for(uint32_t p=0;p<4;p++)for(uint32_t style=0;style<2;style++) {
+    for(uint32_t p=0;p<UI_THEME_COUNT;p++)for(uint32_t style=0;style<2;style++) {
         ui_prefs.palette=(uint8_t)p;ui_prefs.style=(uint8_t)style;ui_palette();
         for(uint32_t y=0;y<240;y+=16) {
             cv_oy=-(int32_t)y;cv_begin(240,16,uc.bg);
@@ -69,10 +69,12 @@ static void raster_tests(void) {
         }
     }
     ui_prefs.palette=ui_prefs.style=0;cv_oy=0;
-    printf("PASS raster: %u independent font/line/flat-panel pixel comparisons, five fonts and four palettes\n",checks);
+    printf("PASS raster: %u independent font/line/flat-panel pixel comparisons, font variants and eight palettes\n",checks);
 }
 static void render_tests(void) {
     static uint16_t expected[240*240];
+    for(uint32_t theme=0;theme<UI_THEME_COUNT;theme++) {
+    ui_prefs.palette=(uint8_t)theme;
     for(uint32_t p=0;p<UP_COUNT;p++) {
         page=p;ui.menu=ui.confirm=ui.naming=ui.layer=0;
         ui_palette();perf_snapshot();
@@ -87,6 +89,9 @@ static void render_tests(void) {
         draw_panel(1);unsigned turns=1;
         while(ui_drawing && turns<20){draw_panel(0);turns++;}
         assert(!ui_drawing && turns<=4);
+        if(memcmp(expected,fb,sizeof expected))for(unsigned pixel=0;pixel<240*240;pixel++)if(expected[pixel]!=fb[pixel]) {
+            fprintf(stderr,"palette %u page %u first differing pixel %u,%u expected %04x actual %04x\n",theme,p,pixel%240,pixel/240,expected[pixel],fb[pixel]);break;
+        }
         assert(!memcmp(expected,fb,sizeof expected));
         /* A fresh main-loop turn can accept another knob event even while
          * a full screen is incomplete. The renderer advances one band. */
@@ -97,6 +102,7 @@ static void render_tests(void) {
         if(qwrite!=before)tick();
         while(ui_drawing)draw_panel(0);
     }
+    } /* all palette/page combinations */
     reset();page=UP_HOME;ui.menu=ui.confirm=ui.naming=ui.layer=0;
     draw_panel(1);while(ui_drawing)draw_panel(0);
     /* Identical partial refreshes must not alter even a single LCD pixel. */
@@ -117,6 +123,15 @@ static void render_tests(void) {
     }
     (void)completed;assert(ui_widget_updates[1]-cards>=40 && ui_widget_updates[2]-stage>=40);
     while(ui_drawing)draw_panel(0);
+    /* Fast palette turns must keep every band moving, not restart at the
+     * header on each detent. They must never enqueue synthesis events. */
+    uint32_t updates[4];memcpy(updates,ui_widget_updates,sizeof updates);
+    uint32_t queued=qwrite;IFWFixedPatch unchanged=edit_patch;
+    for(unsigned i=0;i<80;i++) {
+        fm1_ms++;host_enc[ENC_ALGORITHM]=1;app_step();tick();
+    }
+    assert(qwrite==queued && !memcmp(&edit_patch,&unchanged,sizeof unchanged));
+    for(unsigned i=0;i<4;i++)assert(ui_widget_updates[i]-updates[i]>=15);
     /* Palette changes invalidate all widgets during an uninterrupted burst. */
     draw_panel(1);
     ui_prefs.palette=1;
@@ -142,7 +157,7 @@ static void render_tests(void) {
         }
         assert(!memcmp(expected,fb,sizeof expected));
     }
-    puts("PASS display: all 57 pages match synchronous pixels; continuous knob edits finish frames; four dirty widgets, no scanline hashing");
+    puts("PASS display: 57 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; six dirty rectangles");
 }
 int main(void) {
     math_tests();reset();

@@ -26,8 +26,8 @@ for(const key of ['HOME','OSC1','EG1','REVERB','MOD','LFO1','SAVE']) {
  capture(e,key);
 }
 const presets=await make();enc(presets,2,3);capture(presets,'PRESETS');
-const menu=await make();press(menu,6,550);enc(menu,1,2);enc(menu,2,4);capture(menu,'MENU');
-for(const color of [1,2,3]) {
+const menu=await make();press(menu,6,550);enc(menu,0,2);enc(menu,2,4);capture(menu,'MENU');
+for(const color of [0,1,2,3,4,5,6,7]) {
  const e=await make();press(e,6,550);enc(e,3,color);press(e,6);e.web_midi(0x90,60,110);advance(e,500);capture(e,'COLOR-'+color);
 }
 console.log('Captured firmware UI:',out);

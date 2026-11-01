@@ -1,0 +1,726 @@
+{
+  "version": "0.4.7-rc11",
+  "date": "2026-11-01",
+  "referenceCommit": "c7b06dad8c45cd5506f53091ff3a1ae8c519c010",
+  "referenceVersion": "0.4.7-rc10",
+  "sloopReference": {
+    "repository": "https://github.com/isod89/sloop-fm1",
+    "commit": "91f30182d9095e0ecdb43396554f2ce5a67df179",
+    "selection": "Exact Terminus Bold BDF; independent UI drawing inspired by black surfaces, four parameter colors and large pixel values. No engine, preset, logo or screenshot import."
+  },
+  "hardwareMeasured": false,
+  "browserClickQA": false,
+  "scope": "Terminus Bold and SLOOP-style pixel UI; ALGORITHM cycles 8 themes; SELECT retains page navigation and takes menu tabs/naming cursor. Audio and parameter mappings unchanged.",
+  "build": {
+    "version": "0.4.7-rc11",
+    "identity": "FM-1_982",
+    "appBytes": 258776,
+    "packageBytes": 610161,
+    "originalHalSha256": {
+      "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
+      "fm1_time.h": "e83c725eae2ec5a163771ca2b8f1c0779354456f2e20a32febc7b6755758a97d",
+      "fm1_isr.S": "5e45c960577354184efa3bf984a1c14bffb0c5967cbdb643e1f4c9cc196105c5"
+    },
+    "sha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+    "hardwareTested": false,
+    "ramDataBss": 85200,
+    "poolBytes": 285208,
+    "limits": {
+      "app": 581564,
+      "ram": 98304,
+      "pool": 344064
+    },
+    "sampleRate": 44100,
+    "framesPerBlock": 256,
+    "cpuMeasured": false,
+    "ramCodeBytes": 21884,
+    "ramFlashDriverBytes": 2848,
+    "ramDspBytes": 19036,
+    "ramIrqBytes": 0,
+    "dspPlacement": "ram",
+    "linkerSha256": "793e5feaa6eb524dd565ce52b39936c5e9f84e083ef080459083730c6f7209b6",
+    "ramTables": {
+      "ifw_sine_table": 29392896,
+      "ifw_ap_table": 29428124,
+      "ifw_ap_half_table": 29422604,
+      "ifw_alpha_table": 29396996,
+      "ifw_f3_table": 29407240,
+      "decay_curve_q31": 29435692,
+      "ifw_recip16_seed": 29433644,
+      "ifw_bus_gain_q14": 29438096
+    },
+    "audioScheduling": "foreground-32-frame-slices-with-4-slot-SPSC-queue",
+    "outputMode": "LOUD",
+    "outputDriveGain": 4,
+    "outputDriveDb": 12.041199827,
+    "outputBypassGain": 2,
+    "outputBypassExactRc8": true,
+    "outputGainIsDynamic": true,
+    "outputCeilingDbFS": -6.581174386,
+    "outputBus": {
+      "stereoLinked": true,
+      "thresholdQ15": 24576,
+      "kneeQ15": 28672,
+      "ceilingQ15": 30720,
+      "attackDivisor": 4,
+      "releaseDivisor": 4096,
+      "lookaheadFrames": 0,
+      "tableBytes": 1026,
+      "modeSwitchFrames": 256
+    },
+    "reverbSampleRate": 22050,
+    "reverbTopology": "shared-4comb-2allpass-stereo-taps",
+    "fxProfile": "half-rate-Q23-room",
+    "reverbPrecisionBits": 23,
+    "experimental": true,
+    "stage": "release-candidate"
+  },
+  "webWasmSha256": "51126466cb14155120d673914d8d6bec14721fab8e428a8af78c3791ac668d3b",
+  "sourceSha256": {
+    "firmware/src/ui/controls.c": "ca18279ecb66ac216377de41f2f94044c18893f1bd1ae61e846ab96ef58ae1b2",
+    "firmware/src/ui/draw.c": "af7c06dac8d86c3cd0a3d81c4b2e5e2a588dc7dc3b3e9ba446f9f0c298a0e3d4",
+    "firmware/src/ui/font.h": "8af93d20ea89e2b6aa47235a4cc3eba7af0425dc57831c3a46fb96cc2ff5c1bb",
+    "firmware/src/ui/state.h": "854ce19e1542ee89679576272dfa5cc0b812ea2c64a6de68fe04644f54b59a8f",
+    "firmware/src/ui/themes.h": "72880894cff2cfdedb2895c8e63abf3e65c2bbfc516fe17d86e5390117e25d3e",
+    "firmware/src/ui/raster.h": "d1e0e784f841034eeb3d4caf0d0732dd08a1c393dceef3edc2daba3588c70dc1",
+    "tools/generate_ui_font.py": "d11e92c7d28290d65dd78c9b1a64d4cf11fca2ecdb5ad62189ae8e8b258b544b",
+    "web/emu/openifw_web.c": "2ed822f4223c42636a23cef0bf78b024f7a75724832132760c6ac8df5e0cb5c7"
+  },
+  "rc9AudioSourceFreeze": {
+    "baseline": "docs/evidence/ui-rc9-baseline.json",
+    "exactFiles": 30,
+    "authorizedUiFiles": [
+      "firmware/src/ui/controls.c",
+      "firmware/src/ui/font.h",
+      "firmware/src/ui/state.h"
+    ],
+    "schedulerException": "Only palette/style invalidation preserves the cursor; layout changes reset it. Six rectangles, audio and DMA gates, dynamic rates unchanged.",
+    "appException": "Release diagnostic number and one navigation-hint string only."
+  },
+  "audioEquivalence": {
+    "referenceWasmSha256": "accc8ae24fc6b3b99ef7187829a3c6d9e9c5d3bcfd37229de51c52e6734b7428",
+    "samples": 3686400,
+    "stateChecks": 108000,
+    "rows": [
+      {
+        "program": 4,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "79421dc9d9812edf44c966ed636eb8254e39c20ec9834bce0737ecdce5687073",
+        "stateSha256": "5fd76a433273cb0f01c7bd70bf38df20442a723805f9b4dc6c722983bf153648"
+      },
+      {
+        "program": 4,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "ce2b73460ce3508b1e54f411e62da0891276bb61152542e609033295a8e96b39",
+        "stateSha256": "5fd76a433273cb0f01c7bd70bf38df20442a723805f9b4dc6c722983bf153648"
+      },
+      {
+        "program": 18,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "fb68d36c1d1d9d91800d01e14143a1f1416e6b0c5b7d0fffa7664b8d36c3d2c5",
+        "stateSha256": "62aee873afff36b25fa99409afc5b0e9c76d6b3b7cfe581d45f7b238d7158da3"
+      },
+      {
+        "program": 18,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "641a6ff864c4081589f226605fb6624a6d215f1eed16de50d35306629ecb4d13",
+        "stateSha256": "62aee873afff36b25fa99409afc5b0e9c76d6b3b7cfe581d45f7b238d7158da3"
+      },
+      {
+        "program": 14,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "9982d91a4f569d8bd65e008b3b95646271058194a77c4dd79900d68cf72e9e01",
+        "stateSha256": "7ebc0b3ddd045ec712a787fed88edd5a6d6a2d7cf6f2d8dd6469f23458aea2dd"
+      },
+      {
+        "program": 14,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "39f835894cebd2228d1b553d094de924126684c5e2a156667ccd86a3e6506143",
+        "stateSha256": "7ebc0b3ddd045ec712a787fed88edd5a6d6a2d7cf6f2d8dd6469f23458aea2dd"
+      },
+      {
+        "program": 10,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "67eefa58696b6e26d9144c62f384b848d90f50e7c9a886aa0f9829dac7574166",
+        "stateSha256": "aa2d10939ca11692589c4c82e6b2f031a6dde4040c886e223a97a1dd17845afb"
+      },
+      {
+        "program": 10,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "f387c2ba375c3370fb5f0b97ccdae0cb1d6aea3902c45f83705e20872859706b",
+        "stateSha256": "aa2d10939ca11692589c4c82e6b2f031a6dde4040c886e223a97a1dd17845afb"
+      },
+      {
+        "program": 8,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "d3a95b466e2496c6a7ef31a1c6f14ce384b97782bf9809867ad85cf075e4eb2c",
+        "stateSha256": "ba7e0c87bbe107921086142b8f2afc02180edcb6e0ee1e2243f91391bbb3c269"
+      },
+      {
+        "program": 8,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "57abb326e9ca00a2ba7379993e2a27d07ce3bfa7f337d35e12668e3be69104de",
+        "stateSha256": "ba7e0c87bbe107921086142b8f2afc02180edcb6e0ee1e2243f91391bbb3c269"
+      },
+      {
+        "program": 21,
+        "master": 512,
+        "frames": 153600,
+        "pcmSha256": "63d8e346c628b3af5a1ba1c0a8fec74eba611e4e744d30cd909e5c42895ab263",
+        "stateSha256": "5c5140379e085be4590a333e2668856df866eb0a7c141fe7c0f89f42e1d88b2a"
+      },
+      {
+        "program": 21,
+        "master": 1023,
+        "frames": 153600,
+        "pcmSha256": "a89352472bc6787e23929ac906d0ea6c2892fe96bd4375f8a03025f93e29cc73",
+        "stateSha256": "5c5140379e085be4590a333e2668856df866eb0a7c141fe7c0f89f42e1d88b2a"
+      }
+    ],
+    "currentWasmSha256": "51126466cb14155120d673914d8d6bec14721fab8e428a8af78c3791ac668d3b",
+    "exact": true
+  },
+  "themeIsolation": {
+    "checks": 120115,
+    "exactChannelSamples": 2457600,
+    "themes": [
+      "SLOOP",
+      "FOREST",
+      "AMBER",
+      "MONO",
+      "OCEAN",
+      "VIOLET",
+      "EMBER",
+      "ICE"
+    ],
+    "allThemesPersist": true,
+    "colorKnobWritesFlash": false,
+    "hardwareMeasured": false
+  },
+  "rc10SettingsCompatibility": {
+    "referenceSha256": "3a288b113685acbf324687a98e06563aae1b4d6d9b312222a3470d2ca7c577e7",
+    "themes": 8,
+    "rc10PreservesNormal": true,
+    "patchExact": true,
+    "noFlashWritesOnRead": true
+  },
+  "target": {
+    "rc10-navigation": {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "firmwareSha256": "cde5ba086e73accbf5622174543f345da3edb97414c144c5f1698950d77252b2",
+      "mhz": 240,
+      "preset": 3,
+      "actualPreset": 3,
+      "script": "500:e6:3,1200:C4,1700:EDIT,1800:EDIT^,1900:e2:3,2100:e2:-3,2400:ENV,2500:ENV^,2700:e3:2,3000:LFO,3100:LFO^,3400:FX,3500:FX^,3600:e0:7,3900:e5:2,4200:HOME,4300:HOME^,6200:E4,6300:E4^,6400:G4,6500:G4^,6600:A4,6700:A4^,6800:C4^",
+      "requestedMs": 7500,
+      "emulatedMs": 7504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 1227,
+        "lastUs": 11.208333333333334,
+        "maxUs": 14.083333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 2957.8333333333335,
+        "dspMaxUs": 3198.2916666666665,
+        "peak": 12487,
+        "clips": 0,
+        "meanUs": 11.355508014126597
+      },
+      "steady": {
+        "blocks": 973,
+        "p50Us": 11.208333333333334,
+        "p95Us": 13,
+        "p99Us": 13.083333333333334,
+        "maxUs": 14.041666666666666
+      },
+      "dspSteady": {
+        "blocks": 973,
+        "p50Us": 3019.5,
+        "p95Us": 3121.0416666666665,
+        "p99Us": 3148.125,
+        "maxUs": 3161
+      },
+      "audioFrames": 315264,
+      "audioSha256": "a7e062e968bf3b9ee065222acace105aa4ca4d0d1f5ecef418fa10af959865e4",
+      "shortQuanta": 15,
+      "wallSeconds": 31.003095022999997,
+      "drawIntervalsMs": {
+        "count": 115,
+        "p50": 52,
+        "p95": 101,
+        "max": 152
+      },
+      "uiService": {
+        "maxGapMs": 2,
+        "turns": 1502172,
+        "nowMs": 7504,
+        "lastAtMs": 7504,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        177.875,
+        596.6666666666666,
+        1010.2916666666666,
+        367.5833333333333,
+        519.6666666666666,
+        30.75
+      ],
+      "widgetUpdates": [
+        20,
+        16,
+        12,
+        7,
+        59,
+        12
+      ],
+      "audioQueue": {
+        "produced": 1214,
+        "consumed": 1213,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 70,
+        "lcdPixels": 1743840
+      },
+      "inputUsbInterrupt": {
+        "scans": 71182,
+        "meanUs": 1.834693695971828,
+        "maxUs": 9.875,
+        "usbPolls": 8055,
+        "usbMeanUs": 0.041666666666666664,
+        "usbMaxUs": 0.041666666666666664
+      },
+      "boot": {
+        "firmwareCode": 40710,
+        "stage": 11,
+        "failed": 0,
+        "pending": 1,
+        "rescue": false,
+        "entryReason": 0
+      }
+    },
+    "rc11-navigation": {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "firmwareSha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+      "mhz": 240,
+      "preset": 3,
+      "actualPreset": 3,
+      "script": "500:e6:3,1200:C4,1700:EDIT,1800:EDIT^,1900:e2:3,2100:e2:-3,2400:ENV,2500:ENV^,2700:e3:2,3000:LFO,3100:LFO^,3400:FX,3500:FX^,3600:e0:7,3900:e5:2,4200:HOME,4300:HOME^,6200:E4,6300:E4^,6400:G4,6500:G4^,6600:A4,6700:A4^,6800:C4^",
+      "requestedMs": 7500,
+      "emulatedMs": 7504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 1227,
+        "lastUs": 11.208333333333334,
+        "maxUs": 14.083333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 2957.9166666666665,
+        "dspMaxUs": 3196.4583333333335,
+        "peak": 12487,
+        "clips": 0,
+        "meanUs": 11.35516843249117
+      },
+      "steady": {
+        "blocks": 972,
+        "p50Us": 11.208333333333334,
+        "p95Us": 13,
+        "p99Us": 13.083333333333334,
+        "maxUs": 14
+      },
+      "dspSteady": {
+        "blocks": 972,
+        "p50Us": 3019.4583333333335,
+        "p95Us": 3120.5416666666665,
+        "p99Us": 3147.75,
+        "maxUs": 3196.4583333333335
+      },
+      "audioFrames": 315264,
+      "audioSha256": "a7e062e968bf3b9ee065222acace105aa4ca4d0d1f5ecef418fa10af959865e4",
+      "shortQuanta": 15,
+      "wallSeconds": 37.613989297,
+      "drawIntervalsMs": {
+        "count": 115,
+        "p50": 52,
+        "p95": 104,
+        "max": 152
+      },
+      "uiService": {
+        "maxGapMs": 2,
+        "turns": 1542741,
+        "nowMs": 7504,
+        "lastAtMs": 7504,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        151.375,
+        384.625,
+        976.875,
+        280.7916666666667,
+        409.8333333333333,
+        30.75
+      ],
+      "widgetUpdates": [
+        20,
+        16,
+        12,
+        7,
+        59,
+        12
+      ],
+      "audioQueue": {
+        "produced": 1214,
+        "consumed": 1213,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 70,
+        "lcdPixels": 1743840
+      },
+      "inputUsbInterrupt": {
+        "scans": 71181,
+        "meanUs": 1.8347030808783245,
+        "maxUs": 9.875,
+        "usbPolls": 8055,
+        "usbMeanUs": 0.041666666666666664,
+        "usbMaxUs": 0.041666666666666664
+      },
+      "boot": {
+        "firmwareCode": 40711,
+        "stage": 11,
+        "failed": 0,
+        "pending": 1,
+        "rescue": false,
+        "entryReason": 0
+      }
+    },
+    "rc11-color-spin": {
+      "kind": "pi32v2-instruction-model-not-hardware",
+      "cycleAccurate": false,
+      "hardwareMeasured": false,
+      "assumptions": "one cycle per non-divide instruction; 48 cycles per divide is an uncalibrated input; no cache/flash/bus model; SPI wire timing enabled at assumed 60 MHz peripheral clock; no attached USB host",
+      "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+      "firmwareSha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+      "mhz": 240,
+      "preset": 3,
+      "actualPreset": 3,
+      "script": "500:e6:3,1000:C4,1400:EDIT,1500:EDIT^,2000:e1:1,2030:e1:1,2060:e1:1,2090:e1:1,2120:e1:1,2150:e1:1,2180:e1:1,2210:e1:1,2240:e1:1,2270:e1:1,2300:e1:1,2330:e1:1,2360:e1:1,2390:e1:1,2420:e1:1,2450:e1:1,2480:e1:1,2510:e1:1,2540:e1:1,2570:e1:1,2600:e1:1,2630:e1:1,2660:e1:1,2690:e1:1,2720:e1:1,2750:e1:1,2780:e1:1,2810:e1:1,2840:e1:1,2870:e1:1,2900:e1:1,2930:e1:1,2960:e1:1,2990:e1:1,3020:e1:1,3050:e1:1,3080:e1:1,3110:e1:1,3140:e1:1,3170:e1:1,3200:e1:1,3230:e1:1,3260:e1:1,3290:e1:1,3320:e1:1,3350:e1:1,3380:e1:1,3410:e1:1,3440:e1:1,3470:e1:1,3500:e1:-1,3530:e1:-1,3560:e1:-1,3590:e1:-1,3620:e1:-1,3650:e1:-1,3680:e1:-1,3710:e1:-1,3740:e1:-1,3770:e1:-1,3800:e1:-1,3830:e1:-1,3860:e1:-1,3890:e1:-1,3920:e1:-1,3950:e1:-1,3980:e1:-1,4010:e1:-1,4040:e1:-1,4070:e1:-1,4100:e1:-1,4130:e1:-1,4160:e1:-1,4190:e1:-1,4220:e1:-1,4250:e1:-1,4280:e1:-1,4310:e1:-1,4340:e1:-1,4370:e1:-1,4400:e1:-1,4430:e1:-1,4460:e1:-1,4490:e1:-1,4520:e1:-1,4550:e1:-1,4580:e1:-1,4610:e1:-1,4640:e1:-1,4670:e1:-1,4700:e1:-1,4730:e1:-1,4760:e1:-1,4790:e1:-1,4820:e1:-1,4850:e1:-1,4880:e1:-1,4910:e1:-1,4940:e1:-1,4970:e1:-1,5300:HOME,6000:HOME^,6200:e0:2,6300:e6:4,6400:e1:3,6700:C4^",
+      "requestedMs": 7500,
+      "emulatedMs": 7504,
+      "dividerCyclesAssumption": 48,
+      "spiWireTiming": true,
+      "irqBudgetUs": 5804.988662131519,
+      "all": {
+        "ready": true,
+        "blocks": 1227,
+        "lastUs": 11.208333333333334,
+        "maxUs": 14.083333333333334,
+        "overruns": 0,
+        "dmaLate": 0,
+        "dspLastUs": 2959.25,
+        "dspMaxUs": 3193.2916666666665,
+        "peak": 9435,
+        "clips": 0,
+        "meanUs": 11.355406139635969
+      },
+      "steady": {
+        "blocks": 967,
+        "p50Us": 11.208333333333334,
+        "p95Us": 13,
+        "p99Us": 13.083333333333334,
+        "maxUs": 14.083333333333334
+      },
+      "dspSteady": {
+        "blocks": 967,
+        "p50Us": 3019.25,
+        "p95Us": 3066.7916666666665,
+        "p99Us": 3148.0833333333335,
+        "maxUs": 3193.2916666666665
+      },
+      "audioFrames": 315264,
+      "audioSha256": "244f482154619259488fbcde523ba83c6480f70c74319e8a62b1f5f2c80517c5",
+      "shortQuanta": 15,
+      "wallSeconds": 38.107268686000005,
+      "drawIntervalsMs": {
+        "count": 64,
+        "p50": 50,
+        "p95": 105,
+        "max": 3064
+      },
+      "uiService": {
+        "maxGapMs": 2,
+        "turns": 1508421,
+        "nowMs": 7504,
+        "lastAtMs": 7504,
+        "sinceLastMs": 0
+      },
+      "underruns": 0,
+      "underrunAt": [],
+      "widgetMaxUs": [
+        149.29166666666666,
+        406,
+        1006.2083333333334,
+        443.5,
+        0,
+        0
+      ],
+      "widgetUpdates": [
+        50,
+        47,
+        45,
+        43,
+        0,
+        0
+      ],
+      "audioQueue": {
+        "produced": 1214,
+        "consumed": 1213,
+        "partialFrames": 0
+      },
+      "uiRender": {
+        "completedScans": 9,
+        "lcdPixels": 2628480
+      },
+      "inputUsbInterrupt": {
+        "scans": 71181,
+        "meanUs": 1.835743854867638,
+        "maxUs": 9.875,
+        "usbPolls": 8042,
+        "usbMeanUs": 0.041666666666666664,
+        "usbMaxUs": 0.041666666666666664
+      },
+      "boot": {
+        "firmwareCode": 40711,
+        "stage": 11,
+        "failed": 0,
+        "pending": 1,
+        "rescue": false,
+        "entryReason": 0
+      }
+    }
+  },
+  "boot": {
+    "kind": "target-interpreter-normal-and-physical-rescue-key-boot",
+    "hardwareMeasured": false,
+    "watchdogResetEmulated": false,
+    "normalDurationMs": 32000,
+    "priorStageInjectedForRetentionTest": true,
+    "emulatorSha256": "b704e974b193886dfff50d8af38c16b8c544e53866c563ddc2c1dad5a8110c83",
+    "firmwareSha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+    "normal": {
+      "emulatedMs": 32002,
+      "ready": 1,
+      "rescue": 0,
+      "blocks": 5449,
+      "audioFrames": 1396096,
+      "halted": 0,
+      "mainMaxGapMs": 1,
+      "guardPending": 0,
+      "bootEvidence": {
+        "stage": 11,
+        "previousStage": 11,
+        "previousVersion": 40701,
+        "entryReason": 0
+      }
+    },
+    "rescue": {
+      "emulatedMs": 2035,
+      "ready": 0,
+      "rescue": 1,
+      "blocks": 0,
+      "audioFrames": 0,
+      "halted": 0,
+      "mainMaxGapMs": 0,
+      "guardPending": 2,
+      "bootEvidence": {
+        "stage": 3,
+        "previousStage": 11,
+        "previousVersion": 40701,
+        "entryReason": 2
+      }
+    },
+    "dspAddresses": {
+      "ifw_fixed_sample": 29373928,
+      "ifw_fixed_process": 29381382,
+      "ifw_fixed_fx_tick": 29365400
+    }
+  },
+  "reproducibleBuild": {
+    "exact": true,
+    "sha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+    "bytes": 610161
+  },
+  "tests": {
+    "local": {
+      "makeTestExitCode": 0,
+      "makeSanitizeExitCode": 0,
+      "cc": "/usr/bin/cc -pipe (argument-preserving wrapper)",
+      "reason": "Standard pipe transport avoids truncated temporary assembler files observed in this environment; optimization and firmware code unchanged.",
+      "full-test-final": {
+        "bytes": 43887,
+        "lastLine": "JUDD-ish 2000 wet: RMSE=1.406e-2 EG=5.278e-6 pitch=2.448e-5"
+      },
+      "sanitize-final": {
+        "bytes": 3450,
+        "lastLine": "PASS 168 comparisons; 1018985 frames; A4=440.000005 Hz; worst PCM=1.8189894035458565e-12"
+      }
+    },
+    "pixelComparisons": 8320,
+    "pagePaletteCombinations": 456,
+    "ui": {
+      "checks": 1170,
+      "pages": 57,
+      "screens": [
+        "HOME",
+        "MIX",
+        "OSC1",
+        "OSC1TUNE",
+        "OSC1ROUTE",
+        "OSC2",
+        "OSC2TUNE",
+        "OSC2ROUTE",
+        "OSC3",
+        "OSC3TUNE",
+        "OSC3ROUTE",
+        "OSC4",
+        "OSC4TUNE",
+        "OSC4ROUTE",
+        "FILTER1",
+        "FILTER1BR",
+        "FILTER2",
+        "FILTER2BR",
+        "FILTER3",
+        "FILTER3MIX",
+        "VOICE",
+        "SMOOTH",
+        "GLSMOOTH",
+        "EG1",
+        "EG2",
+        "EG3",
+        "EG4",
+        "RETRIGGER",
+        "BREG",
+        "LFO1",
+        "LFO1SYNC",
+        "LFO2",
+        "LFO2SYNC",
+        "MOD",
+        "MOD2",
+        "FX",
+        "PHASER",
+        "PHASER2",
+        "DELAY1",
+        "DELAY1TONE",
+        "DELAY2",
+        "DELAY2TONE",
+        "REVERB",
+        "WIDTH",
+        "CHORUS",
+        "EXCITER",
+        "ENHANCER",
+        "EQ",
+        "TUNE",
+        "AMP",
+        "AMPSOURCE",
+        "GLOBAL",
+        "LEARN",
+        "SAVE",
+        "PERF",
+        "PRESETS",
+        "ADVANCED",
+        "LAYER-FX",
+        "MATRIX-SECOND-SOURCE",
+        "MENU-0",
+        "MENU-1",
+        "MENU-2",
+        "MENU-3",
+        "MENU-4",
+        "MENU-GREEN",
+        "MENU-CONFIRM",
+        "NAME",
+        "USER-RESTORED",
+        "OVERWRITE",
+        "FAVORITES"
+      ],
+      "recordedNativeOperations": 3388,
+      "realFirmware": true,
+      "shortHoldDoubleTap": true,
+      "menu": true,
+      "fxIsolation": true,
+      "matrixAliases": true,
+      "saveCancelUndoCrc": true,
+      "browserClickQA": false
+    },
+    "installer": {
+      "checks": 157,
+      "firmwareSha256": "48a801bff4505ae685428491db9a62c4bc1c8128af662eb1161e66e0d4421733",
+      "fullImageBytes": 610141,
+      "fullInstall": true,
+      "candidateFirmwareSha256": "4f27b9f8fbadc935b9f376fdf506794d79d2f7f31d5c4e319d443a502efa9186",
+      "candidateFullInstall": true,
+      "defaultVersion": "0.4.7-rc11",
+      "previousCandidateRecovery": true,
+      "previousReverbRecovery": true,
+      "resume": true,
+      "rescueInstall": true,
+      "rescueReturnRejected": true,
+      "rollbackFirmwareSha256": "cf7ab1e35378ae7797ab817c7e32aaa8ce0b49d3bbbe55185aa18ded7ae2a9b8",
+      "rollbackFullImageBytes": 610090,
+      "rollbackFullInstall": true,
+      "errors": [
+        "corrupt package",
+        "corrupt loader",
+        "wrong model",
+        "foreign loader",
+        "unplug",
+        "mismatch",
+        "rescue after reboot",
+        "bounds",
+        "timeouts",
+        "multiple devices",
+        "permission denied"
+      ],
+      "pageLifecycle": true,
+      "realHardwareFlashed": false
+    },
+    "fullLogSha256": "9b596edcb466a8cd21b10c87a2109af8ceb37f1b96ffc48bae021474c4f9a15b",
+    "sanitizeLogSha256": "a573383447a97cd458f05b0613744ecdff37acbe65daa198860de9945b403215"
+  },
+  "screenshots": {
+    "ui-0.4.7-rc11.png": "40e2bc216bc35bb52c58a3cb5c7c081e9a7165b3dfc35a971ff71b61a0a2f59f",
+    "ui-0.4.7-rc11-themes.png": "1dff055697385aa749d36b93f324e0e12eaa781870a7440b9cbe5bbb92f18460"
+  },
+  "limits": [
+    "Instruction model is uncalibrated: no cache, flash, bus or attached USB host model; its timings are not device FPS.",
+    "No physical FM-1 attached for boot, flash or listening tests."
+  ]
+}
