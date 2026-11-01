@@ -6,7 +6,7 @@
 
 OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc8**；[0.4.7-rc7](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc7&v=0.4.7-rc8) 可回退本轮内核优化；[0.4.7-rc5](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc5&v=0.4.7-rc7) 保留为 CPU 优化前的回退包；[0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5) 保留为回退包，可恢复之前的混响；rc3 仍可恢复较低的原输出音量。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md)、[rc3 效果器优化](docs/FX_0.4.7-rc3.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。
 
-当前音量反馈的核查见 [输出电平对比](docs/OUTPUT_LEVEL_0.4.7-rc3.md)：288 个出厂场景与 26 个其他固件单音场景的软件测量，包含 MASTER 曲线、DAC 缩放及 +6 / +12 dB 输出增益余量评估。
+2026-11-01 的音量复核见 [rc8 与当前固件的输出对比](docs/OUTPUT_VOLUME_0.4.7-rc8.md)：288 个出厂场景、600 秒长演奏及 Felucca / Ghoulbox / Melodee 的 84 个对照场景，分别检查软件增益、DAC 标定与 USB 电平。当前 +6 dB 仍有效；继续增加 Q15 限幅前增益会削波，报告提出独立 DAC 输出校准方案。本轮未改变发布固件或预设。[早期 rc3 对比](docs/OUTPUT_LEVEL_0.4.7-rc3.md) 保留。
 
 公开网页：[在线 Demo](https://rcell233.github.io/OpenIFW-fm1/) · [USB 网页安装](https://rcell233.github.io/OpenIFW-fm1/install/) · [设备性能采集](https://rcell233.github.io/OpenIFW-fm1/diagnostics/)。Demo、安装器与固件下载均由 GitHub Pages 提供，无需登录 ChatGPT。浏览器通过 WebAssembly 运行与目标固件相同的 `app.c`、定点 DSP、显示和存储逻辑，模拟琴键、按钮、旋钮、240×240 RGB565 LCD 与 Flash。它属于固件主机仿真；不模拟杰理 CPU 指令、USB 外设、升级器或电池。
 

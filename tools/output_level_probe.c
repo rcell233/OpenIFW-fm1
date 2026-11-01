@@ -30,6 +30,7 @@ int main(void) {
         double energy=0,steady_energy=0,output_energy=0;
         int64_t raw_peak=0;
         uint32_t peak=0,raw_clips=0,boost2_clips=0,boost4_clips=0,output_peak=0,output_clips=0;
+        uint32_t boost_sqrt8_clips=0,boost3_clips=0;
         for(unsigned i=0;i<4*44100u;i++) {
             int32_t left,right;
             ifw_fixed_sample(&synth,&left,&right);
@@ -45,6 +46,10 @@ int main(void) {
                 uint32_t absolute=(uint32_t)(pcm<0?-pcm:pcm);
                 if(absolute>peak)peak=absolute;
                 if(absolute*2u>32767u)boost2_clips++;
+                /* Extra +3.0103 / +3.5218 dB over the current x2, before
+                 * its Q15 clamp. Compare sqrt(8) exactly by squaring. */
+                if((uint64_t)absolute*absolute*8u>(uint64_t)32767u*32767u)boost_sqrt8_clips++;
+                if(absolute*3u>32767u)boost3_clips++;
                 if(absolute*4u>32767u)boost4_clips++;
                 int32_t output=ifw_output_sample(pcm,4096);
                 uint32_t oa=(uint32_t)(output<0?-output:output);
@@ -59,10 +64,11 @@ int main(void) {
         printf("%s{\"preset\":%u,\"name\":\"%s\",\"note\":%u,\"velocity\":%u,\"breath\":%.2f,"
                "\"peak\":%.9f,\"rms\":%.9f,\"steadyRms\":%.9f,\"unclippedPeak\":%.9f,"
                "\"clippedChannelSamples\":%u,\"gain2ClippedChannelSamples\":%u,\"gain4ClippedChannelSamples\":%u,"
+               "\"gainSqrt8ClippedChannelSamples\":%u,\"gain3ClippedChannelSamples\":%u,"
                "\"outputGain\":%u,\"outputPeak\":%.9f,\"outputRms\":%.9f,\"outputBoundaryChannelSamples\":%u}",
                row++?",\n":"",p,preset_names[p],notes[n],velocities[v],1./div,
                peak/32768.,sqrt(energy/(8*44100)),sqrt(steady_energy/(4*44100)),
-               (double)raw_peak/IFW_Q20,raw_clips,boost2_clips,boost4_clips,
+               (double)raw_peak/IFW_Q20,raw_clips,boost2_clips,boost4_clips,boost_sqrt8_clips,boost3_clips,
                IFW_OUTPUT_GAIN,output_peak/32768.,sqrt(output_energy/(8*44100)),output_clips);
     }
     puts("\n]");
