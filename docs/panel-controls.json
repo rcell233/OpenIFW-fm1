@@ -1604,11 +1604,11 @@
       "choice": 0
     },
     {
-      "label": "WIND / CC7",
+      "label": "BREATH CC",
       "lo": 0,
-      "hi": 1,
+      "hi": 119,
       "step": 1,
-      "choice": 1
+      "choice": 0
     },
     {
       "label": "MIDI CHANNEL",

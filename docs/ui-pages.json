@@ -979,12 +979,31 @@
       232
     ],
     "labels": [
-      "WIND",
+      "BR CC",
       "MIDI",
       "OCT",
       "SLOT"
     ],
     "kind": "SETTINGS",
+    "description": ""
+  },
+  {
+    "key": "BRCURVE",
+    "group": "GLOBAL",
+    "title": "BREATH CURVE",
+    "ids": [
+      317,
+      318,
+      319,
+      320
+    ],
+    "labels": [
+      "IN 0%",
+      "IN 33%",
+      "IN 66%",
+      "IN100%"
+    ],
+    "kind": "BRCURVE",
     "description": ""
   },
   {

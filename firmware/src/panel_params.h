@@ -242,7 +242,7 @@ static const IFWPanelParam panel_params[]={
 {"TUNING HZ",19660800,32768000,6554,0},
 {"CHORUS PHASE",0,411775,6554,0},
 {"FX BYPASS MASK",0,31,1,0},
-{"WIND / CC7",0,1,1,1},
+{"BREATH CC",0,119,1,0},
 {"MIDI CHANNEL",0,16,1,0},
 {"KEY OCTAVE",0,6,1,0},
 {"SAVE SLOT",0,2,1,0},

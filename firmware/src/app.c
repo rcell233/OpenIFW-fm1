@@ -51,6 +51,15 @@ _Static_assert(sizeof saved<=4096,"settings sector overflow");
 typedef struct {uint32_t type;int32_t a,b;} AudioEvent;
 static AudioEvent queue[QSIZE];
 static volatile uint32_t qwrite,qread,overflow,ready;
+/* The controller value belongs to the input, not to any note or preset.
+ * Only the audio consumer updates breath_input, in MIDI event order. */
+static int32_t breath_input=INT32_MAX;
+enum { BREATH_CC_DEFAULT=7, BREATH_CC_MAX=119 };
+static uint8_t breath_cc=BREATH_CC_DEFAULT;
+static const uint8_t breath_x[4]={0,33,66,100};
+static uint8_t breath_y[4]={0,33,66,100};
+static int16_t last_breath_raw=-1; /* -1: no CC on the current input route */
+typedef struct { uint32_t crc; uint8_t tag[3],cc,y[4]; } BreathRecord;
 static uint8_t patch_dirty;
 static volatile struct {int32_t note,breath,gate,env[4];uint32_t held,quiet,max_us,overruns;} meter;
 static volatile int16_t scope[96];
@@ -59,7 +68,7 @@ static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: COLOR";
 #include "ui/state.h"
-static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return saved.wind;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 407;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
+static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return breath_cc;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 407;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
     if(overflow)return;
@@ -67,6 +76,25 @@ static void enqueue(uint32_t type,int32_t a,int32_t b) {
     queue[w&(QSIZE-1)]=(AudioEvent){type,a,b};RING_PUBLISH();qwrite=w+1;
 }
 static int32_t midi31(uint32_t v) {return (int32_t)(v*16909320u);}
+/* Input and output are both MIDI 0..127. Compare the exact rational
+ * input position with the percent anchors; round only the final value. */
+static uint8_t breath_map(uint8_t raw) {
+    unsigned x=raw*100u,i=x<=33u*127u?0:x<=66u*127u?1:2;
+    unsigned a=breath_x[i]*127u,b=breath_x[i+1]*127u;
+    unsigned divisor=(breath_x[i+1]-breath_x[i])*100u;
+    return (uint8_t)(((b-x)*breath_y[i]+(x-a)*breath_y[i+1]+divisor/2)/divisor);
+}
+static void send_breath(uint8_t raw) {
+    uint8_t out=breath_map(raw);
+    enqueue(2,out==127?INT32_MAX:midi31(out),0);
+}
+static void set_breath_point(unsigned i,int32_t y) {
+    uint8_t v=(uint8_t)ifw_clamp(y,0,100);
+    if(v==breath_y[i])return;
+    breath_y[i]=v;
+    if(last_breath_raw>=0)send_breath((uint8_t)last_breath_raw);
+    dirty=1;
+}
 /* Events are consumed once per 256-frame block, as in the released engine. */
 static void app_audio_begin(void) {
     uint32_t changed=0;
@@ -74,9 +102,10 @@ static void app_audio_begin(void) {
     while(qread!=qwrite) {
         RING_PUBLISH();AudioEvent e=queue[qread&(QSIZE-1)];qread++;
         switch(e.type) {
-        case 0:ifw_fixed_note_on(&synth,(uint32_t)e.a,e.b);break;
+        case 0:ifw_fixed_note_on(&synth,(uint32_t)e.a,e.b);
+               ifw_fixed_breath(&synth,breath_input);break;
         case 1:ifw_fixed_note_off(&synth,(uint32_t)e.a);break;
-        case 2:ifw_fixed_breath(&synth,e.a);break;
+        case 2:breath_input=e.a;ifw_fixed_breath(&synth,breath_input);break;
         case 3:set_word(&synth.patch,(uint32_t)e.a,e.b);changed=1;break;
         case 4:ifw_fixed_panic(&synth);break;
         case 5:if(e.a<(int32_t)FACTORY_COUNT)make_preset(&synth.patch,(uint32_t)e.a);else synth.patch=saved.user[e.a-FACTORY_COUNT];changed=1;break;
@@ -152,12 +181,22 @@ static void storage_load(void) {
     memset(&saved,0,sizeof saved);
     for(int i=0;i<3;i++)make_preset(&saved.user[i],0);
     for(int i=0;i<128;i++)saved.learn[i]=-1;
-    saved.octave=3;
+    saved.octave=3;breath_cc=BREATH_CC_DEFAULT;last_breath_raw=-1;
+    memcpy(breath_y,breath_x,sizeof breath_y);
     static uint8_t raw[sizeof saved];
     if(!st_read(SETTINGS_AT,raw,sizeof raw)) {
         uint32_t h[3];memcpy(h,raw,12);
         if(h[0]==0x32465749u && h[1]==2 && h[2]==app_crc(raw+12,sizeof raw-12)) {
             memcpy(&saved,raw,sizeof saved);
+            /* Optional extension in unused sector space. rc12 still reads its
+             * original CRC-covered record, including its old wind preference. */
+            BreathRecord ext;
+            if(!st_read(SETTINGS_AT+sizeof saved,&ext,sizeof ext) &&
+               !memcmp(ext.tag,"BR1",3) && ext.cc<=BREATH_CC_MAX &&
+               ext.crc==app_crc(ext.tag,sizeof ext-4) &&
+               ext.y[0]<=100 && ext.y[1]<=100 && ext.y[2]<=100 && ext.y[3]<=100) {
+                breath_cc=ext.cc;memcpy(breath_y,ext.y,sizeof breath_y);
+            }
             if(saved.octave>6)saved.octave=3;
             if(saved.channel>16)saved.channel=0;
             if(saved.slot>2)saved.slot=0;
@@ -171,11 +210,26 @@ static int storage_save(void) {
     saved.magic=0x32465749u;saved.version=2;saved.checksum=app_crc((const uint8_t *)&saved+12,sizeof saved-12);
     uint32_t took;if(fl_erase4k(SETTINGS_AT,&took))return -1;
     if(fl_write(SETTINGS_AT+12,(const uint8_t *)&saved+12,sizeof saved-12))return -1;
+    _Static_assert(sizeof saved+sizeof(BreathRecord)<=UI_PREFS_AT,"CC extension overlaps UI preferences");
+    BreathRecord ext={0,{'B','R','1'},breath_cc,{0}};
+    memcpy(ext.y,breath_y,sizeof breath_y);ext.crc=app_crc(ext.tag,sizeof ext-4);
+    if(fl_write(SETTINGS_AT+sizeof saved,(const uint8_t *)&ext,sizeof ext))return -1;
     if(fl_write(SETTINGS_AT,(const uint8_t *)&saved,12))return -1;
     return ui_storage_write();
 }
 static uint32_t control_id(uint32_t knob) {return ui_control_id(knob);}
+static void release_sustain(void) {
+    sustain=0;
+    for(int i=0;i<128;i++)if(sustain_hold[i]&&!midi_down[i]) {
+        enqueue(1,i,0);sustain_hold[i]=0;
+    }
+}
 static void edit_value(uint32_t id,int32_t movement,int absolute) {
+    if(id>=UC_BRPOINT0 && id<=UC_BRPOINT3) {
+        unsigned i=id-UC_BRPOINT0;
+        set_breath_point(i,absolute?(movement*100+63)/127:breath_y[i]+movement);
+        return;
+    }
     if(id>=233)return;
     const IFWPanelParam *p=&panel_params[id];int32_t value=word(&edit_patch,id);
     if(p->choice) {
@@ -186,8 +240,13 @@ static void edit_value(uint32_t id,int32_t movement,int absolute) {
     }else if(absolute)value=ifw_sat((int64_t)p->lo+ifw_sdiv64(((int64_t)p->hi-p->lo)*movement,127));
     else value=ifw_clamp(ifw_sat((int64_t)value+(int64_t)p->step*movement),p->lo,p->hi);
     if(id>=229) {
-        if(id==229) {saved.wind=(uint8_t)value;enqueue(2,value?0:INT32_MAX,0);}
-        if(id==230)saved.channel=(uint8_t)value;
+        if(id==229 && breath_cc!=value) {
+            if(value==64 && sustain)release_sustain();
+            breath_cc=(uint8_t)value;last_breath_raw=-1;enqueue(2,INT32_MAX,0);
+        }
+        if(id==230 && saved.channel!=value) {
+            saved.channel=(uint8_t)value;last_breath_raw=-1;enqueue(2,INT32_MAX,0);
+        }
         if(id==231)saved.octave=(uint8_t)value;
         if(id==232)saved.slot=(uint8_t)value;
     }else {set_word(&edit_patch,id,value);enqueue(3,(int32_t)id,value);patch_dirty=1;}
@@ -204,7 +263,6 @@ static void panic_panel(void) {
 static void note_start(uint32_t note,uint32_t velocity) {
     if(note>127)return;
     enqueue(0,(int32_t)note,midi31(velocity));
-    if(!saved.wind)enqueue(2,INT32_MAX,0);
 }
 static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
     if(saved.channel && (st&15u)+1u!=saved.channel)return;
@@ -214,7 +272,8 @@ static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
     else if(type==12) {for(uint32_t i=0;i<FACTORY_COUNT;i++)if(preset_programs[i]==a) {load_preset(i);break;}}
     else if(type==14)enqueue(6,((int32_t)a+(int32_t)b*128-8192)*262144,0);
     else if(type==11) {
-        if(a==120 || a==123)panic_panel();
+        if(a==breath_cc){last_breath_raw=b;send_breath(b);}
+        else if(a==120 || a==123)panic_panel();
         else if(a==99)nrpn=(uint16_t)((nrpn&127u)|((uint16_t)b<<7));
         else if(a==98)nrpn=(uint16_t)((nrpn&16256u)|b);
         else if(a==6)nrpn_value=(uint16_t)((nrpn_value&127u)|((uint16_t)b<<7));
@@ -224,8 +283,7 @@ static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
             else v=ifw_sat((int64_t)p->lo+ifw_sdiv64(((int64_t)p->hi-p->lo)*nrpn_value,16383));
             set_word(&edit_patch,nrpn,v);enqueue(3,nrpn,v);patch_dirty=1;dirty=1;
         }
-        else if(a==64) {uint8_t old=sustain;sustain=b>=64;if(old&&!sustain)for(int i=0;i<128;i++)if(sustain_hold[i]&&!midi_down[i]) {enqueue(1,i,0);sustain_hold[i]=0;}}
-        else if(a==7)enqueue(2,midi31(b),0);
+        else if(a==64) {if(b>=64)sustain=1;else if(sustain)release_sustain();}
         else if(a==9)enqueue(7,midi31(b),0);
         else if(a==5)enqueue(8,midi31(b),0);
         else if(learn_armed) {saved.learn[a]=(int16_t)last_control;learn_armed=0;ui_message("CC LEARNED / SAVE TO KEEP");}
@@ -296,7 +354,7 @@ static void diagnostics_service(void) {
     if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40712,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40713,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
@@ -305,7 +363,7 @@ static void diagnostics_service(void) {
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
     if(boot) {
         uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
-        uint32_t report[IFW_BOOT_WORDS]={1,40712,recovery_active,ifw_boot_reason,
+        uint32_t report[IFW_BOOT_WORDS]={1,40713,recovery_active,ifw_boot_reason,
             fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
             valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
             valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,

@@ -10,6 +10,16 @@ const recording=process.argv[2]==='--record-baseline';
 const wasm=readFileSync(recording?process.argv[3]:'build/test-web/openifw-historical-loud.wasm');
 const sha=b=>createHash('sha256').update(b).digest('hex');
 if(recording)assert.equal(sha(wasm),referenceSha,'Only published rc9 can establish this baseline');
+// Replay the same named rc9 screens. rc13 inserted a GLO page after CONTROL;
+// it is exercised separately by breath_curve.mjs. Retain the original hashes.
+const pages=JSON.parse(readFileSync('docs/ui-pages.json'));
+const rc9Pages=pages.filter(p=>p.key!=='BRCURVE');
+function nextLegacyPage(e){
+ if(recording){e.web_enc(0,1);return;}
+ const p=pages[e.web_page()],group=rc9Pages.filter(x=>x.group===p.group);
+ const next=group[(group.indexOf(p)+1)%group.length],all=pages.filter(x=>x.group===p.group);
+ e.web_enc(0,(all.indexOf(next)-all.indexOf(p)+all.length)%all.length||1);
+}
 const module=await WebAssembly.compile(wasm),rows=[];let samples=0,stateChecks=0;
 for(const program of [4,18,14,10,8,21])for(const master of [512,1023]) {
  const e=(await WebAssembly.instantiate(module,{})).exports;
@@ -21,14 +31,14 @@ for(const program of [4,18,14,10,8,21])for(const master of [512,1023]) {
   if(block>=12&&block<452&&block%5===2)e.web_midi(0x80,48+((block-2)/5)%25,0);
   if(block%30===0)e.web_buttons(1<<[4,2,3,9,0,5,6][Math.floor(block/30)%7]);
   if(block%30===3)e.web_buttons(0);
-  if(block%30===15)e.web_enc(0,1);
+  if(block%30===15)nextLegacyPage(e);
   if(block%40===18)e.web_enc(3,(block/40)&1?1:-1);
   if(block===470)e.web_midi(0xb0,123,0);
   e.web_render(256);
   for(const f of ['web_out_l','web_out_r']) {
    audio.update(new Uint8Array(e.memory.buffer,e[f](),1024));samples+=256;
   }
-  for(const f of ['web_note','web_held','web_page','web_preset','web_output_mode','web_now_ms'])add(e[f]());
+  for(const f of ['web_note','web_held','web_page','web_preset','web_output_mode','web_now_ms'])add(!recording && f==='web_page'?rc9Pages.indexOf(pages[e[f]()]):e[f]());
   for(let i=0;i<4;i++){add(e.web_env_stage(i));add(e.web_env_level(i));}
   state.update(new Uint8Array(e.memory.buffer,e.web_patch(),916));stateChecks++;
  }

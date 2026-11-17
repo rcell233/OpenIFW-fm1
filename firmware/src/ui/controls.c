@@ -318,7 +318,7 @@ static int32_t ui_menu_value(uint32_t tab, uint32_t row) {
     if (row == 0)
       return saved.channel;
     if (row == 1)
-      return saved.wind;
+      return breath_cc;
     if (row == 2)
       return learn_armed;
     return 0;
@@ -469,6 +469,7 @@ static void ui_knob(uint32_t k, int32_t d) {
     return;
   }
   uint32_t id = control_id(k);
+  if(id>=UC_BRPOINT0 && id<=UC_BRPOINT3){edit_value(id,d,0);return;}
   if (id == UC_PERFMODE) {
     perf_mode=(uint32_t)ifw_clamp((int32_t)perf_mode+d,0,2);
     perf_reset();dirty=1;

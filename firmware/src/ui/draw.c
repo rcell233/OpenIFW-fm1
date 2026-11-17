@@ -111,6 +111,9 @@ static void ui_fixed(char *s, int32_t v, int digits) {
   f[2] = 0;
   ui_append(s, f, 32);
 }
+static void ui_cc_text(char *s,int32_t cc) {
+  char n[8];ui_int(n,cc);str_cpy(s,"CC",32);ui_append(s,n,32);
+}
 static void ui_value(uint32_t id, char *s, int compact) {
   s[0] = 0;
   if (id == UI_NONE) {
@@ -161,11 +164,14 @@ static void ui_value(uint32_t id, char *s, int compact) {
     str_cpy(s, ui.action == a ? "OCT+" : "--", 32);
     return;
   }
+  if(id>=UC_BRPOINT0 && id<=UC_BRPOINT3){ui_int(s,breath_y[id-UC_BRPOINT0]);ui_append(s,"%",32);return;}
   if (id >= 237) {
     str_cpy(s, "--", 32);
     return;
   }
   int32_t v = word(&edit_patch, id);
+  if(id==229){ui_cc_text(s,v);return;}
+  if(id==230 && !v){str_cpy(s,"ALL",32);return;}
   if (id >= 156 && id < 226 && (id - 156) % 14 == 0) {
     str_cpy(s, ui_fx_disabled((id - 156) / 14) ? "ON" : "OFF", 32);
     return;
@@ -294,6 +300,7 @@ static void ui_value(uint32_t id, char *s, int compact) {
   ui_fixed(s, v, compact ? 1 : 2);
 }
 static uint32_t ui_gauge(uint32_t id) {
+  if(id>=UC_BRPOINT0 && id<=UC_BRPOINT3)return breath_y[id-UC_BRPOINT0];
   if (id == UC_MODSLOT)
     return ui.mod_slot * 100 / 7;
   if (id == UC_PRESET)
@@ -540,7 +547,7 @@ static const char *ui_menu_label(uint32_t t, uint32_t row) {
       {"COLOR", "STYLE", "REFRESH", "SCOPE", "NOTE NAMES"},
       {"HOLD", "KNOB ACCEL", "", "", ""},
       {"TUNING", "MASTER", "AMP 1", "AMP 2", "OUTPUT"},
-      {"CHANNEL", "WIND CC7", "LEARN", "CLEAR LEARN", ""},
+      {"CHANNEL", "BREATH CC", "LEARN", "CLEAR LEARN", ""},
       {"SAVE SETUP", "ALL PARAMS", "VERSION", "PERFORMANCE", "PANIC"}};
   return names[t % 5][row % 5];
 }
@@ -580,13 +587,15 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
         ui_int(s, v);
       else
         str_cpy(s, "ALL", 32);
-    } else if (r < 3)
+    } else if (r == 1)
+      ui_cc_text(s,v);
+    else if (r == 2)
       str_cpy(s, v ? "ON" : "OFF", 32);
     else
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc12", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc13", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -646,6 +655,31 @@ static void ui_name_screen(void) {
   ui_text(12,179,&UI_S,"OCT- ERASE / OCT+ SAVE",uc.theme);
   ui_footer();
 }
+/* Graph occupies only the existing stage band. No per-frame breath trace. */
+static void ui_breath_graph(void) {
+  const int left=38,right=220,top=98,bottom=177;
+  ui_text(4,78,&UI_S,"OUT %",uc.mid);
+  char cc[16];ui_cc_text(cc,breath_cc);
+  ui_fit(175,78,58,&UI_S,cc,uc.mid);
+  for(int i=0;i<3;i++) {
+    int v=100-i*50,y=bottom-(bottom-top)*v/100;
+    char label[8];ui_int(label,v);ui_text(left-5-text_w(&UI_S,label),y-8,&UI_S,label,uc.mid);
+    cv_rect(left,y,right-left+1,1,i==2?uc.mid:uc.line);
+  }
+  int px=0,py=0;
+  for(unsigned i=0;i<4;i++) {
+    int x=left+(right-left)*breath_x[i]/100,y=bottom-(bottom-top)*breath_y[i]/100;
+    cv_rect(x,top,1,bottom-top+1,i?uc.line:uc.mid);
+    if(i)cv_line(px,py,x,y,uc.text);
+    px=x;py=y;
+  }
+  for(unsigned i=0;i<4;i++) {
+    int x=left+(right-left)*breath_x[i]/100,y=bottom-(bottom-top)*breath_y[i]/100;
+    cv_rect(x-3,y-3,7,7,uc.knob[i]);cv_rect(x-1,y-1,3,3,uc.bg);
+    char label[8];ui_int(label,breath_x[i]);ui_text(x-text_w(&UI_S,label)/2,182,&UI_S,label,uc.mid);
+  }
+  ui_text(0,182,&UI_S,"IN%",uc.mid);
+}
 static void ui_stage(void) {
   /* The current damage rectangle is cleared by cv_begin(). */
   if (ui.layer) {
@@ -699,6 +733,7 @@ static void ui_stage(void) {
     ui_fx_graph();
     return;
   }
+  if (kind == UK_BRCURVE) {ui_breath_graph();return;}
   if (kind == UK_LEARN) {
     ui_center(9, 99, 222, &UI_M, learn_armed ? "LEARNING CC" : "MIDI LEARN",
               learn_armed ? uc.accent : uc.theme);
@@ -778,7 +813,7 @@ static void draw_panel(uint32_t full) {
   if(!initialized || full || ui_force_redraw || fm1_ms-model_at>=20u) {
   model_at=fm1_ms;
   uint32_t layout[16]={page,preset,ui.menu,ui.layer,ui.naming,ui.confirm,
-      ui.mod_slot,ui.menu_tab,ui.menu_row,ui.slot,ui.action,ui.layer_locked,ui.name_pos,saved.wind,saved.channel,saved.octave};
+      ui.mod_slot,ui.menu_tab,ui.menu_row,ui.slot,ui.action,ui.layer_locked,ui.name_pos,breath_cc,saved.channel,saved.octave};
   uint32_t header[5]={meter.held,(uint32_t)meter.note,patch_dirty,
       !!ui.notice_until,ui_prefs.names};
   uint32_t hot=ui.hot+(ui.hot_until?16u:0u);
@@ -796,7 +831,7 @@ static void draw_panel(uint32_t full) {
   for(uint32_t i=0;i<4;i++) {
     uint32_t id=control_id(i),gauge=ui_gauge(id);char value[32]={0};
     ui_value(id,value,1);
-    if(id!=old_id[i] || gauge!=old_gauge[i] || !ui_same_text(value,old_value[i]))ui_widgets|=2u;
+    if(id!=old_id[i] || gauge!=old_gauge[i] || !ui_same_text(value,old_value[i]))ui_widgets|=page==UP_BRCURVE?6u:2u;
     old_id[i]=id;old_gauge[i]=gauge;memcpy(old_value[i],value,sizeof value);
   }
   if(hot!=old_hot)ui_widgets|=6u;

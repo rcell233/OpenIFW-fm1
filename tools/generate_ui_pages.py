@@ -5,7 +5,7 @@ import json
 R=Path(__file__).resolve().parents[1]
 ids={p['name']:p['id'] for p in json.loads((R/'docs/parameters.json').read_text())}
 groups=['HOME','EDIT','ENV','LFO','MOD','FX','TUNE','AMP','GLOBAL','SAVE','PRESETS','ADVANCED']
-special=dict(PRESET=300,CORE=301,FAV=302,LIST=303,SLOT=304,LOAD=305,ERASE=306,SAVE=307,MODSLOT=308,MODSRC1=309,MODSRC2=310,MODDEST=311,MODDEPTH=312,PERFMODE=313,PERFRESET=314,PERFFREEZE=315,PERFSTATE=316)
+special=dict(PRESET=300,CORE=301,FAV=302,LIST=303,SLOT=304,LOAD=305,ERASE=306,SAVE=307,MODSLOT=308,MODSRC1=309,MODSRC2=310,MODDEST=311,MODDEPTH=312,PERFMODE=313,PERFRESET=314,PERFFREEZE=315,PERFSTATE=316,BRPOINT0=317,BRPOINT1=318,BRPOINT2=319,BRPOINT3=320)
 pages=[]
 def add(key,group,title,params,labels,kind='SCOPE',description=''):
  def ident(p):
@@ -51,7 +51,8 @@ add('EQ','FX','EQ / OUTPUT',['EqLowGain','EqHighGain','MasterLevel'],['LOW','HIG
 add('TUNE','TUNE','TUNING',['Transpose','MasterTune',226,'PitchBendRange'],['TRANS','CENTS','A4 HZ','BEND'],kind='VOICE')
 add('AMP','AMP','AMPLIFIERS',['Amp1Level','Amp1Breath','Amp2Level','Amp2Breath'],['LVL1','BR1','LVL2','BR2'],kind='MIX')
 add('AMPSOURCE','AMP','AMP / BREATH',['Amp1BreathSubMod','Amp2BreathSubMod','BreathSmoothTime'],['SRC1','SRC2','SMOOTH'],kind='ROUTE')
-add('GLOBAL','GLOBAL','CONTROL',[229,230,231,232],['WIND','MIDI','OCT','SLOT'],kind='SETTINGS')
+add('GLOBAL','GLOBAL','CONTROL',[229,230,231,232],['BR CC','MIDI','OCT','SLOT'],kind='SETTINGS')
+add('BRCURVE','GLOBAL','BREATH CURVE',['BRPOINT0','BRPOINT1','BRPOINT2','BRPOINT3'],['IN 0%','IN 33%','IN 66%','IN100%'],kind='BRCURVE')
 add('LEARN','GLOBAL','MIDI / LEARN',[],[],kind='LEARN',description='TURN PARAM / REC / SEND CC')
 add('SAVE','SAVE','USER SOUND',['SLOT','LOAD','ERASE','SAVE'],['SLOT','LOAD','ERASE','SAVE'],kind='SAVE')
 add('PRESETS','PRESETS','PRESETS',['PRESET','CORE','FAV','LIST'],['NO.','CORE','FAV','LIST'],kind='PRESETS')

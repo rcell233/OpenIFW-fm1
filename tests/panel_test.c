@@ -11,7 +11,7 @@ static int32_t audio[512];
 static void tick(void) {app_audio(audio,256);}
 static void reset(void) {
     memset(host_flash,255,sizeof host_flash);storage_load();ui_init();make_preset(&edit_patch,0);
-    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);ready=1;qwrite=qread=overflow=0;saved.wind=0;nrpn=16383;
+    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);ready=1;qwrite=qread=overflow=0;breath_input=INT32_MAX;nrpn=16383;
     memset(midi_down,0,sizeof midi_down);memset(sustain_hold,0,sizeof sustain_hold);sustain=0;
 }
 static void math_tests(void) {
@@ -160,10 +160,61 @@ static void render_tests(void) {
         }
         assert(!memcmp(expected,fb,sizeof expected));
     }
-    puts("PASS display: 57 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; six dirty rectangles");
+    puts("PASS display: 58 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; six dirty rectangles");
+}
+static void breath_input_tests(void) {
+    reset();assert(breath_cc==7 && breath_input==INT32_MAX);
+    midi_message(0x90,60,110);tick();assert(synth.breath_target==INT32_MAX);
+    midi_message(0xb0,7,35);midi_message(0x90,64,100);tick();
+    assert(synth.breath_target==midi31(35) && synth.mono.count==2);
+    midi_message(0xb0,7,0);midi_message(0x80,64,0);tick();
+    assert(synth.breath_target==0 && synth.note==60);
+    for(unsigned i=0;i<250;i++)tick();
+    midi_message(0xc0,10,0);midi_message(0xb0,123,0);note_start(68,100);tick();
+    assert(synth.breath_target==0);
+    ui_show(UP_GLOBAL);ui_knob(0,-5);tick();
+    assert(breath_cc==2 && synth.breath_target==INT32_MAX);
+    ui_knob(1,3);tick();assert(saved.channel==3);
+    midi_message(0xb0,2,22);midi_message(0xb2,7,4);tick();
+    assert(synth.breath_target==INT32_MAX);
+    midi_message(0xb2,2,43);note_start(65,100);tick();
+    assert(synth.breath_target==midi31(43));
+    // All assignable CC numbers, including those normally reserved for other
+    // panel functions. Keep the patch, sustain and NRPN paths independent.
+    IFWFixedPatch original=edit_patch;
+    for(unsigned cc=0;cc<=BREATH_CC_MAX;cc++) {
+        ui_change(229,(int32_t)cc-breath_cc);
+        midi_message(0xb2,cc,0);note_start(61,110);tick();assert(synth.breath_target==0);
+        midi_message(0xb2,cc,127);tick();assert(synth.breath_target==INT32_MAX);
+    }
+    assert(!memcmp(&original,&edit_patch,sizeof original) && !sustain && nrpn==16383);
+    for(unsigned v=0;v<128;v++)assert(breath_map(v)==v);
+    ui_show(UP_BRCURVE);
+    ui_knob(0,20);ui_knob(1,27);ui_knob(2,-46);ui_knob(3,-20);
+    assert(breath_map(0)==25 && breath_map(127)==102);
+    for(unsigned v=0;v<128;v++) {
+        double x=v*100.0/127,i=x<=33?0:x<=66?1:2;
+        unsigned j=(unsigned)i;
+        double y=breath_y[j]+(x-breath_x[j])*(breath_y[j+1]-breath_y[j])/(breath_x[j+1]-breath_x[j]);
+        assert(breath_map(v)==(unsigned)(y*1.27+0.50000001));
+    }
+    ui_knob(3,-80);tick();assert(synth.breath_target==0); /* remap held input=127 live */
+    ui_knob(0,120);ui_knob(3,-100);assert(breath_y[0]==100 && breath_y[3]==0);
+    ui_change(229,2-breath_cc);saved.wind=1;saved.slot=2;saved.learn[47]=P_Filter1Frequency;
+    assert(!storage_save());breath_cc=11;storage_load();
+    assert(breath_cc==2 && saved.channel==3 && saved.slot==2);
+    assert(breath_y[0]==100 && breath_y[1]==60 && breath_y[2]==20 && breath_y[3]==0);
+    // Simulate the erased space following an authentic v2 record (both old modes).
+    for(unsigned wind=0;wind<2;wind++){
+        saved.wind=wind;assert(!storage_save());
+        memset(host_flash+sizeof saved,255,sizeof(BreathRecord));storage_load();
+        assert(!memcmp(breath_y,breath_x,4));
+        assert(breath_cc==7 && saved.learn[47]==P_Filter1Frequency && saved.channel==3);
+    }
+    puts("PASS breath: default full, CC before note, zero retained across notes, silence, patch and panic; 120 selectable CCs, channel filter, save and v2 migration");
 }
 int main(void) {
-    math_tests();reset();
+    breath_input_tests();math_tests();reset();
     midi_message(0x90,60,80);tick();assert(synth.note==60 && synth.mono.count==1);
     midi_message(0x90,67,100);tick();assert(synth.note==67 && synth.mono.count==2);
     midi_message(0x90,67,90);tick();assert(synth.mono.count==2);

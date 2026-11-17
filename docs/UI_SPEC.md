@@ -1,6 +1,6 @@
 # 0.4.7-rc2 面板与操作
 
-rc12 保留 rc11 的 SLOOP 风格：黑底、细分隔线、四旋钮分色与大号数值，使用同源 Terminus Bold 8×16 字体及整数放大的 16×32 字体。57 页的参数映射、音色、OSC / FM、调制、包络、Mono / Legato、混响保持不变；输出按用户要求恢复为 rc8 NORMAL，AUDIO → OUTPUT 只读，所有主题的页面背景固定黑色。SELECT / ALGORITHM 的导航分工按用户要求调整如下；实际屏幕见 [界面与配色](OUTPUT_RESTORE_0.4.7-rc12.md)，逐页映射在 `ui-pages.json`。
+rc12 保留 rc11 的 SLOOP 风格：黑底、细分隔线、四旋钮分色与大号数值，使用同源 Terminus Bold 8×16 字体及整数放大的 16×32 字体。原有 57 页的合成参数映射、音色、OSC / FM、调制、包络、Mono / Legato、混响保持不变；输出按用户要求恢复为 rc8 NORMAL，AUDIO → OUTPUT 只读，所有主题的页面背景固定黑色。SELECT / ALGORITHM 的导航分工按用户要求调整如下；实际屏幕见 [界面与配色](OUTPUT_RESTORE_0.4.7-rc12.md)，逐页映射在 `ui-pages.json`。
 
 | 控件 | 操作 |
 | --- | --- |
@@ -18,7 +18,7 @@ rc12 保留 rc11 的 SLOOP 风格：黑底、细分隔线、四旋钮分色与�
 | FX | 总混合、Phaser、Delay1、Delay2、Reverb、Chorus、Exciter、Enhancer 与 EQ |
 | SCL | Transpose、Cents、A4 调音与 Bend Range |
 | ARP | 两组 AMP 的电平、气息深度与来源 |
-| GLO | 气息模式、MIDI 通道、八度、保存槽和 MIDI Learn 提示 |
+| GLO | 呼吸 CC、四点气息折线、MIDI 通道、八度、保存槽和 MIDI Learn 提示 |
 | SAVE | 用户槽界面；再次按进入预设列表。长按撤销 / 重做上次加载 |
 | REC | 学习最后编辑参数对应的下一个非保留 CC；再按取消 |
 | OCT− / OCT+ | 普通页改八度；确认框中取消 / 确认；命名中删除 / 保存 |
@@ -41,7 +41,7 @@ SAVE 页的四旋钮为 SLOT / LOAD / ERASE / SAVE。旋钮向右选择操作，
 
 HOME 菜单分 DISP / CTRL / AUDIO / MIDI / SYS。SELECT 选分类，PRESETS 选行，任意参数旋钮或 OCT± 改值；HOME 关闭。配色有 SLOOP / FOREST / AMBER / MONO / OCEAN / VIOLET / EMBER / ICE；ALGORITHM 向两侧循环。配色、实心 / 线框、REFRESH NORMAL / LOW、示波器模式、音名、长按阈值、加速、收藏和用户名称存在原 settings sector 尾部，保留旧版 patch 格式和 CRC。旧的样式和动画位沿用存储位置；REFRESH 的 NORMAL / LOW 分别把动态更新限制在最高 20 / 10 Hz，两者均继续刷新波形。SCOPE OFF 才关闭波形，不能把 LOW 当作停止波形。
 
-MIDI 保持原有语义：Note On / Off、最后按键优先、CC7 Breath、CC9 Vibrato、CC5 Glide、14 位 Pitch Bend、CC64 Sustain、CC120/123 Panic。Program Change 使用 4、18、14、10、8、21。CC20–23 仍可对当前真实参数做绝对值编辑；列表动作不通过该通道触发。NRPN 0–228 的参数传输格式未改。
+MIDI 保持原有语义：Note On / Off、最后按键优先、可选 Breath CC（默认 CC7）、CC9 Vibrato、CC5 Glide、14 位 Pitch Bend、CC64 Sustain、CC120/123 Panic。Program Change 使用 4、18、14、10、8、21。CC20–23 仍可对当前真实参数做绝对值编辑；列表动作不通过该通道触发。NRPN 0–228 的参数传输格式未改。
 
 浏览器由真实 C 固件运行上述逻辑，JavaScript 只传入控件输入并显示 LCD / LED / 状态。浏览器和目标共享 `app_step`、参数事件队列与存储逻辑；USB 外设、杰理指令和实时 CPU 不在仿真范围内。
 
@@ -51,3 +51,11 @@ MIDI 保持原有语义：Note On / Off、最后按键优先、CC7 Breath、CC9 
 GLO 的第三页为 PERFORMANCE；也可长按 HOME，在 SYS 选 PERFORMANCE 并向右操作打开。K1 为 SYNTH / SINE / MUTE，K2 向右清零统计，K3 冻结读数，K4 为只读状态。SINE 为低电平 440 Hz，MUTE 为全零，均临时跳过 DSP；退出该页自动回到 SYNTH，重启也默认 SYNTH，不保存到音色或配置。网页显示 TIMING: DEVICE ONLY / N.A.，不把电脑 CPU 当作设备测量。真机统计项见 [硬件验证](HARDWARE_TEST.md)。
 
 切配色只更新 RAM 中的显示设置，不排队音频事件，不修改当前页、音色或编辑参数，不在演奏中写 Flash。保存仍须 SYS → SAVE SETUP 确认。偏好记录保持原 60 字节和 CRC，基础 palette 字段保留 0–3；扩展主题写入原记录末尾的预留字节，旧版回退仍能读取其他设置。连续切色更新现有待绘制区域，不把刷新游标不断重置到页首；音频优先级、DMA gate、六个矩形和动态刷新节奏保留。
+
+## rc13 呼吸输入与曲线
+
+GLO → CONTROL：旋钮 1 选择呼吸编号 CC0–119，旋钮 2 选择全局接收通道 ALL 或 1–16。下一页 BREATH CURVE 的四点横坐标为 0%、33%、66%、100%；四个旋钮控制各点的输出百分比。允许平段和下降段，两端可调，默认 0/33/66/100 原样传递所有 MIDI 值。折线只在收到 CC 或编辑控制点时计算，之后沿用音色原有的 Breath Smooth。
+
+未收到所选输入时气息为满值（不经过自定义曲线）。收到后记住原始 CC，包括 0，按键、Legato、切音色不会改写。编辑点位即时重算已收到的值。换编号、换接收通道或重启，重新等待输入。所选 CC 在固件中优先用作气息；CC120–127 不可选。如果在 Demo 里选 CC20–27，请关闭网页可选的 MIDI 旋钮映射。
+
+长按 HOME → SYS → SAVE SETUP → OCT+ 保存编号、通道及四点；只保存映射，不保存实时气息值。旧设置没有扩展记录时保留原音色、通道、MIDI Learn 和主题，启用 CC7 与直线。

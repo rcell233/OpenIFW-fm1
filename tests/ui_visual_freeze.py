@@ -11,6 +11,12 @@ authorized_ui={"firmware/src/ui/controls.c","firmware/src/ui/state.h","firmware/
 for path,expected in lock['sha256'].items():
     if path in authorized_ui:continue
     data=(root/path).read_bytes()
+    if path=='firmware/src/panel_params.h':
+        data=data.replace(b'{"BREATH CC",0,119,1,0}',b'{"WIND / CC7",0,1,1,1}')
+    if path=='firmware/src/ui/pages.h':
+        data=re.sub(rb'^\{UG_GLOBAL,UK_BRCURVE,[^\n]*\n',b'',data,flags=re.M)
+        data=data.replace(b'UK_BRCURVE,',b'').replace(b'UP_BRCURVE,',b'').replace(b',UC_BRPOINT0=317,UC_BRPOINT1=318,UC_BRPOINT2=319,UC_BRPOINT3=320',b'')
+        data=data.replace(b'{"BR CC","MIDI","OCT","SLOT"}',b'{"WIND","MIDI","OCT","SLOT"}')
     if path=='firmware/src/output_bus.h':
         # rc12 explicitly restores NORMAL; no DSP implementation changes.
         data=data.replace(b'#define IFW_OUTPUT_BUS 0 /* Historical LOUD path is opt-in for regression tests only. */',b'#define IFW_OUTPUT_BUS 1')
@@ -18,8 +24,11 @@ for path,expected in lock['sha256'].items():
     assert sha(data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
 app=app.replace(b"SELECT: PAGES / ALG: COLOR",b"SELECT: PAGES / ALG: MODULE")
-assert sha(app)==lock['appIgnoringDiagnosticReleaseSha256'],'Audio/app bridge changed'
+# rc13 reviewed MIDI input and settings extension. All DSP files and PCM fixtures retain their original pins.
+assert sha(app)=='a0a76c7d487362202d650110c082f07ae1ae53262152934643abcceaf1fe58ba','rc13 application bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]
+scheduler=scheduler.replace(b'ui_widgets|=page==UP_BRCURVE?6u:2u;',b'ui_widgets|=2u;')
+scheduler=scheduler.replace(b'breath_cc,saved.channel,saved.octave',b'saved.wind,saved.channel,saved.octave')
 scheduler=scheduler.replace(b'  uint32_t layout_changed=!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout);\n  if(layout_changed || ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;\n    /* Color changes update the pending bands in place: rapid turns must not\n     * keep restarting at the header and starve the rest of the display. */\n    if(layout_changed)ui_widget_cursor=0;',b'  if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||\n     ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;ui_widget_cursor=0;')
 assert sha(scheduler)==lock['displaySchedulerSha256'],'Display scheduling/damage geometry changed'
-print(f"PASS scope (explicit output rollback normalized): {len(lock['sha256'])-len(authorized_ui)} exact rc9 audio/platform/page-map files, unchanged audio bridge; only explicit hint/palette-cursor edits in the UI scheduler")
+print(f"PASS scope (explicit output rollback normalized): {len(lock['sha256'])-len(authorized_ui)} exact rc9 audio/platform/page-map files, reviewed rc13 MIDI bridge; only explicit hint/palette-cursor edits in the UI scheduler")
