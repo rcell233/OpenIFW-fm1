@@ -155,6 +155,7 @@ web-test: web
 	node tests/output_restore.mjs
 	node tests/breath_curve.mjs
 	node tests/midi_handoff.mjs
+	node tests/web_midi_input.mjs
 	node tests/installer_test.mjs
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin

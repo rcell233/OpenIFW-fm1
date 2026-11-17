@@ -6,6 +6,8 @@
 
 ![实际 C 固件 LCD：同一气息在主页与曲线页的读数，以及增强气息后光点的位置](docs/evidence/breath-live-rc14.png)
 
+**用 USB MIDI 演奏网页 Demo：** 用桌面 Chrome 或 Edge 直接打开 [Demo](https://rcell233.github.io/OpenIFW-fm1/)，点 **Connect MIDI** 并允许访问。按钮下会列出已打开的输入端口；点 **Switch on** 开声。弹琴或吹奏时，「最近输入」会显示设备名、MIDI 通道、音符或 CC 数值。若能看到 CC2 但屏幕的气息仍为 `--`，把 GLO → CONTROL 的 BR CC 设为 2，并核对接收通道。没有设备或权限被拒时，页面会分别提示原因。
+
 从 GLO → CONTROL 右转 SELECT 一格进入 BREATH CURVE。四个旋钮分别设定输入 0/33/66/100% 时的输出（0–100%）；默认直线。轻吹响应示例为 0/63/85/100%。长按 HOME → SYS → SAVE SETUP → OCT+ 保存。
 
 OpenIFW 的 FM-1 专用单音合成器移植。网页默认安装 **0.4.7-rc14**；[回退到 0.4.7-rc13](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc13) 可恢复此次更新前的行为；[0.4.7-rc12](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc12) 可回退至原 WIND 模式；[0.4.7-rc11](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc11&v=0.4.7-rc12) 保留为回退包（较响的 LOUD 输出及原主题背景）；[0.4.7-rc10](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc10&v=0.4.7-rc11) 可恢复上版字体与旋钮分工；[0.4.7-rc9](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc9&v=0.4.7-rc10) 可恢复旧界面及 LOUD 输出；[0.4.7-rc8](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc8&v=0.4.7-rc9) 可恢复之前的界面及原输出；[0.4.7-rc7](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc7&v=0.4.7-rc8) 可回退本轮内核优化；[0.4.7-rc5](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc5&v=0.4.7-rc7) 保留为 CPU 优化前的回退包；[0.4.7-rc4](https://rcell233.github.io/OpenIFW-fm1/install/?recovery=0.4.7-rc4&v=0.4.7-rc5) 保留为回退包，可恢复之前的混响；rc3 仍可恢复较低的原输出音量。曾启动失败的 rc1 继续撤回。[先前逐模块分析](docs/PRESET_COST_0.4.7-rc2.md)、[rc3 效果器优化](docs/FX_0.4.7-rc3.md) 与 [rc2 恢复记录](docs/RECOVERY_0.4.7-rc2.md) 保留。

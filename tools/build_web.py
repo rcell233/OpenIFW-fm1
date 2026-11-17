@@ -10,7 +10,7 @@ if not Path(cc).is_file() and not shutil.which(cc):
 subprocess.run(['python3',str(R/'tools/generate_presets.py')],check=True)
 if O.exists():shutil.rmtree(O)
 O.mkdir(parents=True)
-for name in ['index.html','worklet.js']:shutil.copy2(R/'web'/name,O/name)
+for name in ['index.html','worklet.js','midi-input.js']:shutil.copy2(R/'web'/name,O/name)
 if (R/'web/fonts').exists():shutil.copytree(R/'web/fonts',O/'fonts')
 for n in ['LICENSE','THIRD_PARTY_NOTICES.md']:shutil.copy2(R/n,O/n)
 shutil.copytree(R/'vendor/openifw/presets',O/'presets')

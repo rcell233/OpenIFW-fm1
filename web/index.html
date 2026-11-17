@@ -66,6 +66,9 @@ a { color: inherit; }
 .start p { margin: 0; max-width: 32em; text-align: center; color: #fff; }
 .keys, footer { margin: 16px 0 0; color: var(--dim); text-align: center; }
 .keys span { white-space: nowrap; margin: 0 8px; }
+.midi-info { margin: 5px auto; text-align: center; color: var(--dim); }
+.midi-info:empty { display: none; }
+#midi-activity { color: var(--lit); font-variant-numeric: tabular-nums; }
 .keys select { font: inherit; font-size: 12px; }
 kbd { font: 600 11px ui-monospace, Menlo, monospace; border: 1px solid var(--rule); padding: 0 4px; color: var(--fg); }
 footer { margin-top: 12px; font-size: 12px; }
@@ -97,6 +100,8 @@ footer small { font-size: 11px; opacity: .8; }
     <option value="sign">relative sign bit</option>
   </select></span>
 </p>
+<p class="midi-info" lang="zh-CN" id="midi-status" role="status">连接 USB MIDI 控制器后，点 Connect MIDI。</p>
+<p class="midi-info" lang="zh-CN" id="midi-activity"></p>
 
 <footer>
   <small class="version">OpenIFW FM-1 · 0.4.7-rc14 · Firmware simulator</small><br>
@@ -107,6 +112,7 @@ footer small { font-size: 11px; opacity: .8; }
 </main>
 
 <script type="module">
+import { attachMidi } from "./midi-input.js?v=1";
 import { midiKnob, KNOB_MODES } from "./worklet.js?v=0.4.7-rc14";
 const NS = "http://www.w3.org/2000/svg";
 // panel.c's labels (bit = label) and encoder roles
@@ -474,28 +480,17 @@ knobSelect.addEventListener("change", () => {
   try { localStorage.setItem(KNOB_MODE, knobMode); } catch {}
 });
 document.getElementById("midiknobs").hidden = !navigator.requestMIDIAccess;
-document.getElementById("midi").hidden = !navigator.requestMIDIAccess;
-document.getElementById("midi").addEventListener("click", midiOn);
-async function midiOn() {
-  if (!navigator.requestMIDIAccess) return;
-  try {
-    const access = await navigator.requestMIDIAccess();
-    const bind = () => {
-      for (const input of access.inputs.values()) {
-        input.onmidimessage = (e) => {
-          const d = e.data;
-          if (d.length < 2 || d[0] < 0x80 || d[0] >= 0xF0) return;
-          const k = knobsOn && (d[0] & 0xF0) === 0xB0 ? midiKnob(knobCC, d[1], d[2] || 0, knobMode) : null;
-          if (!k) send({ type: "midi", data: [d[0], d[1], d[2] || 0] });
-          else if (k.master !== undefined) { setMaster(k.master); drawKnob(knobs.find((x) => x.role === "master")); }
-          else turn(knobs.find((x) => x.role === k.role), k.n);
-        };
-      }
-    };
-    access.onstatechange = bind;
-    bind();
-  } catch { /* no permission: the panel only */ }
-}
+const midi = attachMidi({
+  nav: navigator, secure: window.isSecureContext, policy: document.permissionsPolicy || document.featurePolicy,
+  button: document.getElementById("midi"), status: document.getElementById("midi-status"),
+  activity: document.getElementById("midi-activity"),
+  forward(d) {
+    const k = knobsOn && (d[0] & 0xF0) === 0xB0 ? midiKnob(knobCC, d[1], d[2] || 0, knobMode) : null;
+    if (!k) send({ type: "midi", data: [d[0], d[1], d[2] || 0] });
+    else if (k.master !== undefined) { setMaster(k.master); drawKnob(knobs.find((x) => x.role === "master")); }
+    else turn(knobs.find((x) => x.role === k.role), k.n);
+  }
+});
 
 // ------------------------------------------------------------------ switching on
 const status = document.getElementById("status");
@@ -532,6 +527,7 @@ async function switchOn() {
       node.port.postMessage({ type: "load", wasm, sectors: loadFlash(), master: masterValue }, [wasm]);
     });
     await resume;
+    midi.setPowered(true);
     document.getElementById("start").hidden = true;
     go.textContent = "On";
     if (ac.sampleRate !== 44100) console.warn(`OpenIFW: the browser plays at ${ac.sampleRate} Hz, the pitch is off by ${(1200 * Math.log2(ac.sampleRate / 44100)).toFixed(0)} cents.`);
