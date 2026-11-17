@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Preserve rc9 audio/platform state; allow only the requested UI/navigation edits."""
 import hashlib,json,re
+from upstream_131_lock import audit,historical_hash
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
 lock=json.loads((root/'docs/evidence/ui-rc9-baseline.json').read_text())
@@ -21,14 +22,14 @@ for path,expected in lock['sha256'].items():
         # rc12 explicitly restores NORMAL; no DSP implementation changes.
         data=data.replace(b'#define IFW_OUTPUT_BUS 0 /* Historical LOUD path is opt-in for regression tests only. */',b'#define IFW_OUTPUT_BUS 1')
         data=data.replace(b'b->mode=IFW_OUTPUT_BUS && mode==IFW_OUTPUT_LOUD;',b'b->mode=mode==IFW_OUTPUT_LOUD;')
-    assert sha(data)==expected,'UI-only release changed: '+path
+    assert historical_hash(path,data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
 app=app.replace(b"SELECT: PAGES / ALG: COLOR",b"SELECT: PAGES / ALG: MODULE")
 # rc13 reviewed MIDI input and settings extension. All DSP files and PCM fixtures retain their original pins.
+app=app.replace(b'        if(n)ifw_fixed_begin_frames(&synth); /* Output time advances even with DSP bypassed. */\n',b'')
 assert sha(app)=='a0a76c7d487362202d650110c082f07ae1ae53262152934643abcceaf1fe58ba','rc13 application bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]
-scheduler=scheduler.replace(b'ui_widgets|=page==UP_BRCURVE?6u:2u;',b'ui_widgets|=2u;')
-scheduler=scheduler.replace(b'breath_cc,saved.channel,saved.octave',b'saved.wind,saved.channel,saved.octave')
-scheduler=scheduler.replace(b'  uint32_t layout_changed=!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout);\n  if(layout_changed || ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;\n    /* Color changes update the pending bands in place: rapid turns must not\n     * keep restarting at the header and starve the rest of the display. */\n    if(layout_changed)ui_widget_cursor=0;',b'  if(!initialized || ui_force_redraw || memcmp(layout,old_layout,sizeof layout) ||\n     ui_prefs.palette!=old_prefs.palette || ui_prefs.style!=old_prefs.style) {\n    ui_widgets=15u;ui_widget_cursor=0;')
-assert sha(scheduler)==lock['displaySchedulerSha256'],'Display scheduling/damage geometry changed'
-print(f"PASS scope (explicit output rollback normalized): {len(lock['sha256'])-len(authorized_ui)} exact rc9 audio/platform/page-map files, reviewed rc13 MIDI bridge; only explicit hint/palette-cursor edits in the UI scheduler")
+# The rc14 live readout and marker add two bounded DMA widgets. Keep the
+# exact scheduler body pinned; the actual damage behavior is replayed too.
+assert sha(scheduler)==audit['drawPanelSha256'],'Display scheduler changed'
+print("PASS historical source freezes, reviewed 1.3.1 note handoff and rc14 display scheduler")

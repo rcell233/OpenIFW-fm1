@@ -40,7 +40,7 @@ static volatile uint32_t ui_transfer_pending;
 /* Dirty widgets, in screen order: header, knob cards, stage, footer. */
 static uint32_t ui_drawing,ui_widgets,ui_widget_cursor,ui_force_redraw=1;
 /* The home plot and EG meters have separate small damage rectangles. */
-#define UI_WIDGET_COUNT 6u
+#define UI_WIDGET_COUNT 8u
 static volatile uint32_t ui_frame_count,ui_lcd_pixels;
 static uint32_t ui_widget_updates[UI_WIDGET_COUNT];
 static volatile uint32_t ui_widget_max_ticks[UI_WIDGET_COUNT];

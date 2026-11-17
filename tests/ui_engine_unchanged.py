@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Keep the original UI freeze and explicitly audit authorized DSP optimizations."""
 from pathlib import Path
-import hashlib,json,re
+import json,re
+from upstream_131_lock import historical_hash
 root=Path(__file__).resolve().parents[1]
 baseline=json.loads((root/'docs/evidence/ui-engine-baseline.json').read_text())
 optimized=json.loads((root/'docs/evidence/dsp-optimization-baseline.json').read_text())['optimizedSha256']
@@ -20,23 +21,23 @@ assert set(kernels['sha256'])=={'firmware/src/fixed/synth.c','firmware/src/fixed
 assert kernels['previousSha256']=={p:cpu['sha256'].get(p,optimized[p]) for p in kernels['sha256']}
 assert set(kernels['addedSourceSha256'])=={'firmware/src/fixed/soft_division.h'}
 for p,h in precision['sha256'].items():
-    assert hashlib.sha256((root/p).read_bytes()).hexdigest()==kernels['sha256'].get(p,cpu['sha256'].get(p,h)),'Authorized FX source changed: '+p
+    assert historical_hash(p,(root/p).read_bytes())==kernels['sha256'].get(p,cpu['sha256'].get(p,h)),'Authorized FX source changed: '+p
 for p,h in cpu['sha256'].items():
-    assert hashlib.sha256((root/p).read_bytes()).hexdigest()==kernels['sha256'].get(p,h),'Authorized CPU source changed: '+p
+    assert historical_hash(p,(root/p).read_bytes())==kernels['sha256'].get(p,h),'Authorized CPU source changed: '+p
 for p,h in {**kernels['sha256'],**kernels['addedSourceSha256']}.items():
-    assert hashlib.sha256((root/p).read_bytes()).hexdigest()==h,'Authorized kernel source changed: '+p
+    assert historical_hash(p,(root/p).read_bytes())==h,'Authorized kernel source changed: '+p
 for p,h in extra.items():
     data=(root/p).read_bytes()
     if p=='firmware/src/dsp.c':
         suffix=b'/* Separate output dynamics; the original engine above is unchanged. */\n#include \"output_bus.c\"\n'
         assert data.endswith(suffix)
         data=data[:-len(suffix)]
-    if hashlib.sha256(data).hexdigest()!=h:raise SystemExit('Target DSP helper changed: '+p)
+    if historical_hash(p,data)!=h:raise SystemExit('Target DSP helper changed: '+p)
 allowed={'firmware/src/fixed/synth.c','firmware/src/fixed/synth.h',
          'firmware/src/fixed/effects.c','firmware/src/fixed/math.h','firmware/src/fixed/math.c'}
 if set(optimized)!=allowed:raise SystemExit('Unexpected DSP optimization exception')
 changed=[p for p,h in baseline['sha256'].items()
-         if hashlib.sha256((root/p).read_bytes()).hexdigest()!=kernels['sha256'].get(p,cpu['sha256'].get(p,precision['sha256'].get(p,optimized.get(p,h))))]
+         if historical_hash(p,(root/p).read_bytes())!=kernels['sha256'].get(p,cpu['sha256'].get(p,precision['sha256'].get(p,optimized.get(p,h))))]
 if changed:raise SystemExit('Frozen engine/preset changed: '+', '.join(changed))
 print(f"PASS source audit: {len(baseline['sha256'])-len(optimized)} frozen files; "
       f"{len(optimized)} explicitly recorded performance changes, with separate exact PCM/state regressions.")

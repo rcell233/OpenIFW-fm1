@@ -11,7 +11,7 @@ build/ifw-reference: $(REFERENCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
+test: note-handoff-test all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -154,6 +154,7 @@ web-test: web
 	node tests/output_bus.mjs
 	node tests/output_restore.mjs
 	node tests/breath_curve.mjs
+	node tests/midi_handoff.mjs
 	node tests/installer_test.mjs
 	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-misleading-indentation -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/gen tests/emu_native.c $(APP_DSP) -o build/ui-sanitize
 	ASAN_OPTIONS=detect_leaks=0 build/ui-sanitize < build/ui/input.bin
@@ -171,6 +172,11 @@ sanitize:
 build/ifw-reference-sanitize: $(REFERENCE) $(HEADERS)
 	mkdir -p build
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
+.PHONY: note-handoff-test
+note-handoff-test:
+	mkdir -p build
+	$(CC) -O2 -std=c11 -Wno-misleading-indentation -iquotefirmware/src/fixed -iquotefirmware/src tests/note_handoff.c firmware/src/dsp.c -o build/note-handoff
+	build/note-handoff
 fixed-test:
 	sh tests/test_fixed.sh
 firmware-check:

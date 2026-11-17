@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Integer port of OpenIFW a478abd. Audio is Q20, control CV is Q16, gates Q31.
+ * Integer port of OpenIFW 1.3.1. Audio is Q20, control CV is Q16, gates Q31.
  */
 #include "synth.h"
 #include "patch_defaults.h"
@@ -223,7 +223,8 @@ void ifw_fixed_init(IFWFixedSynth *s,const IFWFixedPatch *p,IFWFixedFxBuffers *b
 }
 void ifw_fixed_note_on(IFWFixedSynth *s,uint32_t note,int32_t velocity) {
     if(note>127)return;
-    int legato=ifw_mono_on(&s->mono,note);
+    int legato=ifw_mono_on(&s->mono,note) || s->release_pending;
+    s->release_pending=0;
     s->held_velocity[note]=velocity;s->velocity=velocity;s->note=(int32_t)note;s->pitch_target=(int32_t)note*65536;
     s->glide_from=s->pitch;s->glide_elapsed=0;s->glide_fraction=0;
     if(!legato && s->gate<214748)s->pitch=s->glide_from=s->pitch_target;
@@ -234,12 +235,11 @@ void ifw_fixed_note_on(IFWFixedSynth *s,uint32_t note,int32_t velocity) {
     for(int i=0;i<2;i++)if(L(i,KeySync))s->lfo_phase[i]=0;
 }
 void ifw_fixed_note_off(IFWFixedSynth *s,uint32_t note) {
-    ifw_mono_off(&s->mono,note);int current=ifw_mono_current(&s->mono);
+    if(!ifw_mono_off(&s->mono,note))return;
+    int current=ifw_mono_current(&s->mono);
     if(current>=0) {s->note=current;s->pitch_target=current*65536;s->velocity=s->held_velocity[current];
         s->glide_from=s->pitch;s->glide_elapsed=0;s->glide_fraction=0;}
-    else {s->gate_target=0;s->gate_step=(int32_t)(((int64_t)s->gate*ifw_linear_step31(V(GateCloseSmoothTime)))>>31);
-        if(!s->gate_step && s->gate)s->gate_step=1;
-        for(int i=0;i<4;i++)ifw_fixed_env_gate(&s->env[i],0,0);}
+    else s->release_pending=1;
 }
 void ifw_fixed_breath(IFWFixedSynth *s,int32_t value) {
     value=ifw_clamp(value,0,INT32_MAX);if(value==s->breath_target)return;
@@ -251,7 +251,7 @@ void ifw_fixed_breath(IFWFixedSynth *s,int32_t value) {
     s->breath_step=(value-s->breath)/(int32_t)samples;
 }
 void ifw_fixed_panic(IFWFixedSynth *s) {
-    ifw_mono_clear(&s->mono);s->gate=s->gate_target=s->gate_step=0;
+    s->release_pending=0;ifw_mono_clear(&s->mono);s->gate=s->gate_target=s->gate_step=0;
     s->breath=s->breath_target=s->breath_step=s->breath_left=0;
     for(int i=0;i<4;i++) {s->env[i].stage=0;s->env[i].level=0;}
     for(int i=0;i<2;i++) {memset(s->filter[i].z,0,sizeof s->filter[i].z);s->filter[i].last=0;}
@@ -380,7 +380,7 @@ static int32_t oscillator_sample(IFWFixedSynth *s) {
     return ifw_mul30_bounded(ifw_addsat(ifw_mul20(filter3_tick(&s->filter3,a),amp_gain(s,0)),
         ifw_mul20(b,amp_gain(s,1))),39728447);
 }
-void ifw_fixed_sample(IFWFixedSynth *s,int32_t *left,int32_t *right) {
+static void fixed_tick(IFWFixedSynth *s,int32_t *left,int32_t *right) {
     s->source_valid=0;
     if(s->breath_left) {s->breath+=s->breath_step;if(!--s->breath_left)s->breath=s->breath_target;}
     if(s->bend!=s->bend_target)s->bend=ifw_sat((int64_t)s->bend+(((int64_t)s->bend_target-s->bend)*s->bend_k>>31));
@@ -414,6 +414,25 @@ void ifw_fixed_sample(IFWFixedSynth *s,int32_t *left,int32_t *right) {
     *right=ifw_clamp(master==IFW_Q16?s->effects.sample_right:ifw_mul16(s->effects.sample_right,master),-IFW_Q20,IFW_Q20);
     if(s->gate_target)s->note_samples++;
 }
+/* Same-instant off/on must resolve before the first actual sample (upstream 1.3.1). */
+void ifw_fixed_begin_frames(IFWFixedSynth *s) {
+    if(s->release_pending) {
+        s->release_pending=0;
+        s->gate_target=0;s->gate_step=(int32_t)(((int64_t)s->gate*ifw_linear_step31(V(GateCloseSmoothTime)))>>31);
+        if(!s->gate_step && s->gate)s->gate_step=1;
+        for(int i=0;i<4;i++)ifw_fixed_env_gate(&s->env[i],0,0);
+    }
+}
+/* Keep the single-frame entry addressable for target timing probes. */
+#ifdef IFW_TARGET
+__attribute__((noinline))
+#endif
+void ifw_fixed_sample(IFWFixedSynth *s,int32_t *l,int32_t *r) {
+    ifw_fixed_begin_frames(s);fixed_tick(s,l,r);
+}
 void ifw_fixed_process(IFWFixedSynth *s,int32_t *out,uint32_t frames) {
-    for(uint32_t i=0;i<frames;i++) {int32_t l,r;ifw_fixed_sample(s,&l,&r);out[2*i]=ifw_clamp((l+16)>>5,-32767,32767);out[2*i+1]=ifw_clamp((r+16)>>5,-32767,32767);}
+    if(!frames)return;
+    int32_t l,r;ifw_fixed_sample(s,&l,&r);
+    out[0]=ifw_clamp((l+16)>>5,-32767,32767);out[1]=ifw_clamp((r+16)>>5,-32767,32767);
+    for(uint32_t i=1;i<frames;i++) {fixed_tick(s,&l,&r);out[2*i]=ifw_clamp((l+16)>>5,-32767,32767);out[2*i+1]=ifw_clamp((r+16)>>5,-32767,32767);}
 }

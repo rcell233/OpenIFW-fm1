@@ -1,0 +1,33 @@
+{
+  "sources": {
+    "firmware/src/control/mono.c": {
+      "rc13": "5d25e9bdec273f5192f4566742661ab8bf9c29b4049bc967d30ec2a250d395b7",
+      "rc14": "13cecc2d5160930a3404d11fe80b04d48347169581ed21ba2039c89026206a2f"
+    },
+    "firmware/src/control/mono.h": {
+      "rc13": "e7294a660a2f6484732702f5b1769e60a23e0ca671e0778aa92119965ebf6cc1",
+      "rc14": "a235a44db72ebd590bce6d907b7c41b13d51178100062889e51b9ba32f196a08"
+    },
+    "firmware/src/fixed/synth.c": {
+      "rc13": "10432246959b97db2036b230e1c1538a0c37a6d5237cbe0d0b357bf804cef51d",
+      "rc14": "9d454286e8fe86b52c493a5447d2afcb2d6150681613a1ce3cc05f6a3f0960bd"
+    },
+    "firmware/src/fixed/synth.h": {
+      "rc13": "fa2197dd2fcf8424eb46a2ece080237a09044db3b22d6829c0cfa2fcb0f6e388",
+      "rc14": "35c212a3382fba57ba70f25da5943a99832beffd3e2595f287d0f2d5c84395d6"
+    },
+    "src/reference/engine.c": {
+      "rc13": "7e7d8a31e055d46995257b51efd2b23e844a2aedfa9d08d7a8cb51fe9634a9f7",
+      "rc14": "e3582ac82d0511e66f04a61b719488350d99c934340e1e445e5ec1f6b0566ab5"
+    },
+    "src/reference/engine.h": {
+      "rc13": "93dba1ca6fca76daae66900409b59304c80b72815d2e587112ec23b02871c2e5",
+      "rc14": "da8c7ff9bf6e4531d12c36c44820994606ff7892b14e55bf49d1cc6db5b8f7a3"
+    },
+    "vendor/openifw/dsp/core.js": {
+      "rc13": "fbd19d973d2c395ae24c83fdb2ffbe98d76a6dfcc3305e186562b39f41f681a6",
+      "rc14": "27bcac2e694d20e8bb4af83624233ed4c177875b59479f5685e1b614af99b422"
+    }
+  },
+  "drawPanelSha256": "81b8b563f421949041f692777431361992a70caaa142521b613a1cf6f8c6abba"
+}

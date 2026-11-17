@@ -1,7 +1,7 @@
 {
   "openifw": {
     "url": "https://github.com/rcell233/OpenIFW",
-    "commit": "a478abd0645225add3f2a7751522da1bced7a2e6",
+    "commit": "e8339dab2cee475b9884effbc9c6c906e5b96099",
     "license": "MIT",
     "selection": "web/src/dsp/*.js, LICENSE, six unmodified factory JSON programs and index"
   },
@@ -68,7 +68,7 @@
     "vendor/dinghy/tools/get_toolchain.sh": "01c997cf377aa964eceaaaa05f6e75c0df92a863297ca7d3cc4a71472764f5f3",
     "vendor/dinghy/tools/lz4blk.py": "bede501ca8774ba6942b35ad2c43823e9f48f13d0fb001ef9b73cdaf41460e16",
     "vendor/openifw/LICENSE": "31b62e1aa86684d40a9276b3c409d7df65203c19ceceef9513462c04b4f3bbc4",
-    "vendor/openifw/dsp/core.js": "fbd19d973d2c395ae24c83fdb2ffbe98d76a6dfcc3305e186562b39f41f681a6",
+    "vendor/openifw/dsp/core.js": "27bcac2e694d20e8bb4af83624233ed4c177875b59479f5685e1b614af99b422",
     "vendor/openifw/dsp/envelope.js": "0c4df2b9190ffc3e49a48fb1ebd4e513c975a399d9cbbe7fc8e31bb12c6fccca",
     "vendor/openifw/dsp/modulation.js": "5c365571e485beafc9dcda02a3a250be01b4a801c3419dbd912c5ed5ef117b98",
     "vendor/openifw/dsp/native-controls.js": "7e51e1c4b1160f4066456bd3b2ff9ca4831380eb328ff8e45a3a9de53790d1b9",

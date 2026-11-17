@@ -160,7 +160,7 @@ static void render_tests(void) {
         }
         assert(!memcmp(expected,fb,sizeof expected));
     }
-    puts("PASS display: 58 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; six dirty rectangles");
+    puts("PASS display: 58 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; damage rectangles");
 }
 static void breath_input_tests(void) {
     reset();assert(breath_cc==7 && breath_input==INT32_MAX);

@@ -60,6 +60,23 @@ int main(void) {
     for(unsigned t=0;t<250;t++) {fm1_ms++;scope[t%96]=(int16_t)(t*37);draw_panel(0);}
     assert(ui_widget_updates[4]>at && ui_widget_updates[4]-at<=3);
     fm1_ms+=100;draw_panel(0);drain();pixels();
+    page=UP_BRCURVE;ui_display_invalidate();fm1_ms+=100;
+    draw_panel(1);drain();pixels();
+    unsigned stage=ui_widget_updates[2];
+    const uint8_t inputs[]={0,2,4,42,127,0,64,61,63,127,1};
+    for(unsigned i=0;i<sizeof(inputs);i++) {
+        unsigned bytes=ui_lcd_pixels;
+        midi_message(0xb0,breath_cc,inputs[i]);fm1_ms+=110;
+        draw_panel(0);drain();pixels();
+        assert(ui_widget_updates[2]==stage && ui_lcd_pixels-bytes<=240u*16+512);
+    }
+    /* No canvas ownership or transfer with a busy DMA or no queued audio. */
+    at=ui_lcd_pixels;lcd_busy=1;test_ready=0;
+    for(unsigned i=0;i<128;i++){midi_message(0xb0,breath_cc,i);fm1_ms++;draw_panel(0);}
+    assert(ui_lcd_pixels==at);test_ready=1;test_queue=0;draw_panel(0);
+    assert(ui_lcd_pixels==at);test_queue=1;fm1_ms+=110;draw_panel(0);drain();pixels();
+    assert(ui_breath_model()==0x7f7f);
+    puts("PASS breath cursor: extremes, small and large jumps, exact LCD vs full redraw, bounded damage, audio and DMA priority");
     puts("PASS target display: busy DMA preserves input/canvas; waveform extrema, normal/low refresh both live, exact pixels");
     return 0;
 }

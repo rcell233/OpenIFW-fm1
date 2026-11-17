@@ -1,6 +1,6 @@
 # DSP 移植记录 · 0.2
 
-基准 OpenIFW `a478abd0645225add3f2a7751522da1bced7a2e6`；硬件平台 Dinghy `d44df7db09b98ccad2f1233b8f83f5f09c04829e`。以该版 OpenIFW 的行为为准，包括其占位参数；OpenIFW 本身是 IFW 的独立近似，不宣称原生 IFW 内部实现。
+基准 OpenIFW 1.3.1 `e8339dab2cee475b9884effbc9c6c906e5b96099`（[从 1.3.0 的更新、对比与验证](UPSTREAM_1.3.1.md)）；硬件平台 Dinghy `d44df7db09b98ccad2f1233b8f83f5f09c04829e`。以该版 OpenIFW 的行为为准，包括其占位参数；OpenIFW 本身是 IFW 的独立近似，不宣称原生 IFW 内部实现。
 
 | 模块 | 桌面参考 | FM-1 定点实现 |
 | --- | --- | --- |

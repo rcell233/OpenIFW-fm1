@@ -595,7 +595,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc13", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc14", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -617,6 +617,23 @@ static void ui_draw_menu(void) {
   ui_center(8,211,224,&UI_S,"SELECT TAB / PRESET ROW",uc.mid);
   ui_center(8,224,224,&UI_S,"KNOB VALUE  /  HOME CLOSE",uc.dim);
 }
+/* Foreground-only view of the accepted CC, never the boot fallback or the
+ * smoothed DSP envelope. -1 means no matching CC on this route. */
+static int ui_breath_model(void) {
+  int raw=last_breath_raw;
+  return raw<0?-1:(raw<<8)|breath_map((uint8_t)raw);
+}
+static int ui_live_breath_page(void) {
+  return !ui.menu&&!ui.confirm&&!ui.naming&&!ui.layer&&(page==UP_HOME||page==UP_BRCURVE);
+}
+static void ui_breath_readout(void) {
+  char label[32],n[12];int m=ui_breath_model();
+  ui_cc_text(label,breath_cc);ui_append(label," IN ",32);
+  if(m<0)ui_append(label,"--  OUT --",32);
+  else {ui_int(n,m>>8);ui_append(label,n,32);ui_append(label,"  OUT ",32);
+        ui_int(n,m&255);ui_append(label,n,32);}
+  ui_fit(12,224,216,&UI_S,label,m<0?uc.dim:uc.text);
+}
 static void ui_footer(void) {
   cv_rect(8,208,224,1,uc.line);
   uint32_t group=ui_group(),count=0,index=0;
@@ -627,6 +644,7 @@ static void ui_footer(void) {
     char value[16],n[16];ui_int(value,index+1);ui_append(value,"/",16);ui_int(n,count);ui_append(value,n,16);
     ui_right(228,210,&UI_S,value,uc.dim);
   }
+  if(ui_live_breath_page()){ui_breath_readout();return;}
   const char *context=ui.layer?(ui.layer_locked?"LOCKED / TAP BUTTON TO CLOSE":"HOLD / RELEASE TO CLOSE"):
       page==UP_HOME?"ALGORITHM: COLOR":ui_preset_name(preset);
   ui_fit(12,224,216,&UI_S,context,uc.mid);
@@ -655,17 +673,14 @@ static void ui_name_screen(void) {
   ui_text(12,179,&UI_S,"OCT- ERASE / OCT+ SAVE",uc.theme);
   ui_footer();
 }
-/* Graph occupies only the existing stage band. No per-frame breath trace. */
-static void ui_breath_graph(void) {
-  const int left=38,right=220,top=98,bottom=177;
-  ui_text(4,78,&UI_S,"OUT %",uc.mid);
-  char cc[16];ui_cc_text(cc,breath_cc);
-  ui_fit(175,78,58,&UI_S,cc,uc.mid);
-  for(int i=0;i<3;i++) {
-    int v=100-i*50,y=bottom-(bottom-top)*v/100;
-    char label[8];ui_int(label,v);ui_text(left-5-text_w(&UI_S,label),y-8,&UI_S,label,uc.mid);
-    cv_rect(left,y,right-left+1,1,i==2?uc.mid:uc.line);
-  }
+enum { BG_L=38,BG_R=220,BG_T=98,BG_B=177, DOT_R=4 };
+static int dot_x(int m){return BG_L+((BG_R-BG_L)*(m>>8)+63)/127;}
+static int dot_y(int m){return BG_B-((BG_B-BG_T)*(m&255)+63)/127;}
+/* Same geometry for full paints and clipped marker tiles: repaint the
+ * underlying grid, line and handles, so a moving dot cannot leave a trail. */
+static void ui_breath_plot(int ox,int oy,int model) {
+  int left=BG_L-ox,right=BG_R-ox,top=BG_T-oy,bottom=BG_B-oy;
+  for(int i=0;i<3;i++)cv_rect(left,bottom-(bottom-top)*(100-i*50)/100,right-left+1,1,i==2?uc.mid:uc.line);
   int px=0,py=0;
   for(unsigned i=0;i<4;i++) {
     int x=left+(right-left)*breath_x[i]/100,y=bottom-(bottom-top)*breath_y[i]/100;
@@ -676,9 +691,30 @@ static void ui_breath_graph(void) {
   for(unsigned i=0;i<4;i++) {
     int x=left+(right-left)*breath_x[i]/100,y=bottom-(bottom-top)*breath_y[i]/100;
     cv_rect(x-3,y-3,7,7,uc.knob[i]);cv_rect(x-1,y-1,3,3,uc.bg);
-    char label[8];ui_int(label,breath_x[i]);ui_text(x-text_w(&UI_S,label)/2,182,&UI_S,label,uc.mid);
+  }
+  if(model>=0) {
+    int x=dot_x(model)-ox,y=dot_y(model)-oy;
+    for(int dy=-DOT_R;dy<=DOT_R;dy++){
+      int r=DOT_R-(dy<0?-dy:dy);
+      cv_rect(x-r,y+dy,2*r+1,1,uc.bg);
+      if(r)cv_rect(x-r+1,y+dy,2*r-1,1,uc.text);
+    }
+    cv_pset(x,y,uc.accent);
+  }
+}
+static void ui_breath_graph(void) {
+  ui_text(4,78,&UI_S,"OUT %",uc.mid);
+  char cc[16];ui_cc_text(cc,breath_cc);ui_fit(175,78,58,&UI_S,cc,uc.mid);
+  for(int i=0;i<3;i++){
+    int v=100-i*50;char n[8];ui_int(n,v);
+    ui_text(BG_L-5-text_w(&UI_S,n),BG_B-(BG_B-BG_T)*v/100-8,&UI_S,n,uc.mid);
+  }
+  for(unsigned i=0;i<4;i++){
+    char n[8];ui_int(n,breath_x[i]);
+    ui_text(BG_L+(BG_R-BG_L)*breath_x[i]/100-text_w(&UI_S,n)/2,182,&UI_S,n,uc.mid);
   }
   ui_text(0,182,&UI_S,"IN%",uc.mid);
+  ui_breath_plot(0,0,ui_breath_model());
 }
 static void ui_stage(void) {
   /* The current damage rectangle is cleared by cv_begin(). */
@@ -802,6 +838,7 @@ static void draw_panel(uint32_t full) {
   static IFWUiPrefs old_prefs;
   static int32_t old_env[4];
   static int16_t old_scope[96];
+  static int last_readout=-2,painted_dot=-1;
   pending_full|=full;
   if(pending_full)ui_drawing=1;
 #if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
@@ -856,6 +893,13 @@ static void draw_panel(uint32_t full) {
       memcpy(old_scope,(const void *)scope,sizeof old_scope);
     }
   }
+  /* Recompute dirty flags against what actually reached the LCD. */
+  ui_widgets&=~192u;
+  if(ui_live_breath_page()){
+    int m=ui_breath_model();
+    if(m!=last_readout)ui_widgets|=64u;
+    if(page==UP_BRCURVE && m!=painted_dot)ui_widgets|=128u;
+  }
   initialized=1;
   if(page==UP_PERF && fm1_ms-perf_draw_at>=200u) {
     perf_snapshot();perf_draw_at=fm1_ms;ui_widgets|=6u;
@@ -868,6 +912,8 @@ static void draw_panel(uint32_t full) {
   /* A full stage includes both home damage rectangles. It always supersedes
    * them, including when a menu opens while animation is waiting. */
   if(ui_widgets&4u) {ui_widgets&=~48u;ui_priority_widgets&=~48u;}
+  if(ui_widgets&4u)ui_widgets&=~128u;
+  if(ui_widgets&8u)ui_widgets&=~64u;
   ui_drawing=ui_widgets!=0;
   if(!ui_widgets){last_draw=fm1_ms;return;}
 #if defined(IFW_TARGET) || defined(IFW_DISPLAY_SCHEDULER_TEST)
@@ -895,17 +941,35 @@ static void draw_panel(uint32_t full) {
 #ifdef IFW_TARGET
   uint32_t draw_start=fm1_ticks();
 #endif
-  cv_begin(240,h[widget],uc.bg);cv_oy=-(int32_t)y[widget];
-  ui_paint();cv_oy=0;
-  lcd_blit(0,y[widget],240,h[widget],cv_px);
-  ui_lcd_pixels+=240u*h[widget];ui_widget_updates[widget]++;
+  unsigned x=0,top=y[widget],width=240,height=h[widget];int follow=0;
+  if(widget==7) {
+    int m=ui_breath_model(),prev=painted_dot;
+    if(prev<0 && m<0){ui_widgets&=~128u;return;}
+    int at=prev<0?m:prev;
+    x=dot_x(at)-DOT_R;top=dot_y(at)-DOT_R;width=height=2*DOT_R+1;
+    if(prev>=0 && m>=0){
+      int nx=dot_x(m)-DOT_R,ny=dot_y(m)-DOT_R,dx=nx-(int)x,dy=ny-(int)top;
+      unsigned w=width+(dx<0?-dx:dx),hh=height+(dy<0?-dy:dy);
+      if(w*hh<=512u){if(dx<0)x=nx;if(dy<0)top=ny;width=w;height=hh;}
+      else {m=-1;follow=1;} /* erase now; draw newest value next DMA turn */
+    }
+    cv_begin(width,height,uc.bg);ui_breath_plot((int)x,(int)top,m);painted_dot=m;
+  } else {
+    if(widget==6){top=224;height=16;}
+    cv_begin(width,height,uc.bg);cv_oy=-(int32_t)top;
+    if(widget==6)ui_breath_readout();else ui_paint();cv_oy=0;
+    if(widget==2)painted_dot=page==UP_BRCURVE&&ui_live_breath_page()?ui_breath_model():-1;
+    if(widget==3||widget==6)last_readout=ui_live_breath_page()?ui_breath_model():-2;
+  }
+  lcd_blit(x,top,width,height,cv_px);
+  ui_lcd_pixels+=width*height;ui_widget_updates[widget]++;
 #ifdef IFW_TARGET
   uint32_t draw_ticks=fm1_ticks()-draw_start;
   if(draw_ticks>ui_widget_max_ticks[widget])ui_widget_max_ticks[widget]=draw_ticks;
 #endif
   ui_widgets&=~(1u<<widget);ui_priority_widgets&=~(1u<<widget);
   ui_priority_at=fm1_ms;ui_widget_cursor=(widget+1u)%UI_WIDGET_COUNT;
-  ui_widget_draw_at[widget]=fm1_ms;
+  if(follow)ui_widgets|=128u;else ui_widget_draw_at[widget]=fm1_ms;
   if(widget==2)ui_widget_draw_at[4]=ui_widget_draw_at[5]=fm1_ms;
   ui_drawing=ui_widgets!=0;
   if(!ui_drawing){last_draw=fm1_ms;ui_frame_count++;}

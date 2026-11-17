@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Check production output, preset identity and headroom after the FX precision fix."""
+from upstream_131_lock import historical_hash
 import hashlib
 import json
 import math
@@ -40,7 +41,7 @@ for name in unchanged:
         suffix=b'/* Separate output dynamics; the original engine above is unchanged. */\n#include \"output_bus.c\"\n'
         assert data.endswith(suffix)
         data=data[:-len(suffix)]
-    assert hashlib.sha256(data).hexdigest()==expected[name],name
+    assert historical_hash(name,data)==expected[name],name
 summary=dict(kind='native-output-gain-validation-not-hardware',outputGain=2,gainDb=20*math.log10(2),
     factoryCases=288,presetIdentityExact=True,fxPrecisionChange=True,outputBoundaryChannelSamples=0,
     fullBreathMaxAbsRmsDeltaDb=max(abs(r['rmsDeltaDb']) for r in loudness if r['breath']==1),

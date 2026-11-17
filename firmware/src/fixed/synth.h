@@ -89,7 +89,7 @@ typedef struct {
     int32_t breath,breath_target,breath_step,gate,gate_step,bend,bend_target,glide,glide_smoothed,vibrato;
     uint32_t breath_left,bend_k,glide_k,glide_elapsed,glide_fraction,gate_target;
     uint32_t seed,block_count,note_samples;int32_t noise_value,noise_held,noise_counter;
-    uint8_t dry,noise_ready;
+    uint8_t dry,noise_ready,release_pending;
     uint32_t saturation_count;
     /* Exact memoization keys: a changed input always runs the original math. */
     int32_t step_pitch[5],step_tuning[5],filter_log[2],filter3_frequency,recip_speed,master_gain;
@@ -118,6 +118,8 @@ void ifw_fixed_note_on(IFWFixedSynth *s,uint32_t note,int32_t velocity_q31);
 void ifw_fixed_note_off(IFWFixedSynth *s,uint32_t note);
 void ifw_fixed_breath(IFWFixedSynth *s,int32_t breath_q31);
 void ifw_fixed_panic(IFWFixedSynth *s);
+/* Commit queued note release when the output clock advances, including PERF bypass. */
+void ifw_fixed_begin_frames(IFWFixedSynth *s);
 void ifw_fixed_sample(IFWFixedSynth *s,int32_t *left,int32_t *right); /* Q20 */
 void ifw_fixed_process(IFWFixedSynth *s,int32_t *stereo,uint32_t frames); /* Q15 output */
 void ifw_fixed_fx_reset(IFWFixedSynth *s);

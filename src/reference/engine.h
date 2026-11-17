@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-only
- * Desktop double-precision oracle port of OpenIFW a478abd (MIT).
+ * Desktop double-precision oracle port of OpenIFW 1.3.1 (MIT).
  * This API deliberately cannot be linked into the FM-1 target.
  */
 #ifndef IFW_REFERENCE_ENGINE_H
@@ -36,7 +36,7 @@ typedef struct {
     IFWPatch p;
     double sr, phase[4],secondary[4],secondary_cv[4],raw_saw[4],raw_pulse[4];
     IFWFilter filter[2]; IFWFilter3 filter3; IFWEnvelope env[4]; IFWEffects effects;
-    IFWMono mono; double held_velocity[128];
+    unsigned release_pending; IFWMono mono; double held_velocity[128];
     double note,pitch,pitch_target,velocity,breath,breath_target,bend,bend_target;
     double vibrato,glide,gate,gate_target,gate_step,breath_step;
     double time,note_time,lfo_phase[2],master_phase,frequency,mod[IFW_PARAM_COUNT+14];

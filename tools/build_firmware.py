@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc13'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc14'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -120,7 +120,7 @@ if image[sym('_rt_load')-0x02000120:][:len(ramcode)]!=ramcode:
 if ram_audio and (sym('_audio_start')!=sym('_rt_start')+len(blobs['.ram_text']) or
                   sym('_audio_load')!=sym('_rt_load')+len(blobs['.ram_text'])):
     raise SystemExit('Audio section run/load addresses are not adjacent to the driver')
-for name in ['ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process','ifw_output_bus_process']:
+for name in ['fixed_tick','ifw_fixed_sample','ifw_fixed_fx_tick','ifw_fixed_process','ifw_output_bus_process']:
     if ram_audio and not sym('_audio_start')<=sym(name)<sym('_rt_end'):
         raise SystemExit('Hot DSP escaped the audio RAM section: '+name)
 for name in ['fm1_timer5_irq','isr_timer5','isr_alnk0']:

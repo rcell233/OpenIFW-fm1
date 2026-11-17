@@ -316,7 +316,8 @@ void ifw_breath(IFWSynth *s,double v) {
 }
 void ifw_note_on(IFWSynth *s,unsigned note,double velocity) {
     if(note>127) return;
-    int legato=ifw_mono_on(&s->mono,note); s->held_velocity[note]=velocity;
+    int legato=ifw_mono_on(&s->mono,note) || s->release_pending;
+    s->release_pending=0; s->held_velocity[note]=velocity;
     s->note=s->pitch_target=note; s->velocity=velocity; s->glide_from=s->pitch; s->glide_elapsed=0;
     if(!legato && s->gate<.0001) s->pitch=s->glide_from=note;
     s->gate_target=1; s->gate_step=(1-s->gate)/fmax(1,s->sr*N(GateOpenSmoothTime)*.001);
@@ -325,14 +326,14 @@ void ifw_note_on(IFWSynth *s,unsigned note,double velocity) {
     for(int i=0;i<2;i++) if(is_on(&s->p,P_Lfo1KeySync+i*IFW_LFO_STRIDE)) s->lfo_phase[i]=0;
 }
 void ifw_note_off(IFWSynth *s,unsigned note) {
-    ifw_mono_off(&s->mono,note); int current=ifw_mono_current(&s->mono);
+    if(!ifw_mono_off(&s->mono,note))return;
+    int current=ifw_mono_current(&s->mono);
     if(current>=0) { s->note=s->pitch_target=current; s->velocity=s->held_velocity[current];
         s->glide_from=s->pitch; s->glide_elapsed=0; }
-    else { s->gate_target=0; s->gate_step=s->gate/fmax(1,s->sr*N(GateCloseSmoothTime)*.001);
-        for(int i=0;i<4;i++) env_gate(&s->env[i],0,0); }
+    else s->release_pending=1;
 }
 void ifw_panic(IFWSynth *s) {
-    ifw_mono_clear(&s->mono); s->gate=s->gate_target=s->gate_step=0;
+    s->release_pending=0;ifw_mono_clear(&s->mono); s->gate=s->gate_target=s->gate_step=0;
     s->breath=s->breath_target=s->breath_step=0; s->breath_left=0;
     /* Original panic resets effect/filter state, retaining oscillator phase and seed. */
     ifw_effects_destroy(s); if(!ifw_effects_init(s)) abort(); ifw_effects_configure(s);
@@ -341,6 +342,11 @@ void ifw_panic(IFWSynth *s) {
     for(int i=0;i<4;i++) { s->env[i].stage=0; s->env[i].level=0; }
 }
 void ifw_process(IFWSynth *s,float *left,float *right,uint32_t n) {
+    if(n && s->release_pending) {
+        s->release_pending=0;
+        s->gate_target=0; s->gate_step=s->gate/fmax(1,s->sr*N(GateCloseSmoothTime)*.001);
+        for(int i=0;i<4;i++) env_gate(&s->env[i],0,0);
+    }
     double bend_k=1-exp(-1/(s->sr*fmax(.0001,N(PitchBendSmoothTime)*.001)));
     for(uint32_t i=0;i<n;i++) {
         if(s->breath_left>0) { s->breath+=s->breath_step; if(--s->breath_left==0) s->breath=s->breath_target; }

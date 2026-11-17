@@ -39,4 +39,4 @@ for(const c of suite){
  rows.push(row);writeWav(pcm,44100,path+'-fixed.wav');writeWav(jsPCM,44100,path+'-original-js.wav');
  console.log(`${row.name} ${c.dry?'dry':'wet'}: RMSE=${rmse.toExponential(3)} EG=${eg.toExponential(3)} pitch=${pitch.toExponential(3)}`);
 }
-writeFileSync(dir+'/results.json',JSON.stringify({reference:'unchanged OpenIFW a478abd JavaScript',durationPerCase:4,wetIsMeasurementOnly:true,results:rows},null,2)+'\n');
+writeFileSync(dir+'/results.json',JSON.stringify({reference:'upstream OpenIFW e8339da JavaScript',durationPerCase:4,wetIsMeasurementOnly:true,results:rows},null,2)+'\n');
