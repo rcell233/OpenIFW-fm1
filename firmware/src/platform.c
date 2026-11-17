@@ -65,8 +65,10 @@ static volatile uint32_t fm1_ms;                /* milliseconds since power-on (
 #define FELUCCA_OTA 1
 #define FELUCCA_CDC 0
 #define FELUCCA_UAC 1
-#define FELUCCA_UART 0
+#define FELUCCA_UART 1
 #include "usb.c"
+#include "fm1_uart.h"
+#include "trs_midi.h"
 
 /* ---- flash: read anywhere; erase / program only the update's staging area and the settings sector */
 #define SETTINGS_AT 0x000FC000u                 /* one 4 KiB sector of Felucca's globals area */
@@ -210,6 +212,7 @@ void fm1_timer5_irq(void)
     }
     if (usb_due)
         owed = 1;
+    if (sub % 5u == 2u) trs_tick(); /* 2 kHz DMA count only; off the USB poll tick */
     if (++sub == 10u)
         sub = 0;
     if (in_audio) {
@@ -347,6 +350,7 @@ void fm1_cstart(void)
     ifw_boot_mark(5);
     fm1_audio_init(abuf, HALF_WORDS, isr_alnk0, 3);   /* (abuf is zero: .bss) */
     usb_start();
+    trs_init(); /* normal boot only; configure PH8 before TIMER5 scans GPIO */
     fm1_timer5_start(isr_timer5, 4);
     fm1_guard_lock_top();
     ifw_boot_mark(6);

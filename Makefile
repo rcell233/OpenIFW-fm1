@@ -11,7 +11,7 @@ build/ifw-reference: $(REFERENCE) $(HEADERS)
 	$(CC) $(CFLAGS) $(REFERENCE) -lm -o $@
 tables:
 	python3 tools/generate_tables.py
-test: note-handoff-test all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
+test: trs-input-test note-handoff-test all fixed-test build/ifw-fixed build/ifw-fixed-legacy panel-test web-test performance-test hardware-path-test reverb-test output-level-test output-bus-test reverb-noise-test cpu-equivalence-test soft-division-test
 	python3 tools/verify_sources.py
 	node tests/compare.mjs
 	IFW_FIXED=build/ifw-fixed-legacy node tests/engine_fixed_compare.mjs
@@ -184,3 +184,12 @@ firmware-check:
 	sh tools/check_firmware_env.sh
 clean:
 	python3 -c 'from pathlib import Path; import shutil; shutil.rmtree(Path("build"), ignore_errors=True)'
+
+.PHONY: trs-input-test
+trs-input-test:
+	mkdir -p build/trs
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/hal -Ivendor/dinghy/firmware/gen tests/trs_input.c $(APP_DSP) -o build/trs/input
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input trs build/trs/trs.pcm
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input usb build/trs/usb.pcm
+	cmp build/trs/trs.pcm build/trs/usb.pcm

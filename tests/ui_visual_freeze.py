@@ -12,6 +12,13 @@ authorized_ui={"firmware/src/ui/controls.c","firmware/src/ui/state.h","firmware/
 for path,expected in lock['sha256'].items():
     if path in authorized_ui:continue
     data=(root/path).read_bytes()
+    if path=='firmware/src/platform.c':
+        # rc15 overlays the pinned UART HAL; only its init, include and count
+        # poll are permitted. Original GPIO, USB, boot and audio code stay pinned.
+        data=data.replace(b'#define FELUCCA_UART 1',b'#define FELUCCA_UART 0')
+        data=data.replace(b'#include "fm1_uart.h"\n#include "trs_midi.h"\n',b'')
+        data=data.replace(b'    if (sub % 5u == 2u) trs_tick(); /* 2 kHz DMA count only; off the USB poll tick */\n',b'')
+        data=data.replace(b'    trs_init(); /* normal boot only; configure PH8 before TIMER5 scans GPIO */\n',b'')
     if path=='firmware/src/panel_params.h':
         data=data.replace(b'{"BREATH CC",0,119,1,0}',b'{"WIND / CC7",0,1,1,1}')
     if path=='firmware/src/ui/pages.h':
@@ -27,6 +34,7 @@ app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_byt
 app=app.replace(b"SELECT: PAGES / ALG: COLOR",b"SELECT: PAGES / ALG: MODULE")
 # rc13 reviewed MIDI input and settings extension. All DSP files and PCM fixtures retain their original pins.
 app=app.replace(b'        if(n)ifw_fixed_begin_frames(&synth); /* Output time advances even with DSP bypassed. */\n',b'')
+app=app.replace(b'#if defined(IFW_TARGET) || defined(IFW_TRS_TEST)\n        trs_service();\n#endif\n',b'')
 assert sha(app)=='a0a76c7d487362202d650110c082f07ae1ae53262152934643abcceaf1fe58ba','rc13 application bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]
 # The rc14 live readout and marker add two bounded DMA widgets. Keep the

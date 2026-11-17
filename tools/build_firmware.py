@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc14'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc15'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -143,8 +143,15 @@ for name,data in [('openifw.bin',image),(f'OpenIFW-FM1-{b.VERSION}.fwsc',package
     (dest/name).write_bytes(data)
 shutil.copy2(elf,dest/'openifw.elf');(dest/'openifw.dis').write_text(dis)
 (dest/'linker.ld').write_bytes((b.FW/'app.ld').read_bytes())
+trs_addr=sym('trs_ring')
+if trs_addr % 16 or not sym('_bss_start') <= trs_addr <= sym('_bss_end')-512:
+    raise SystemExit('UART RX DMA ring must be aligned in writable on-chip RAM')
+trs_hal=hashlib.sha256((b.FW/'hal/fm1_uart.h').read_bytes()).hexdigest()
+if trs_hal!=json.loads((R/'sources.lock.json').read_text())['sha256']['firmware/hal/fm1_uart.h']:
+    raise SystemExit('TRS MIDI HAL differs from pinned Felucca source')
 result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageBytes=len(package),
     originalHalSha256=hal_sha,
+    trsMidi=dict(input="UART1 RX / PH8",baud=31250,ringBytes=512,dmaAddress=trs_addr,halSha256=trs_hal),
     sha256=hashlib.sha256(package).hexdigest(),hardwareTested=False,
     ramDataBss=sym('_bss_end')-0x01C08000,poolBytes=sym('_pool_end')-0x01C20000,
     limits=dict(app=581564,ram=98304,pool=344064),sampleRate=44100,framesPerBlock=256,

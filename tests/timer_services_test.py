@@ -14,7 +14,8 @@ source=r'''
 #define FM1_TICKS_PER_US 24u
 #define FELUCCA_OTA 1
 #define RING_PUBLISH() do{}while(0)
-static uint32_t ticks,fm1_ms,scans,polls,uac_calls;
+static uint32_t ticks,fm1_ms,scans,polls,uac_calls,uart_polls;
+static void trs_tick(void){uart_polls++;}
 static uint32_t fm1_ticks(void){return ticks;}
 static void fm1_timer5_ack(void){}
 static void fm1_input_tick(void){scans++;ticks+=72;}
@@ -26,7 +27,7 @@ static uint8_t sx_collect,sx_ready,sx_frame[640];static uint32_t sx_pos,sx_frame
 int main(void){
  in_audio=1;
  for(unsigned i=0;i<20;i++){ticks=i*2400u;fm1_timer5_irq();}
- assert(scans==20 && polls==0 && uac_calls==4);
+ assert(scans==20 && polls==0 && uac_calls==4 && uart_polls==4);
  in_audio=0;ticks=48000u;fm1_timer5_irq();
  assert(polls==1 && platform_perf.usb_polls==1 && platform_perf.usb_ticks==480);
  assert(platform_perf.scan_max_ticks==552 && platform_perf.scans==21 && fm1_ms==2);

@@ -355,7 +355,7 @@ static void diagnostics_service(void) {
     if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40714,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40715,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
@@ -364,7 +364,7 @@ static void diagnostics_service(void) {
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
     if(boot) {
         uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
-        uint32_t report[IFW_BOOT_WORDS]={1,40714,recovery_active,ifw_boot_reason,
+        uint32_t report[IFW_BOOT_WORDS]={1,40715,recovery_active,ifw_boot_reason,
             fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
             valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
             valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,
@@ -398,6 +398,9 @@ static void app_step(void) {
             if((down|up)&(1u<<k))ui_led(KEY_LED(k),(int)(keys>>k&1u));
         }
         uint8_t st,a,b;while(midi_get(&st,&a,&b))midi_message(st,a,b);
+#if defined(IFW_TARGET) || defined(IFW_TRS_TEST)
+        trs_service();
+#endif
         ui_tick();ui_leds();
         if(dirty || ui_drawing || fm1_ms-last_draw>=50) {draw_panel(dirty);dirty=0;}
 }
