@@ -32,6 +32,8 @@ for path,expected in lock['sha256'].items():
         data=data.replace(b'b->mode=IFW_OUTPUT_BUS && mode==IFW_OUTPUT_LOUD;',b'b->mode=mode==IFW_OUTPUT_LOUD;')
     assert historical_hash(path,data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
+# rc17 ignores CC5 on the physical input before parameter routing.
+app=app.replace(b'        /* Wind controllers can leave portamento time latched between notes.\n         * Capture the raw message above, but ignore CC5 on the physical TRS input. */\n        if(src==1 && a==5)return;\n',b'')
 # rc16 input routing and diagnostics changed; the shared audio bridge and DSP are tested separately.
 assert sha(app)=='19675dfd7ff046ad3b3ef23add6c0728627bdba067da557cb73ebc668c4624df','rc16 app bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]

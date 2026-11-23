@@ -41,7 +41,7 @@ SAVE 页的四旋钮为 SLOT / LOAD / ERASE / SAVE。旋钮向右选择操作，
 
 HOME 菜单分 DISP / CTRL / AUDIO / MIDI / SYS。SELECT 选分类，PRESETS 选行，任意参数旋钮或 OCT± 改值；HOME 关闭。配色有 SLOOP / FOREST / AMBER / MONO / OCEAN / VIOLET / EMBER / ICE；ALGORITHM 向两侧循环。配色、实心 / 线框、REFRESH NORMAL / LOW、示波器模式、音名、长按阈值、加速、收藏和用户名称存在原 settings sector 尾部，保留旧版 patch 格式和 CRC。旧的样式和动画位沿用存储位置；REFRESH 的 NORMAL / LOW 分别把动态更新限制在最高 20 / 10 Hz，两者均继续刷新波形。SCOPE OFF 才关闭波形，不能把 LOW 当作停止波形。
 
-MIDI 保持原有语义：Note On / Off、最后按键优先、可选 Breath CC（默认 CC2）、CC9 Vibrato、CC5 Glide、14 位 Pitch Bend、CC64 Sustain、CC120/123 Panic。Program Change 使用 4、18、14、10、8、21。未学习的 CC20–23 不改动当前页面；可用 MIDI Learn 显式分配。NRPN 参数选择按输入端口、通道隔离，选择 RPN 会退出 NRPN。
+MIDI 保持原有语义：Note On / Off、最后按键优先、可选 Breath CC（默认 CC2）、CC9 Vibrato、CC5 Glide（仅 USB；机身 TRS 忽略 CC5）、14 位 Pitch Bend、CC64 Sustain、CC120/123 Panic。Program Change 使用 4、18、14、10、8、21。未学习的 CC20–23 不改动当前页面；可用 MIDI Learn 显式分配。NRPN 参数选择按输入端口、通道隔离，选择 RPN 会退出 NRPN。
 
 浏览器由真实 C 固件运行上述逻辑，JavaScript 只传入控件输入并显示 LCD / LED / 状态。浏览器和目标共享 `app_step`、参数事件队列与存储逻辑；USB 外设、杰理指令和实时 CPU 不在仿真范围内。
 

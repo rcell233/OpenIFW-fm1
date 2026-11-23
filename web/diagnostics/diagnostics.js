@@ -89,7 +89,7 @@ $('trace-read').onclick=async()=>{
   for(const [id,data,type,ext] of [['trace-json',JSON.stringify(log,null,2),'application/json','json'],['trace-midi',midiFile(log),'audio/midi','mid']]){
     const link=$(id),url=URL.createObjectURL(new Blob([data],{type}));link.href=url;link.download='OpenIFW-FM1-take-'+log.session+'.'+ext;link.hidden=false;traceLinks.push(url);
   }
-  const cc=Object.entries(log.histogram).filter(([k])=>/CC5$|Pitch bend$/.test(k)).map(([k,n])=>k+' × '+n);
+  const cc=Object.entries(log.histogram).filter(([k])=>/CC5$|Pitch bend$/.test(k)).map(([k,n])=>k+' × '+n+(log.firmwareCode>=40717 && /^TRS ch\d+ CC5$/.test(k)?'（仅记录，固件已忽略）':''));
   msg.textContent='已读取 '+log.events.length+' 条，时长 '+(log.durationMs/1000).toFixed(1)+' 秒。'+(cc.length?cc.join('；'):'没有收到 CC5 或弯音。')+(log.stopReason==='capacity'?' 缓冲已满，录制提前结束。':'')+(log.droppedTrsBytes?' 串口发生丢字节，详见日志。':'');
  }catch(e){msg.textContent=e.message;}finally{for(const id of buttons)$(id).disabled=false;}
 };

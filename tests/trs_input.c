@@ -86,11 +86,12 @@ static int panel_parity(int panel,const char *path){
     }
     assert(!fclose(f));return 0;
 }
-static unsigned glide_frames(unsigned cc){
+static unsigned glide_frames(int usb_cc,unsigned cc){
     /* Same EWI legato jump after CC5 has settled, no audio/DMA wall-time estimate. */
     IFWFixedPatch p;make_preset(&p,0);ifw_fixed_init(&synth,&p,&fx_buffers);
     qread=qwrite=overflow=0;ready=1;saved.channel=0;
-    WIRE(0xb0,5,cc,0x90,60,110);app_step();app_audio_begin();
+    if(usb_cc)usb_input(0xb0,5,cc);else {WIRE(0xb0,5,cc);}
+    WIRE(0x90,60,110);app_step();app_audio_begin();
     int32_t l,r;for(unsigned i=0;i<22050;i++)ifw_fixed_sample(&synth,&l,&r);
     WIRE(0x90,72,110);app_step();app_audio_begin();
     for(unsigned i=1;i<=44100;i++){ifw_fixed_sample(&synth,&l,&r);
@@ -189,7 +190,19 @@ int main(int argc,char **argv) {
     WIRE(0x93,70,100);render();assert(synth.note==70 && synth.mono.count==1);
     trs_read=trs_written=producer=UINT32_MAX-1;WIRE(0x83,70,0);render();assert(trs_read==1 && !synth.mono.count);
     trace_test();
-    unsigned fast=glide_frames(0),slow=glide_frames(127);assert(slow>fast*10);
-    printf("Tresure Island C4-C5, to within 0.01 semitone: CC5=0 %u frames, CC5=127 %u frames at 44100 Hz\n",fast,slow);
+    unsigned base=glide_frames(0,0),trs=glide_frames(0,110),usb=glide_frames(1,110);
+    assert(trs==base && usb>trs*10);
+    printf("Tresure Island C4-C5: CC5=0 %u frames; TRS CC5=110 %u; USB CC5=110 %u\n",base,trs,usb);
+    /* Keep the last deliberate USB value while a wind instrument sends CC5.
+     * It remains visible in the raw trace, even if CC5 is selected for breath. */
+    saved.channel=0;breath_cc=5;last_breath_raw=-1;learn_armed=1;trace_start();
+    int32_t previous=synth.glide;assert(previous==midi31(110));
+    for(unsigned ch=0;ch<16;ch++){WIRE(0xb0|ch,5,0,5,127);render();}
+    assert(synth.glide==previous && last_breath_raw==-1 && learn_armed && mt.n==32);
+    for(unsigned i=0;i<32;i++){
+        uint32_t expected=(5u<<24)|((i%2?127u:0u)<<16)|(5u<<8)|(0xb0u+i/2);
+        assert(trace_buf[i].msg==expected);
+    }
+    trace_stop(2);
     puts("PASS TRS DMA -> real app -> PCM: CC, notes/legato, channel, sustain, running status, real-time, USB coexistence, wrap, budget and recovery");
 }

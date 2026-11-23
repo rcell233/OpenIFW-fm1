@@ -1,7 +1,7 @@
 {
-  "version": "0.4.7-rc16",
+  "version": "0.4.7-rc17",
   "identity": "FM-1_982",
-  "appBytes": 262712,
+  "appBytes": 262696,
   "packageBytes": 610161,
   "originalHalSha256": {
     "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
@@ -17,7 +17,7 @@
     "dmaAddress": 29458080,
     "halSha256": "7fc6e2ab62eaad933eec6d0856a04d58af0c7c40d2dcf6d185e8b0ee057114a4"
   },
-  "sha256": "c8ae814ed6c45a5255c23bd0eada681e80d983be324225facac27b8dc9658e6c",
+  "sha256": "4cdce16ec0d92f8f0bb4d7e3ad46d83987089aa18b40187d297cf4f6622f26d7",
   "hardwareTested": false,
   "ramDataBss": 87120,
   "poolBytes": 334360,
