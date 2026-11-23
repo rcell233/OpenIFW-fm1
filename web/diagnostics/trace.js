@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
+import {readBootSnapshot} from './protocol.js';
 // Read frozen indexed pages; the device never starts or stops recording over USB.
 function decodeTrace(bytes,seq,page) {
  const b=Array.from(bytes),n=b[8];
@@ -7,22 +8,43 @@ function decodeTrace(bytes,seq,page) {
  const w=[];for(let i=0;i<n;i++){let v=0;for(let k=0;k<5;k++){const x=b[9+5*i+k];if(x>127||(k===4&&x>15))return null;v+=x*2**(7*k);}w.push(v);}
  return w[0]===1&&w[2]===page?w:null;
 }
-function request(input,output,seq,page) {
+let serial=0;
+const nextSeq=()=>serial++ & 127;
+function request(input,output,seq,page,timeout) {
  return new Promise((resolve,reject)=>{
   const done=(err,w)=>{clearTimeout(timer);input.removeEventListener('midimessage',on);err?reject(err):resolve(w);};
   const on=e=>{const w=decodeTrace(e.data,seq,page);if(w)done(null,w);};
-  const timer=setTimeout(()=>done(Error('录制读取超时。请确认已安装 rc16 或更新版本，并选择同一台 FM‑1 的输入、输出。')),1800);
+  const timer=setTimeout(()=>done(null,null),timeout);
   input.addEventListener('midimessage',on);
   try{output.send([240,125,73,70,87,1,4,seq,page&127,page>>7,247]);}catch(e){done(e);}
  });
 }
-export async function readTrace(input,output,progress=()=>{}) {
- const head=await request(input,output,0,0),[,id,,mode,count,durationMs,preset,channel,breathCC,curve,raw,dropped,glideMidi,glideQ31,bendQ31,held,patchHash,firmwareCode,glideMode,glideMin,glideDepth,breathMs,glideMs]=head;
+function firmwareName(code){
+ return code>=40701&&code<40800?'0.4.7-rc'+(code-40700):String(code);
+}
+export async function readTrace(input,output,progress=()=>{},{status=()=>{},timeout=1800}={}) {
+ const ports='输出「'+(output.name||output.id||'?')+'」→ 输入「'+(input.name||input.id||'?')+'」';
+ const boot=await readBootSnapshot(input,output,nextSeq(),timeout).catch(()=>null);
+ if(boot?.rescue)throw Error('设备报告 USB RESCUE；当前未运行演奏固件，无法读取演奏录制。');
+ if(boot && boot.firmwareCode<40716)throw Error('设备实际报告 '+firmwareName(boot.firmwareCode)+'；机身录制需要 0.4.7-rc16 或更新版本。');
+ let version=boot?firmwareName(boot.firmwareCode):'';
+ async function pageRead(page){
+  const where=page?'数据页 '+page:'录制头';
+  for(let attempt=0;attempt<3;attempt++){
+   if(attempt || !page)status((version?'已确认 '+version+'。':'')+(attempt?'重试'+where+'（'+attempt+'/2）…':'读取'+where+'…'));
+   const w=await request(input,output,nextSeq(),page,timeout);if(w)return w;
+   if(input.state==='disconnected'||output.state==='disconnected')throw Error('MIDI 端口已断开：'+ports+'。请保持 FM-1 供电，重新连接诊断页。');
+  }
+  if(!version)throw Error('启动查询和录制查询均未收到有效回复：'+ports+'。请在两栏选择 FM-1 的 USB 端口（通常名为 Felucca），关闭占用端口的软件后重试。请保持机身供电。');
+  throw Error('已确认设备 '+version+'，但'+where+'三次均未收到有效回复（'+ports+'）。请保持机身供电并再次读取；不必重录。');
+ }
+ const head=await pageRead(0),[,id,,mode,count,durationMs,preset,channel,breathCC,curve,raw,dropped,glideMidi,glideQ31,bendQ31,held,patchHash,firmwareCode,glideMode,glideMin,glideDepth,breathMs,glideMs]=head;
  if(head.length!==23||!Number.isInteger(count)||count>4096)throw Error('录制头格式不匹配。');
+ version=firmwareName(firmwareCode);
  if(!mode)throw Error('设备里没有录制。请在 GLO → PERFORMANCE 短按 REC，演奏后再按一次。');
  if(mode===1)throw Error('设备正在录制。请在 PERFORMANCE 页再按一次 REC 停止，然后读取。');
  const events=[];for(let page=1;events.length<count;page++){
-   const w=await request(input,output,page&127,page);
+   const w=await pageRead(page);
    if(w[1]!==id||w[3]!==mode||w.length!==4+3*Math.min(8,count-events.length))throw Error('设备录制已改变，请重新读取。');
    for(let i=4;i<w.length;i+=3){const [us,m,lag]=w.slice(i,i+3),s=m&255,a=(m>>>8)&127,b=(m>>>16)&127;
     const wait=v=>v===65535?null:v;

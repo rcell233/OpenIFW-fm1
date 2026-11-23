@@ -113,6 +113,34 @@ static void trace_test(void){
     trace_start();fm1_ms+=120001;trace_audio();assert(mt.mode==4 && mt.n==0);
 }
 #include "../firmware/src/diagnostics_protocol.h"
+/* Only the host and USB controller registers are simulated. Run the exact
+ * board packet assembler, trace_reply, MIDI ring and multi-transfer EP1 TX. */
+static FILE *host_trace;
+enum {S_INDEX,S_TXCSR1};
+static uint32_t csr1;
+static uint8_t ep1tx[64];
+static uint32_t sie_rd(unsigned reg){assert(reg==S_TXCSR1);return csr1;}
+static void sie_wr(unsigned reg,unsigned v){if(reg==S_TXCSR1)csr1=v;else assert(reg==S_INDEX && v==1);}
+static uint32_t irq_save(void){return 0;}
+static void irq_restore(uint32_t f){(void)f;}
+static void fm1_usb_ep_send(unsigned ep,const uint8_t *p,unsigned n){
+    assert(ep==1 && !(n%4) && n<=64 && !(csr1&1));
+    for(unsigned i=0;i<n;i+=4){
+        unsigned cin=p[i]&15u;assert(cin>=4 && cin<=7);
+        unsigned len=cin==4?3:cin-4;assert(cin==4 || (i+4==n && p[i+len]==247));
+        assert(fwrite(p+i+1,1,len,host_trace)==len);
+    }
+}
+#include "trace_usb_fixture.inc"
+static void export_page(FILE *f,unsigned page){
+    const uint8_t req[]={4,240,125,73,4,70,87,1,4,4,page&127,page&127,6,page>>7,247,0};
+    usb.config=1;host_trace=f;
+    assert(ep1_take(req,8) && !usb.diag_req);
+    assert(ep1_take(req+8,8) && usb.diag_req && usb.diag_command==4 && usb.diag_page==page);
+    assert(!usb.ota_req && !usb.uboot_req && !sx_ready);
+    trace_reply();assert(!usb.diag_req && mo_w>mo_r);
+    while(mo_r!=mo_w){csr1=0;ep1_tx();assert(csr1&1);}
+}
 static int fixture(const char *path){
     FILE *f=fopen(path,"wb");assert(f);app_init();trs_init();edit_value(230,4,0);trace_start();
     test_time=2960*24;WIRE(0xb3,2,41);test_time=3000*24;app_step();test_time+=300*24;app_audio_begin();
@@ -123,12 +151,7 @@ static int fixture(const char *path){
         render();
     }
     trace_stop(2);assert(mt.n==18);
-    for(unsigned pg=0;pg<=3;pg++){uint8_t req[]={240,125,73,70,87,1,4,pg,pg,0,247};
-        assert(ifw_trace_request(req,11));assert(!ifw_trace_request(req,10));
-        uint32_t words[28];unsigned n=trace_words(pg,words);uint8_t reply[150];
-        ifw_diag_encode_words(reply,pg,5,n,words);
-        assert(fwrite(reply,1,10+n*5,f)==10+n*5);
-    }
+    for(unsigned pg=0;pg<=3;pg++)export_page(f,pg);
     assert(!fclose(f));return 0;
 }
 int main(int argc,char **argv) {

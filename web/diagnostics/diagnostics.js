@@ -1,22 +1,34 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import {readSnapshot,readBootSnapshot} from './protocol.js';
+import {readTrace,midiFile} from './trace.js?v=2';
 const $=id=>document.getElementById(id);let access,url;
 function saveReport(report){
  const text=JSON.stringify(report,null,2);$('raw').textContent=text;
  if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(new Blob([text],{type:'application/json'}));
  $('download').href=url;$('download').hidden=false;
 }
-function choose(element,ports){
- element.replaceChildren();
- for(const port of ports){const o=document.createElement('option');o.value=port.id;o.textContent=port.name||port.id;element.append(o);}
- const matches=ports.filter(p=>/fm.?1|openifw/i.test(p.name||''));if(matches.length===1)element.value=matches[0].id;
+// The application USB product string is "Felucca". Do not guess from the
+// first MIDI port: a wind controller or virtual driver often appears first.
+function choosePair(){
+ const deviceName=/felucca|openifw|fm[ _-]?1(?![0-9])/i;
+ const lists=['inputs','outputs'].map(k=>[...access[k].values()].filter(p=>p.state!=='disconnected'));
+ const candidates=lists.map(ports=>ports.filter(p=>deviceName.test(p.name||'') && !/update|loader|ota-/i.test(p.name||'')));
+ const suggested=candidates.every(c=>c.length===1);
+ for(const [i,id] of ['input','output'].entries()){
+  const select=$(id);select.replaceChildren();
+  const add=(value,label)=>{const o=document.createElement('option');o.value=value;o.textContent=label;select.append(o);};
+  add('','请选择 FM-1 的 MIDI '+(i?'输出':'输入'));
+  for(const port of lists[i])add(port.id,port.name||port.id);
+  select.value=suggested?candidates[i][0].id:'';
+ }
+ return suggested;
 }
 $('connect').onclick=async()=>{
  try{
   if(!navigator.requestMIDIAccess)throw Error('请使用桌面 Chrome 或 Edge。');
   access=await navigator.requestMIDIAccess({sysex:true});
-  choose($('input'),[...access.inputs.values()]);choose($('output'),[...access.outputs.values()]);
-  $('ports').hidden=false;$('status').textContent='选择设备对应的输入和输出，然后开始采集。';
+  const suggested=choosePair();
+  $('ports').hidden=false;$('status').textContent=suggested?'已选中 FM-1 候选端口；读取录制时会向设备核对版本。':'请手动选择 FM-1 的输入和输出。它通常显示为 Felucca，请勿选择电吹管或虚拟 MIDI 口。';
  }catch(error){$('status').textContent=error.message;}
 };
 $('capture').onclick=async()=>{
@@ -65,15 +77,15 @@ const traceLinks=[];
 $('trace-read').onclick=async()=>{
  const input=access?.inputs.get($('input').value),output=access?.outputs.get($('output').value);
  const msg=$('trace-status');
- if(!input||!output){msg.textContent='请先连接并选择设备。';return;}
+ if(!input||!output){msg.textContent='请在上方选择 FM-1 的输入和输出（通常名为 Felucca）。';return;}
  const buttons=['capture','boot','trace-read','input','output','connect'];
  for(const id of buttons)$(id).disabled=true;
  for(const url of traceLinks)URL.revokeObjectURL(url);traceLinks.length=0;
  $('trace-json').hidden=$('trace-midi').hidden=true;
  try {
-  const {readTrace,midiFile}=await import('./trace.js?v=1');await input.open();await output.open();
-  msg.textContent='读取机身录制…';
-  const log=await readTrace(input,output,(n,total)=>{msg.textContent='读取 '+n+' / '+total+' 条消息';});
+  await input.open();await output.open();
+  msg.textContent='正在向 FM-1 核对固件版本…';
+  const log=await readTrace(input,output,(n,total)=>{msg.textContent='读取 '+n+' / '+total+' 条消息';},{status:s=>{msg.textContent=s;}});
   for(const [id,data,type,ext] of [['trace-json',JSON.stringify(log,null,2),'application/json','json'],['trace-midi',midiFile(log),'audio/midi','mid']]){
     const link=$(id),url=URL.createObjectURL(new Blob([data],{type}));link.href=url;link.download='OpenIFW-FM1-take-'+log.session+'.'+ext;link.hidden=false;traceLinks.push(url);
   }

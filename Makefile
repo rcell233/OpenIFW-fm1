@@ -188,7 +188,8 @@ clean:
 .PHONY: trs-input-test
 trs-input-test:
 	mkdir -p build/trs
-	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ivendor/dinghy/firmware/hal -Ivendor/dinghy/firmware/gen tests/trs_input.c $(APP_DSP) -o build/trs/input
+	python3 tests/trace_usb_fixture.py
+	$(CC) -O1 -g -std=c11 -Wall -Wextra -Werror -Wno-unused-function -Wno-missing-field-initializers -fsanitize=address,undefined -fno-omit-frame-pointer -Ibuild/trs -Ivendor/dinghy/firmware/hal -Ivendor/dinghy/firmware/gen tests/trs_input.c $(APP_DSP) -o build/trs/input
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input trs build/trs/trs.pcm
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input usb build/trs/usb.pcm
