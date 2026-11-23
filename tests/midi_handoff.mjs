@@ -6,7 +6,7 @@ const module=await WebAssembly.compile(readFileSync('build/web/openifw.wasm'));
 async function boot(program){
   const e=(await WebAssembly.instantiate(module,{})).exports;
   e.web_nor_erase();e.web_boot();e.web_master(1023);
-  e.web_midi(0xc0,program,0);e.web_midi(0xb0,7,89);e.web_midi(0x90,60,96);
+  e.web_midi(0xc0,program,0);e.web_midi(0xb0,2,89);e.web_midi(0x90,60,96);
   for(let i=0;i<38;i++)e.web_render(256);
   return e;
 }

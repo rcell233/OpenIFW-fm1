@@ -20,6 +20,6 @@ Patch 结构为 229 × 32 位（916 B）：前 156 字为静态参数，接着 5
 
 NRPN 编号为 patch 字号 0–228。CC99 / CC98 发送编号高／低 7 位，CC6 / CC38 发送数值高／低 7 位，收到 CC38 后才应用。数字参数把 lo–hi 映射到 0–16383；枚举把 option index 映射到同一范围。定义与选项列表以 panel-controls.json 为准。发送方每个参数间隔 10 ms，避免淹没输入队列；229 个参数约 2.3 秒。通道 1，接收机须为通道 1 或全通道。
 
-Mod 目的地沿用原版大小写／空白规范化和别名，清单为 modulation-destinations.json。Source 编号、双极标志和虚拟目的地由 fixed_patch.py / web/patch-codec.js 编解码。默认气息 CC7、Vibrato CC9、Glide CC5，CC64 延音，NoteOn velocity 0 转松键，CC120/123 panic。当前没有 TRS MIDI 或 Aftertouch 接线。
+Mod 目的地沿用原版大小写／空白规范化和别名，清单为 modulation-destinations.json。Source 编号、双极标志和虚拟目的地由 fixed_patch.py / web/patch-codec.js 编解码。默认气息 CC2、Vibrato CC9、Glide CC5，CC64 延音，NoteOn velocity 0 转松键，CC120/123 panic。机身 TRS 与 USB MIDI 使用同一个引擎。Aftertouch 可录入日志，不映射合成参数。
 
 `.ifwprog` 导入只在浏览器进行；保留其已实现 DSP 参数和五个效果区块。未参与 DSP 的 Waveform3 不参与新音色处理。设备侧通过 NRPN 接收参数；SAVE 后才写 Flash。数值越过硬件编辑边界时，发送方限制到边界并提示。

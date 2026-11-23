@@ -86,7 +86,7 @@
     "vendor/felucca-web/fm1pkg.js": "0ad2257f83b2a55627d684556f7e285faa638365e2892802692ec7a1943bf2aa",
     "assets/fonts/ter-u16b.bdf": "5275653e1cae7b123c844e52d5232242e054d5a4b0d30906404b78718c2380df",
     "assets/fonts/OFL-Terminus.txt": "10badc64d36b6d6fb1a27fa6e58dfc18475e3bd5412d9f42fca7cae08efcc289",
-    "firmware/hal/fm1_uart.h": "e11cf99fb013d17859afb0eff595e5cd37a6659a6582ba4ef845b905fd1e2a88"
+    "firmware/hal/fm1_uart.h": "7fc6e2ab62eaad933eec6d0856a04d58af0c7c40d2dcf6d185e8b0ee057114a4"
   },
   "jieli_sdk": {
     "url": "https://gitee.com/Jieli-Tech/fw-AC79_AIoT_SDK",
@@ -145,6 +145,8 @@
     "url": "https://github.com/hugelton/Felucca",
     "commit": "ca1db43a78455ae747766a2738f8580380d40bc1",
     "file": "firmware/hal/fm1_uart.h",
-    "license": "GPL-3.0-only"
+    "license": "GPL-3.0-only",
+    "upstreamSha256": "e11cf99fb013d17859afb0eff595e5cd37a6659a6582ba4ef845b905fd1e2a88",
+    "change": "RXCNT = 1 byte for playing latency; all other UART register settings unchanged."
   }
 }

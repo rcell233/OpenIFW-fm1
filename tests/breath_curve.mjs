@@ -11,7 +11,7 @@ function button(e,k,ms=30){e.web_buttons(1<<k);advance(e,ms);e.web_buttons(0);ad
 function knob(e,k,d){e.web_enc(k,d);advance(e,64);}
 const values=e=>Array.from({length:4},(_,k)=>str(e,e.web_ui_control_value(k)));
 function screen(e,name){advance(e,1500);const m=new Uint16Array(e.memory.buffer,e.web_screen(),57600),pixels=Buffer.alloc(m.length*3);for(let i=0;i<m.length;i++){const p=(m[i]<<8|m[i]>>8)&65535;pixels[3*i]=(p>>11)*255/31;pixels[3*i+1]=(p>>5&63)*255/63;pixels[3*i+2]=(p&31)*255/31;}writeFileSync(out+'/'+name+'.ppm',Buffer.concat([Buffer.from('P6\n240 240\n255\n'),pixels]));}
-const e=await boot();button(e,5);assert.equal(values(e)[0],'CC7');knob(e,3,-5);assert.equal(values(e)[0],'CC2');assert.equal(values(e)[1],'ALL');
+const e=await boot();button(e,5);assert.equal(values(e)[0],'CC2');knob(e,3,5);assert.equal(values(e)[0],'CC7');knob(e,3,-5);assert.equal(values(e)[0],'CC2');assert.equal(values(e)[1],'ALL');
 knob(e,0,1);assert.equal(str(e,e.web_ui_title()),'BREATH CURVE');assert.deepEqual(values(e),['0%','33%','66%','100%']);screen(e,'linear');
 // Multiple detents on the same knob must redraw the line even when the
 // highlighted control did not change. Check the second point's colored edge.

@@ -14,6 +14,9 @@ static int ifw_diag_sequence(const uint8_t *p,uint32_t n) {
     return n==9u && p[0]==0xf0 && p[1]==0x7d && p[2]=='I' && p[3]=='F' &&
         p[4]=='W' && p[5]==1 && (p[6]==0 || p[6]==2) && p[7]<128u && p[8]==0xf7?p[7]:-1;
 }
+static inline int ifw_trace_request(const uint8_t *p,uint32_t n){
+    return n==11 && p[0]==240 && p[1]==125 && p[2]==73 && p[3]==70 && p[4]==87 && p[5]==1 && p[6]==4 && p[7]<128 && p[8]<128 && p[9]<128 && p[10]==247;
+}
 static inline void ifw_diag_encode_words(uint8_t *p,uint8_t sequence,uint8_t command,uint8_t count,const uint32_t *words) {
     const uint8_t h[]={0xf0,0x7d,'I','F','W',1,command,sequence,count};
     for(unsigned i=0;i<9;i++)p[i]=h[i];

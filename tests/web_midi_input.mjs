@@ -62,7 +62,7 @@ test('a USB input mock can play the deployed AudioWorklet and WASM firmware',asy
     }
     return peak;
   }
-  p.onmidimessage({data:[0xb4,7,100]});p.onmidimessage({data:[0x94,65,112]});
+  p.onmidimessage({data:[0xb4,2,100]});p.onmidimessage({data:[0x94,65,112]});
   assert.ok(render()>0);assert.equal(worklet.ex.web_note(),65);assert.equal(worklet.ex.web_held(),1);
   p.onmidimessage({data:[0x84,65,0]});render();assert.equal(worklet.ex.web_held(),0);
 });

@@ -21,7 +21,7 @@ static void fm1_timer5_ack(void){}
 static void fm1_input_tick(void){scans++;ticks+=72;}
 static void usb_poll(void){polls++;ticks+=480;}
 static void uac_service(void){uac_calls++;ticks+=168;}
-static struct {uint8_t sx_on,sx_len,sysex[16],uboot_req,ota_req,diag_req,diag_sequence,diag_command;} usb;
+static struct {uint8_t sx_on,sx_len,sysex[16],uboot_req,ota_req,diag_req,diag_sequence,diag_command;uint16_t diag_page;} usb;
 static uint8_t sx_collect,sx_ready,sx_frame[640];static uint32_t sx_pos,sx_frame_len;
 '''+body+sysex+r'''
 int main(void){

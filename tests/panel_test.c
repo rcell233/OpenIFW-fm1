@@ -11,7 +11,7 @@ static int32_t audio[512];
 static void tick(void) {app_audio(audio,256);}
 static void reset(void) {
     memset(host_flash,255,sizeof host_flash);storage_load();ui_init();make_preset(&edit_patch,0);
-    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);ready=1;qwrite=qread=overflow=0;breath_input=INT32_MAX;nrpn=16383;
+    ifw_fixed_init(&synth,&edit_patch,&fx_buffers);ready=1;qwrite=qread=overflow=0;breath_input=INT32_MAX;memset(nr,0,sizeof nr);
     memset(midi_down,0,sizeof midi_down);memset(sustain_hold,0,sizeof sustain_hold);sustain=0;
 }
 static void math_tests(void) {
@@ -163,16 +163,16 @@ static void render_tests(void) {
     puts("PASS display: 58 pages x 8 palettes match synchronous pixels; continuous knob/palette edits service all bands; damage rectangles");
 }
 static void breath_input_tests(void) {
-    reset();assert(breath_cc==7 && breath_input==INT32_MAX);
+    reset();assert(breath_cc==2 && breath_input==INT32_MAX);
     midi_message(0x90,60,110);tick();assert(synth.breath_target==INT32_MAX);
-    midi_message(0xb0,7,35);midi_message(0x90,64,100);tick();
+    midi_message(0xb0,2,35);midi_message(0x90,64,100);tick();
     assert(synth.breath_target==midi31(35) && synth.mono.count==2);
-    midi_message(0xb0,7,0);midi_message(0x80,64,0);tick();
+    midi_message(0xb0,2,0);midi_message(0x80,64,0);tick();
     assert(synth.breath_target==0 && synth.note==60);
     for(unsigned i=0;i<250;i++)tick();
     midi_message(0xc0,10,0);midi_message(0xb0,123,0);note_start(68,100);tick();
     assert(synth.breath_target==0);
-    ui_show(UP_GLOBAL);ui_knob(0,-5);tick();
+    ui_show(UP_GLOBAL);ui_knob(0,5);ui_knob(0,-5);tick();
     assert(breath_cc==2 && synth.breath_target==INT32_MAX);
     ui_knob(1,3);tick();assert(saved.channel==3);
     midi_message(0xb0,2,22);midi_message(0xb2,7,4);tick();
@@ -187,7 +187,7 @@ static void breath_input_tests(void) {
         midi_message(0xb2,cc,0);note_start(61,110);tick();assert(synth.breath_target==0);
         midi_message(0xb2,cc,127);tick();assert(synth.breath_target==INT32_MAX);
     }
-    assert(!memcmp(&original,&edit_patch,sizeof original) && !sustain && nrpn==16383);
+    assert(!memcmp(&original,&edit_patch,sizeof original) && !sustain && nr[0][2].mask==0);
     for(unsigned v=0;v<128;v++)assert(breath_map(v)==v);
     ui_show(UP_BRCURVE);
     ui_knob(0,20);ui_knob(1,27);ui_knob(2,-46);ui_knob(3,-20);
@@ -209,7 +209,7 @@ static void breath_input_tests(void) {
         saved.wind=wind;assert(!storage_save());
         memset(host_flash+sizeof saved,255,sizeof(BreathRecord));storage_load();
         assert(!memcmp(breath_y,breath_x,4));
-        assert(breath_cc==7 && saved.learn[47]==P_Filter1Frequency && saved.channel==3);
+        assert(breath_cc==2 && saved.learn[47]==P_Filter1Frequency && saved.channel==3);
     }
     puts("PASS breath: default full, CC before note, zero retained across notes, silence, patch and panic; 120 selectable CCs, channel filter, save and v2 migration");
 }
@@ -227,6 +227,14 @@ int main(void) {
     saved.wind=1;saved.slot=2;saved.learn[30]=P_Filter1Frequency;saved.user[2]=edit_patch;
     assert(!storage_save());saved.wind=0;storage_load();assert(saved.wind==1 && saved.slot==2 && saved.learn[30]==P_Filter1Frequency);
     host_flash[200]^=1;storage_load();assert(!saved.wind && saved.learn[30]==-1);
+    // Unassigned CCs cannot edit the currently visible knobs; explicit Learn still works.
+    reset();IFWFixedPatch keep=edit_patch;for(int n=20;n<24;n++)midi_message(0xb0,n,127);
+    assert(!memcmp(&keep,&edit_patch,sizeof keep));saved.learn[20]=P_Filter1Frequency;
+    midi_message(0xb0,20,127);assert(memcmp(&keep,&edit_patch,sizeof keep));
+    reset();keep=edit_patch;midi_message(0xb0,99,0);midi_message(0xb0,98,P_Filter1Frequency);
+    midi_message(0xb1,6,64);midi_message(0xb1,38,0);routed_message(1,0xb0,6,64);routed_message(1,0xb0,38,0);
+    midi_message(0xb0,101,0);midi_message(0xb0,100,0);midi_message(0xb0,6,127);midi_message(0xb0,38,0);
+    assert(!memcmp(&keep,&edit_patch,sizeof keep) && !qwrite);
     // NRPN must wait for the LSB, and update the exact selected parameter.
     reset();midi_message(0xB0,99,0);midi_message(0xB0,98,P_Filter1Frequency);midi_message(0xB0,6,64);
     assert(!qwrite);midi_message(0xB0,38,0);tick();assert(synth.patch.v[P_Filter1Frequency]>327000 && synth.patch.v[P_Filter1Frequency]<328000);

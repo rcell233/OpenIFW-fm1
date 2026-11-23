@@ -193,3 +193,8 @@ trs-input-test:
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input trs build/trs/trs.pcm
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input usb build/trs/usb.pcm
 	cmp build/trs/trs.pcm build/trs/usb.pcm
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input panel build/trs/panel.bin > build/trs/panel.log
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input wirekeys build/trs/wirekeys.bin
+	cmp build/trs/panel.bin build/trs/wirekeys.bin
+	ASAN_OPTIONS=detect_leaks=0 build/trs/input fixture build/trs/replies.bin
+	node tests/midi_recording.mjs

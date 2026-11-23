@@ -22,7 +22,7 @@ $('connect').onclick=async()=>{
 $('capture').onclick=async()=>{
  const input=access?.inputs.get($('input').value),output=access?.outputs.get($('output').value);
  if(!input||!output){$('status').textContent='没有可用的 MIDI 输入或输出。';return;}
- $('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=true;
+ $('trace-read').disabled=$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=true;
  $('progress').hidden=false;$('progress').value=0;$('download').hidden=true;
  const samples=[];
  try{
@@ -44,12 +44,12 @@ $('capture').onclick=async()=>{
   saveReport(report);$('result').hidden=false;
   $('status').textContent='采集完成。可以下载报告，里面保留了全部设备原始读数。'+(epoch?' 采集中计数重置过，表格显示最后一段。':'');
  }catch(error){$('status').textContent=error.message;}
- finally{$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=false;}
+ finally{$('trace-read').disabled=$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=false;}
 };
 $('boot').onclick=async()=>{
  const input=access?.inputs.get($('input').value),output=access?.outputs.get($('output').value);
  if(!input||!output){$('status').textContent='没有可用的 MIDI 输入或输出。';return;}
- $('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=true;
+ $('trace-read').disabled=$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=true;
  $('result').hidden=true;$('progress').hidden=true;$('download').hidden=true;
  try{
   await input.open();await output.open();const boot=await readBootSnapshot(input,output,0);
@@ -58,5 +58,26 @@ $('boot').onclick=async()=>{
   const pc=boot.crashValid?'，保留的异常 PC：0x'+boot.crashPc.toString(16):'，没有有效的异常记录';
   $('status').textContent=`${reason}。当前阶段 ${boot.currentStage}，上次阶段 ${boot.previousStage}${pc}。可下载报告。`;
  }catch(error){$('status').textContent=error.message;}
- finally{$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=false;}
+ finally{$('trace-read').disabled=$('boot').disabled=$('capture').disabled=$('connect').disabled=$('input').disabled=$('output').disabled=false;}
+};
+
+const traceLinks=[];
+$('trace-read').onclick=async()=>{
+ const input=access?.inputs.get($('input').value),output=access?.outputs.get($('output').value);
+ const msg=$('trace-status');
+ if(!input||!output){msg.textContent='请先连接并选择设备。';return;}
+ const buttons=['capture','boot','trace-read','input','output','connect'];
+ for(const id of buttons)$(id).disabled=true;
+ for(const url of traceLinks)URL.revokeObjectURL(url);traceLinks.length=0;
+ $('trace-json').hidden=$('trace-midi').hidden=true;
+ try {
+  const {readTrace,midiFile}=await import('./trace.js?v=1');await input.open();await output.open();
+  msg.textContent='读取机身录制…';
+  const log=await readTrace(input,output,(n,total)=>{msg.textContent='读取 '+n+' / '+total+' 条消息';});
+  for(const [id,data,type,ext] of [['trace-json',JSON.stringify(log,null,2),'application/json','json'],['trace-midi',midiFile(log),'audio/midi','mid']]){
+    const link=$(id),url=URL.createObjectURL(new Blob([data],{type}));link.href=url;link.download='OpenIFW-FM1-take-'+log.session+'.'+ext;link.hidden=false;traceLinks.push(url);
+  }
+  const cc=Object.entries(log.histogram).filter(([k])=>/CC5$|Pitch bend$/.test(k)).map(([k,n])=>k+' × '+n);
+  msg.textContent='已读取 '+log.events.length+' 条，时长 '+(log.durationMs/1000).toFixed(1)+' 秒。'+(cc.length?cc.join('；'):'没有收到 CC5 或弯音。')+(log.stopReason==='capacity'?' 缓冲已满，录制提前结束。':'')+(log.droppedTrsBytes?' 串口发生丢字节，详见日志。':'');
+ }catch(e){msg.textContent=e.message;}finally{for(const id of buttons)$(id).disabled=false;}
 };

@@ -15,6 +15,7 @@ for path,expected in lock['sha256'].items():
     if path=='firmware/src/platform.c':
         # rc15 overlays the pinned UART HAL; only its init, include and count
         # poll are permitted. Original GPIO, USB, boot and audio code stay pinned.
+        data=data.replace(b'static uint32_t trs_clock(void){return fm1_ticks();}\n',b'')
         data=data.replace(b'#define FELUCCA_UART 1',b'#define FELUCCA_UART 0')
         data=data.replace(b'#include "fm1_uart.h"\n#include "trs_midi.h"\n',b'')
         data=data.replace(b'    if (sub % 5u == 2u) trs_tick(); /* 2 kHz DMA count only; off the USB poll tick */\n',b'')
@@ -31,13 +32,11 @@ for path,expected in lock['sha256'].items():
         data=data.replace(b'b->mode=IFW_OUTPUT_BUS && mode==IFW_OUTPUT_LOUD;',b'b->mode=mode==IFW_OUTPUT_LOUD;')
     assert historical_hash(path,data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
-app=app.replace(b"SELECT: PAGES / ALG: COLOR",b"SELECT: PAGES / ALG: MODULE")
-# rc13 reviewed MIDI input and settings extension. All DSP files and PCM fixtures retain their original pins.
-app=app.replace(b'        if(n)ifw_fixed_begin_frames(&synth); /* Output time advances even with DSP bypassed. */\n',b'')
-app=app.replace(b'#if defined(IFW_TARGET) || defined(IFW_TRS_TEST)\n        trs_service();\n#endif\n',b'')
-assert sha(app)=='a0a76c7d487362202d650110c082f07ae1ae53262152934643abcceaf1fe58ba','rc13 application bridge changed'
+# rc16 input routing and diagnostics changed; the shared audio bridge and DSP are tested separately.
+assert sha(app)=='19675dfd7ff046ad3b3ef23add6c0728627bdba067da557cb73ebc668c4624df','rc16 app bridge changed'
 scheduler=(root/'firmware/src/ui/draw.c').read_bytes().split(b'static void draw_panel(uint32_t full) {',1)[1]
 # The rc14 live readout and marker add two bounded DMA widgets. Keep the
 # exact scheduler body pinned; the actual damage behavior is replayed too.
+scheduler=scheduler.replace(b'\n    static uint32_t old_trace_mode;if(old_trace_mode!=mt.mode){old_trace_mode=mt.mode;ui_widgets|=8u;}',b'')
 assert sha(scheduler)==audit['drawPanelSha256'],'Display scheduler changed'
 print("PASS historical source freezes, reviewed 1.3.1 note handoff and rc14 display scheduler")

@@ -68,6 +68,7 @@ static volatile uint32_t fm1_ms;                /* milliseconds since power-on (
 #define FELUCCA_UART 1
 #include "usb.c"
 #include "fm1_uart.h"
+static uint32_t trs_clock(void){return fm1_ticks();}
 #include "trs_midi.h"
 
 /* ---- flash: read anywhere; erase / program only the update's staging area and the settings sector */

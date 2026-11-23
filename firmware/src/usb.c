@@ -146,6 +146,7 @@ static struct {
     uint32_t rx_held, rx_bad;    /* packets held back (NAK) for room, malformed events ignored */
 #ifndef FELUCCA_LOADER
     volatile uint8_t diag_req,diag_sequence,diag_command;
+    volatile uint16_t diag_page;
 #endif
 } usb;
 
@@ -713,7 +714,8 @@ static void sysex_byte(uint8_t b)
         if (ok)
             usb.uboot_req = 1;
 #ifndef FELUCCA_LOADER
-        else if (ifw_diag_sequence(usb.sysex,usb.sx_len)>=0) {
+        else if (ifw_diag_sequence(usb.sysex,usb.sx_len)>=0 || ifw_trace_request(usb.sysex,usb.sx_len)) {
+            usb.diag_page=usb.sysex[6]==4?(usb.sysex[8]|(usb.sysex[9]<<7)):0;
             usb.diag_sequence=usb.sysex[7];usb.diag_command=usb.sysex[6];usb.diag_req=1;
         }
 #endif

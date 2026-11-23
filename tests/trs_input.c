@@ -20,6 +20,7 @@ static uint32_t length;
 static void mock_init(volatile uint8_t *ring,uint32_t len){assert(((uintptr_t)ring&15)==0);dma=ring;length=len;}
 #define fm1_uart1_midi_init mock_init
 #define RING_PUBLISH() __asm__ volatile("" ::: "memory")
+static uint32_t test_time;static uint32_t trs_clock(void){return test_time;}
 #include "../firmware/src/trs_midi.h"
 #define IFW_HOST
 #define IFW_TRS_TEST
@@ -51,7 +52,7 @@ static int pcm_compare(int trs,const char *path) {
     for(unsigned p=0;p<FACTORY_COUNT;p++){
         performance_event(trs,0xc1,preset_programs[p],0);
         for(unsigned i=0;i<120;i++) {
-            int32_t out[512];performance_event(trs,0xb1,7,(i*3)%128);
+            int32_t out[512];performance_event(trs,0xb1,2,(i*3)%128);
             if(i==1)performance_event(trs,0x91,60,110);
             if(i==40){performance_event(trs,0x81,60,0);performance_event(trs,0x91,67,100);}
             if(i==100)performance_event(trs,0x81,67,0);
@@ -62,12 +63,82 @@ static int pcm_compare(int trs,const char *path) {
     }
     assert(!fclose(f));return 0;
 }
+/* Compare panel vs TRS: do not feed breath or modulation; match the
+ * panel's pitch, velocity 110, and the precise render boundaries. */
+static int panel_parity(int panel,const char *path){
+    FILE *f=fopen(path,"wb");assert(f);app_init();trs_init();
+    for(unsigned p=0;p<FACTORY_COUNT;p++){
+        load_preset(p);
+        for(unsigned i=0;i<150;i++){
+            if(panel){
+                if(i==2)fm1_in.notes=1u<<7;
+                if(i==50)fm1_in.notes=(1u<<7)|(1u<<14);
+                if(i==54)fm1_in.notes=1u<<14;
+                if(i==100)fm1_in.notes=0;
+            }else{
+                if(i==2){WIRE(0x90,60,110);}if(i==50){WIRE(0x90,67,110);}
+                if(i==54){WIRE(0x80,60,0);}if(i==100){WIRE(0x80,67,0);}
+            }
+            int32_t out[512];fm1_ms+=6;app_step();app_audio(out,256);
+            assert(fwrite(&synth.pitch,sizeof synth.pitch,1,f)==1);
+            assert(fwrite(out,sizeof out,1,f)==1);
+        }
+    }
+    assert(!fclose(f));return 0;
+}
+static unsigned glide_frames(unsigned cc){
+    /* Same EWI legato jump after CC5 has settled, no audio/DMA wall-time estimate. */
+    IFWFixedPatch p;make_preset(&p,0);ifw_fixed_init(&synth,&p,&fx_buffers);
+    qread=qwrite=overflow=0;ready=1;saved.channel=0;
+    WIRE(0xb0,5,cc,0x90,60,110);app_step();app_audio_begin();
+    int32_t l,r;for(unsigned i=0;i<22050;i++)ifw_fixed_sample(&synth,&l,&r);
+    WIRE(0x90,72,110);app_step();app_audio_begin();
+    for(unsigned i=1;i<=44100;i++){ifw_fixed_sample(&synth,&l,&r);
+      if(synth.pitch>=72*65536-655)return i;} /* within 0.01 semitone */
+    return 44100;
+}
+static void trace_test(void){
+    uint32_t w[28];trace_start();assert(trs_tracing);
+    test_time=2400;WIRE(0xb3,2,51);test_time+=48;app_step();
+    test_time+=240;app_audio_begin();assert(mt.n==1 && trace_buf[0].us==102);
+    assert(trace_buf[0].wait==(10u<<16|2u));
+    assert((trace_buf[0].msg>>24)==5);
+    WIRE(0x92,64,120);render();assert(trace_buf[1].msg>>24==1); /* ignored CH3 */
+    usb_input(0xb3,5,77);render();fm1_ms=12;trace_stop(2);
+    assert(trace_words(0,w)==23 && w[4]==3 && w[5]==12 && w[8]==2 && w[3]==2);
+    assert(trace_words(1,w)==13 && w[2]==1 && w[4]==102);
+    assert(trace_words(2,w)==4);
+    trace_start();for(unsigned i=0;i<TRACE_CAP+1;i++)trace_note(0,0x90,69,100);
+    assert(mt.mode==3 && mt.n==TRACE_CAP && !trs_tracing);
+    trace_start();fm1_ms+=120001;trace_audio();assert(mt.mode==4 && mt.n==0);
+}
+#include "../firmware/src/diagnostics_protocol.h"
+static int fixture(const char *path){
+    FILE *f=fopen(path,"wb");assert(f);app_init();trs_init();edit_value(230,4,0);trace_start();
+    test_time=2960*24;WIRE(0xb3,2,41);test_time=3000*24;app_step();test_time+=300*24;app_audio_begin();
+    for(unsigned i=1;i<18;i++){
+        fm1_ms=4+i;test_time=fm1_ms*24000;
+        if(i==1){WIRE(0x92,60,100);}else if(i==2){fm1_in.notes=1u<<7;}
+        else if(i==3){usb_input(0xb3,5,100);}else {WIRE(0xc3,18);}
+        render();
+    }
+    trace_stop(2);assert(mt.n==18);
+    for(unsigned pg=0;pg<=3;pg++){uint8_t req[]={240,125,73,70,87,1,4,pg,pg,0,247};
+        assert(ifw_trace_request(req,11));assert(!ifw_trace_request(req,10));
+        uint32_t words[28];unsigned n=trace_words(pg,words);uint8_t reply[150];
+        ifw_diag_encode_words(reply,pg,5,n,words);
+        assert(fwrite(reply,1,10+n*5,f)==10+n*5);
+    }
+    assert(!fclose(f));return 0;
+}
 int main(int argc,char **argv) {
+    if(argc==3 && !strcmp(argv[1],"fixture"))return fixture(argv[2]);
+    if(argc==3 && (!strcmp(argv[1],"panel")||!strcmp(argv[1],"wirekeys")))return panel_parity(!strcmp(argv[1],"panel"),argv[2]);
     if(argc==3)return pcm_compare(!strcmp(argv[1],"trs"),argv[2]);
     app_init();trs_init();assert(trs_read==0 && length==512);
     /* Select CH4 and CC2. Split a note at each possible boundary, with
      * interleaved real-time/active sensing and zero-velocity note-off. */
-    edit_value(230,4,0);edit_value(229,-5,0);
+    edit_value(230,4,0);assert(breath_cc==2);
     WIRE(0xb3,2);render();assert(last_breath_raw==-1);
     WIRE(0xfe,93,0x93,60);render();assert(last_breath_raw==93 && !synth.mono.count);
     WIRE(0xf8,101);int sound=render();sound|=render();assert(sound && synth.note==60 && synth.mono.count==1);
@@ -94,5 +165,8 @@ int main(int argc,char **argv) {
     assert(!synth.mono.count);WIRE(69,100);render();assert(!synth.mono.count);
     WIRE(0x93,70,100);render();assert(synth.note==70 && synth.mono.count==1);
     trs_read=trs_written=producer=UINT32_MAX-1;WIRE(0x83,70,0);render();assert(trs_read==1 && !synth.mono.count);
+    trace_test();
+    unsigned fast=glide_frames(0),slow=glide_frames(127);assert(slow>fast*10);
+    printf("Tresure Island C4-C5, to within 0.01 semitone: CC5=0 %u frames, CC5=127 %u frames at 44100 Hz\n",fast,slow);
     puts("PASS TRS DMA -> real app -> PCM: CC, notes/legato, channel, sustain, running status, real-time, USB coexistence, wrap, budget and recovery");
 }

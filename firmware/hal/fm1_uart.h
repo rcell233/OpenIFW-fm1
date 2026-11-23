@@ -2,7 +2,7 @@
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* FM-1 UART1 as MIDI IN: PH8 -> input
  * channel 1 -> UART1 RX, 31250 baud, RX DMA into a ring, polled (no IRQ).
- * The MIDI parser is midi_uart.c. RX verified on hardware.
+ * OpenIFW uses trs_midi.h to parse the stream in the foreground.
  *
  *   fm1_uart1_midi_init(ring, len)   len a power of two, ring aligned 16;
  *                                    before TIMER5 starts (PORTH RMW)
@@ -28,10 +28,9 @@
 #define FM1_UM_PH_PU     (*(volatile uint32_t *)0x501D0u)
 #define FM1_UM_PH_PD     (*(volatile uint32_t *)0x501D4u)
 
-/* Signal before the whole DMA ring fills: TIMER5 can defer UART service while
- * audio renders. With a 128-byte ring, 32-byte events leave 96 bytes of margin.
- * RXCNT is the event threshold, not the wrap address (wl82 SDK uart_dev.h). */
-#define FM1_UART1_RX_FRAME 32u
+/* RXCNT is the event threshold; RXEADR controls wrapping. Make each byte
+ * eligible for the existing 2 kHz poll, keeping UART interrupts disabled. */
+#define FM1_UART1_RX_FRAME 1u
 
 FM1_INLINE void fm1_uart1_midi_init(volatile uint8_t *ring, uint32_t len)
 {

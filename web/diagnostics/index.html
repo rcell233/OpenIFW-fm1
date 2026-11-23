@@ -10,9 +10,11 @@
 <p>适用 0.4.7-rc2 及更新版本。接上 USB，用 Chrome 或 Edge 连接 MIDI 输入与输出。正常启动后可采集性能；USB RESCUE 中也可读取启动信息。原始 0.4.6-rc2 恢复包不支持此诊断协议。</p>
 <button id="connect">连接设备</button>
 <div id="ports" hidden><label>MIDI 输入<select id="input"></select></label><label>MIDI 输出<select id="output"></select></label>
-<div class="actions"><button id="boot">读取启动信息</button><button id="capture">采集 10 秒性能</button><a id="download" hidden download="OpenIFW-FM1-diagnostics.json">下载报告</a></div></div>
+<div class="actions"><button id="boot">读取启动信息</button><button id="capture">采集 10 秒性能</button><a id="download" hidden download="OpenIFW-FM1-diagnostics.json">下载报告</a></div>
+<h2>导出机身 MIDI 录制</h2><p>rc16 起：在 FM‑1 上进入 GLO → PERFORMANCE，短按 REC，吹奏后再按 REC 停止。保持开机，再接 USB 读取。每段最多 4,096 条通道消息或 120 秒；新录制覆盖上一段，关机清空。</p>
+<div class="actions"><button id="trace-read">读取 MIDI 录制</button><a id="trace-json" hidden>下载调试日志 .json</a><a id="trace-midi" hidden>下载演奏 .mid</a></div><p id="trace-status" role="status"></p></div>
 <p id="status" role="status" aria-live="polite">连接后可以采集，不会更改设备音色或设置。</p><progress id="progress" value="0" max="20" hidden></progress>
 <table id="result" hidden><thead><tr><th>指标</th><th>设备读数</th></tr></thead><tbody id="rows"></tbody></table>
 <details><summary>原始数据</summary><pre id="raw"></pre></details>
 <small>0.4.7-rc2 的 DSP 为各前台片段耗时之和，IRQ 为 DMA 复制与 USB 供数；XRUN 表示 DSP 块耗时超预算，UND 表示输出缺块，CLIP 表示数值触顶。上次运行阶段及异常记录可能来自更早的运行，应结合报告中的版本与重启来源判断。</small>
-<script type="module" src="./diagnostics.js?v=0.4.7-rc2"></script></main></html>
+<script type="module" src="./diagnostics.js?v=0.4.7-rc16"></script></main></html>

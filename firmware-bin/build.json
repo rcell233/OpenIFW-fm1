@@ -1,7 +1,7 @@
 {
-  "version": "0.4.7-rc15",
+  "version": "0.4.7-rc16",
   "identity": "FM-1_982",
-  "appBytes": 260868,
+  "appBytes": 262712,
   "packageBytes": 610161,
   "originalHalSha256": {
     "fm1_input.h": "7579aa8e061e4b23a86aee693f1d6004dc552b888457ea507f1ba3d941465241",
@@ -11,14 +11,16 @@
   "trsMidi": {
     "input": "UART1 RX / PH8",
     "baud": 31250,
+    "rxFrameBytes": 1,
+    "pollHz": 2000,
     "ringBytes": 512,
-    "dmaAddress": 29456032,
-    "halSha256": "e11cf99fb013d17859afb0eff595e5cd37a6659a6582ba4ef845b905fd1e2a88"
+    "dmaAddress": 29458080,
+    "halSha256": "7fc6e2ab62eaad933eec6d0856a04d58af0c7c40d2dcf6d185e8b0ee057114a4"
   },
-  "sha256": "09e449aec2a3698c2cf43880f0e36fd977d7f011ba701b64c0740753eecaf673",
+  "sha256": "c8ae814ed6c45a5255c23bd0eada681e80d983be324225facac27b8dc9658e6c",
   "hardwareTested": false,
-  "ramDataBss": 84752,
-  "poolBytes": 285208,
+  "ramDataBss": 87120,
+  "poolBytes": 334360,
   "limits": {
     "app": 581564,
     "ram": 98304,

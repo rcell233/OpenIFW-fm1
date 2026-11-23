@@ -599,6 +599,8 @@ static void ui_tap(uint32_t b) {
     return;
   }
   if (b == BTN_REC) {
+    if(page==UP_PERF){if(mt.mode==1)trace_stop(2);else trace_start();
+      ui_display_invalidate();ui_message(mt.mode==1?"MIDI REC START":"MIDI REC STOP");return;}
     learn_armed = !learn_armed;
     ui_message(learn_armed ? "MOVE A CC TO LEARN" : "LEARN CANCELLED");
     return;

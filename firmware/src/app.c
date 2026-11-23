@@ -54,7 +54,7 @@ static volatile uint32_t qwrite,qread,overflow,ready;
 /* The controller value belongs to the input, not to any note or preset.
  * Only the audio consumer updates breath_input, in MIDI event order. */
 static int32_t breath_input=INT32_MAX;
-enum { BREATH_CC_DEFAULT=7, BREATH_CC_MAX=119 };
+enum { BREATH_CC_DEFAULT=2, BREATH_CC_MAX=119 };
 static uint8_t breath_cc=BREATH_CC_DEFAULT;
 static const uint8_t breath_x[4]={0,33,66,100};
 static uint8_t breath_y[4]={0,33,66,100};
@@ -64,10 +64,12 @@ static uint8_t patch_dirty;
 static volatile struct {int32_t note,breath,gate,env[4];uint32_t held,quiet,max_us,overruns;} meter;
 static volatile int16_t scope[96];
 static uint8_t key_notes[27],midi_down[128],sustain_hold[128],sustain;
-static uint16_t nrpn=16383,nrpn_value;static uint32_t quiet_frames;
+/* RPN/NRPN selection and data are scoped to an input port and channel. */
+static struct {uint16_t id,value;uint8_t mask;} nr[2][16];static uint32_t quiet_frames;
 static uint32_t key_prev,page,preset,home=1,dirty=1,last_control,learn_armed,save_pending,last_draw;
 static const char *notice="SELECT: PAGES / ALG: COLOR";
 #include "ui/state.h"
+#include "midi_trace.h"
 static int32_t word(const IFWFixedPatch *p,uint32_t id) {if(id==229)return breath_cc;if(id==230)return saved.channel;if(id==231)return saved.octave;if(id==232)return saved.slot;if(id==233)return (int32_t)(audio_perf.dsp_max_ticks/24u);if(id==234)return (int32_t)audio_perf.overruns;if(id==235)return FS;if(id==236)return 407;int32_t v;memcpy(&v,(const uint8_t *)p+id*4,4);return v;}
 static void set_word(IFWFixedPatch *p,uint32_t id,int32_t v) {if(id<PARAM_WORDS)memcpy((uint8_t *)p+id*4,&v,4);}
 static void enqueue(uint32_t type,int32_t a,int32_t b) {
@@ -97,6 +99,7 @@ static void set_breath_point(unsigned i,int32_t y) {
 }
 /* Events are consumed once per 256-frame block, as in the released engine. */
 static void app_audio_begin(void) {
+    trace_audio();
     uint32_t changed=0;
     if(overflow) {qread=qwrite;ifw_fixed_panic(&synth);ui_transfer_pending=0;RING_PUBLISH();overflow=0;}
     while(qread!=qwrite) {
@@ -265,7 +268,8 @@ static void note_start(uint32_t note,uint32_t velocity) {
     if(note>127)return;
     enqueue(0,(int32_t)note,midi31(velocity));
 }
-static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
+static void routed_message(unsigned src,uint8_t st,uint8_t a,uint8_t b) {
+    trace_note(src,st,a,b);
     if(saved.channel && (st&15u)+1u!=saved.channel)return;
     uint32_t type=st>>4;
     if(type==9 && b) {midi_down[a]=1;sustain_hold[a]=0;note_start(a,b);}
@@ -273,13 +277,15 @@ static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
     else if(type==12) {for(uint32_t i=0;i<FACTORY_COUNT;i++)if(preset_programs[i]==a) {load_preset(i);break;}}
     else if(type==14)enqueue(6,((int32_t)a+(int32_t)b*128-8192)*262144,0);
     else if(type==11) {
+        unsigned ch=st&15u;
         if(a==breath_cc){last_breath_raw=b;send_breath(b);}
         else if(a==120 || a==123)panic_panel();
-        else if(a==99)nrpn=(uint16_t)((nrpn&127u)|((uint16_t)b<<7));
-        else if(a==98)nrpn=(uint16_t)((nrpn&16256u)|b);
-        else if(a==6)nrpn_value=(uint16_t)((nrpn_value&127u)|((uint16_t)b<<7));
-        else if(a==38 && nrpn<PARAM_WORDS) {
-            nrpn_value=(uint16_t)((nrpn_value&16256u)|b);const IFWPanelParam *p=&panel_params[nrpn];int32_t v;
+        else if(a==99){nr[src][ch].id=(nr[src][ch].id&127u)|(b<<7);nr[src][ch].mask|=1;}
+        else if(a==98){nr[src][ch].id=(nr[src][ch].id&16256u)|b;nr[src][ch].mask|=2;}
+        else if(a==101 || a==100){nr[src][ch].mask=0;nr[src][ch].value=0;}
+        else if(a==6)nr[src][ch].value=(nr[src][ch].value&127u)|(b<<7);
+        else if(a==38 && nr[src][ch].mask==3 && nr[src][ch].id<PARAM_WORDS) {
+            uint16_t nrpn=nr[src][ch].id,nrpn_value=(nr[src][ch].value&16256u)|b;nr[src][ch].value=nrpn_value;const IFWPanelParam *p=&panel_params[nrpn];int32_t v;
             if(p->choice) {uint32_t index=((uint32_t)nrpn_value*(option_count[p->choice]-1u)+8191u)/16383u;v=options[p->choice][index].value;}
             else v=ifw_sat((int64_t)p->lo+ifw_sdiv64(((int64_t)p->hi-p->lo)*nrpn_value,16383));
             set_word(&edit_patch,nrpn,v);enqueue(3,nrpn,v);patch_dirty=1;dirty=1;
@@ -289,9 +295,13 @@ static void midi_message(uint8_t st,uint8_t a,uint8_t b) {
         else if(a==5)enqueue(8,midi31(b),0);
         else if(learn_armed) {saved.learn[a]=(int16_t)last_control;learn_armed=0;ui_message("CC LEARNED / SAVE TO KEEP");}
         else if(saved.learn[a]>=0)edit_value((uint32_t)saved.learn[a],b,1);
-        else if(a>=20 && a<=23)edit_value(control_id(a-20),b,1);
+        /* Unassigned performance CCs must not silently edit the open page. */
     }
 }
+static void midi_message(uint8_t st,uint8_t a,uint8_t b){routed_message(0,st,a,b);}
+#if defined(IFW_TARGET) || defined(IFW_TRS_TEST)
+static void trs_message(uint8_t st,uint8_t a,uint8_t b){routed_message(1,st,a,b);}
+#endif
 static void format_value(char *text,uint32_t id) {
     const IFWPanelParam *p=&panel_params[id];int32_t v=word(&edit_patch,id);
     if(p->choice) {
@@ -350,12 +360,26 @@ static void app_init(void) {
 #if !defined(IFW_HOST) && !defined(IFW_EMU)
 /* Read-only snapshot, requested by the browser. No note, patch, output mode,
  * flash or reset operation is accepted by this protocol. */
+static void trace_reply(void){
+    uint32_t f=irq_save();
+    if(!usb.diag_req || usb.diag_command!=4 || !usb.config || mo_w-mo_r+50>MQ){irq_restore(f);return;}
+    uint8_t seq=usb.diag_sequence;unsigned page=usb.diag_page;usb.diag_req=0;irq_restore(f);
+    uint32_t words[28];uint8_t buf[150];
+    unsigned n=trace_words(page,words);ifw_diag_encode_words(buf,seq,5,n,words);
+    unsigned len=10+n*5;
+    for(unsigned i=0;i<len;i+=3){
+        unsigned m=len-i;if(m>3)m=3;
+        uint32_t pk=i+m==len?4+m:4;for(unsigned k=0;k<m;k++)pk|=(uint32_t)buf[i+k]<<(8+8*k);
+        midi_out_event(pk);
+    }
+}
 static void diagnostics_service(void) {
+    if(usb.diag_req && usb.diag_command==4){trace_reply();return;}
     uint32_t boot=usb.diag_command==2,bytes_count=boot?IFW_BOOT_BYTES:IFW_DIAG_BYTES;
     if(!usb.diag_req || !usb.config || mo_w-mo_r+(bytes_count+2u)/3u>MQ)return;
     uint32_t f=irq_save(),max_draw=0;
     for(unsigned i=0;i<UI_WIDGET_COUNT;i++)if(ui_widget_max_ticks[i]>max_draw)max_draw=ui_widget_max_ticks[i];
-    uint32_t words[IFW_DIAG_WORDS]={1,40715,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
+    uint32_t words[IFW_DIAG_WORDS]={1,40716,fm1_ms,preset,FS,HALF_FRAMES,audio_perf.blocks,
         audio_perf.dsp_ticks,audio_perf.dsp_max_ticks,audio_perf.last_ticks,audio_perf.max_ticks,
         audio_perf.overruns,audio_perf.dma_late,audio_underruns,audio_perf.peak,audio_perf.clips,
         platform_perf.scans,platform_perf.scan_ticks,platform_perf.scan_max_ticks,
@@ -364,7 +388,7 @@ static void diagnostics_service(void) {
         ui_poll_max_gap,ui_frame_count,ui_lcd_pixels,max_draw,(uint32_t)audio_perf.total_ticks};
     if(boot) {
         uint32_t valid=fm1_crash.magic==FM1_CRASH_MAGIC;
-        uint32_t report[IFW_BOOT_WORDS]={1,40715,recovery_active,ifw_boot_reason,
+        uint32_t report[IFW_BOOT_WORDS]={1,40716,recovery_active,ifw_boot_reason,
             fm1_boot.p3_rst,fm1_boot.rst_src,bootguard.failed,bootguard.pending,valid,
             valid?fm1_crash.count:0,valid?fm1_crash.vec:0,valid?fm1_crash.pc:0,
             valid?fm1_crash.rets:0,valid?fm1_crash.emu:0,valid?fm1_crash.dbg:0,
@@ -393,8 +417,8 @@ static void app_step(void) {
         uint32_t keys=fm1_in.notes,down=keys&~key_prev,up=key_prev&~keys;key_prev=keys;
         for(uint32_t k=0;k<27;k++) {
             if((down&(1u<<k))&&!ui_key(k)) {int32_t note=(int32_t)k+53+((int32_t)saved.octave-3)*12;key_notes[k]=(uint8_t)ifw_clamp(note,0,127);
-                note_start(key_notes[k],110);midi_send(0x90,key_notes[k],110);}
-            if((up&(1u<<k)) && key_notes[k]<128) {enqueue(1,key_notes[k],0);midi_send(0x80,key_notes[k],0);key_notes[k]=255;}
+                trace_note(2,0x90,key_notes[k],110);note_start(key_notes[k],110);midi_send(0x90,key_notes[k],110);}
+            if((up&(1u<<k)) && key_notes[k]<128) {trace_note(2,0x80,key_notes[k],0);enqueue(1,key_notes[k],0);midi_send(0x80,key_notes[k],0);key_notes[k]=255;}
             if((down|up)&(1u<<k))ui_led(KEY_LED(k),(int)(keys>>k&1u));
         }
         uint8_t st,a,b;while(midi_get(&st,&a,&b))midi_message(st,a,b);

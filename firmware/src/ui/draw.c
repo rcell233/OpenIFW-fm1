@@ -595,7 +595,7 @@ static void ui_menu_text(uint32_t t, uint32_t r, char *s) {
       str_cpy(s, "OCT+", 32);
     return;
   }
-  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc15", "OPEN", "OCT+"};
+  static const char *const a[] = {"OCT+", "OPEN", "0.4.7-rc16", "OPEN", "OCT+"};
   str_cpy(s, a[r % 5], 32);
 }
 static void ui_draw_menu(void) {
@@ -645,6 +645,8 @@ static void ui_footer(void) {
     ui_right(228,210,&UI_S,value,uc.dim);
   }
   if(ui_live_breath_page()){ui_breath_readout();return;}
+  if(page==UP_PERF && !ui.layer){
+    ui_fit(12,224,216,&UI_S,mt.mode==1?"RECORDING / REC STOP":mt.mode==3?"FULL / USB EXPORT":mt.mode>=2?"STOPPED / USB EXPORT":"REC: CAPTURE MIDI",uc.theme);return;}
   const char *context=ui.layer?(ui.layer_locked?"LOCKED / TAP BUTTON TO CLOSE":"HOLD / RELEASE TO CLOSE"):
       page==UP_HOME?"ALGORITHM: COLOR":ui_preset_name(preset);
   ui_fit(12,224,216,&UI_S,context,uc.mid);
@@ -903,6 +905,7 @@ static void draw_panel(uint32_t full) {
   initialized=1;
   if(page==UP_PERF && fm1_ms-perf_draw_at>=200u) {
     perf_snapshot();perf_draw_at=fm1_ms;ui_widgets|=6u;
+    static uint32_t old_trace_mode;if(old_trace_mode!=mt.mode){old_trace_mode=mt.mode;ui_widgets|=8u;}
   }
   if(full && ui_widgets) {
     if(!ui_priority_widgets)ui_priority_at=fm1_ms;
