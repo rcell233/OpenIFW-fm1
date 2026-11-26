@@ -12,7 +12,11 @@ authorized_ui={"firmware/src/ui/controls.c","firmware/src/ui/state.h","firmware/
 for path,expected in lock['sha256'].items():
     if path in authorized_ui:continue
     data=(root/path).read_bytes()
+    if path=='firmware/src/audio_output.h':
+        data=data.replace(b' * scheduling run between slices. Consume new input before each slice; DMA\n * handoff and the producer cushion stay at 256 frames. */',b' * scheduling run between slices. Events still enter the engine once a block. */')
+        data=data.replace(b'    else app_audio_events();\n',b'')
     if path=='firmware/src/platform.c':
+        data=data.replace(b'static void app_audio_events(void);\n',b'')
         # rc15 overlays the pinned UART HAL; only its init, include and count
         # poll are permitted. Original GPIO, USB, boot and audio code stay pinned.
         data=data.replace(b'static uint32_t trs_clock(void){return fm1_ticks();}\n',b'')
@@ -32,6 +36,9 @@ for path,expected in lock['sha256'].items():
         data=data.replace(b'b->mode=IFW_OUTPUT_BUS && mode==IFW_OUTPUT_LOUD;',b'b->mode=mode==IFW_OUTPUT_LOUD;')
     assert historical_hash(path,data)==expected,'UI-only release changed: '+path
 app=re.sub(rb'\b407[0-9]{2}\b',b'<release>',(root/'firmware/src/app.c').read_bytes())
+# rc18 calls the same event drain before each physical render slice.
+app=app.replace(b'/* Timestamp and apply queued events in order before advancing the synth. */\nstatic void app_audio_events(void) {',b'/* Events are consumed once per 256-frame block, as in the released engine. */\nstatic void app_audio_begin(void) {')
+app=app.replace(b'}\nstatic void app_audio_begin(void) {\n    app_audio_events();\n#ifdef IFW_DSP_ISR_TEST',b'#ifdef IFW_DSP_ISR_TEST')
 # rc17 ignores CC5 on the physical input before parameter routing.
 app=app.replace(b'        /* Wind controllers can leave portamento time latched between notes.\n         * Capture the raw message above, but ignore CC5 on the physical TRS input. */\n        if(src==1 && a==5)return;\n',b'')
 # rc16 input routing and diagnostics changed; the shared audio bridge and DSP are tested separately.

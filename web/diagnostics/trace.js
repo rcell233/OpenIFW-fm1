@@ -49,7 +49,7 @@ export async function readTrace(input,output,progress=()=>{},{status=()=>{},time
    for(let i=4;i<w.length;i+=3){const [us,m,lag]=w.slice(i,i+3),s=m&255,a=(m>>>8)&127,b=(m>>>16)&127;
     const wait=v=>v===65535?null:v;
     events.push({us,source:['USB','TRS','PANEL'][(m>>>24)&3],acceptedChannel:!!(m&(1<<26)),channel:1+(s&15),
-      bytes:(s&224)===192?[s,a]:[s,a,b],dmaNoticeToDispatchUs:wait(lag&65535),dispatchToNextBlockUs:wait(lag>>>16)});
+      bytes:(s&224)===192?[s,a]:[s,a,b],dmaNoticeToDispatchUs:wait(lag&65535),[firmwareCode>=40718?'dispatchToNextSliceUs':'dispatchToNextBlockUs']:wait(lag>>>16)});
    }
    if(page%8===0||events.length===count)progress(events.length,count);
  }

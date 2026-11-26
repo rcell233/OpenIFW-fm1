@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import {readSnapshot,readBootSnapshot} from './protocol.js';
-import {readTrace,midiFile} from './trace.js?v=2';
+import {readTrace,midiFile} from './trace.js?v=3';
 const $=id=>document.getElementById(id);let access,url;
 function saveReport(report){
  const text=JSON.stringify(report,null,2);$('raw').textContent=text;

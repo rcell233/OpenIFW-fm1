@@ -199,3 +199,8 @@ trs-input-test:
 	cmp build/trs/panel.bin build/trs/wirekeys.bin
 	ASAN_OPTIONS=detect_leaks=0 build/trs/input fixture build/trs/replies.bin
 	node tests/midi_recording.mjs
+
+# Optional real-device A/B. The user supplies the paired JSON/SMF privately.
+build/take-parity: tests/take_parity.c $(APP_DSP) $(wildcard firmware/src/*.h firmware/src/fixed/*.h firmware/src/ui/*.c firmware/src/ui/*.h) firmware/src/app.c
+	mkdir -p build
+	$(CC) -O2 -std=c11 -Wno-unused-function -Ivendor/dinghy/firmware/gen tests/take_parity.c $(APP_DSP) -o $@

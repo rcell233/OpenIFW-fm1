@@ -15,13 +15,15 @@ static uint32_t audio_queued(void) {return audio_write-audio_read;}
 static int audio_can_draw(void) {return audio_queued()>=2u;}
 
 /* One bounded unit of foreground work. Input, USB, watchdog and display
- * scheduling run between slices. Events still enter the engine once a block. */
+ * scheduling run between slices. Consume new input before each slice; DMA
+ * handoff and the producer cushion stay at 256 frames. */
 static void audio_service(void) {
     uint32_t w=audio_write;
     if(w-audio_read>=AUDIO_TARGET_BLOCKS)return;
     int32_t *out=audio_pcm[w&(AUDIO_SLOTS-1u)];
     uint32_t t0=fm1_ticks();uint8_t saved_audio=in_audio;in_audio=1;
     if(!audio_offset) {audio_render_ticks=0;app_audio_begin();}
+    else app_audio_events();
     app_audio_render(out+2u*audio_offset,AUDIO_SLICE);
     audio_offset+=AUDIO_SLICE;
     if(audio_offset==HALF_FRAMES) {

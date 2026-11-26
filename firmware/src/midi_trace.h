@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Volatile, explicit recording. No flash writes or USB transmission while playing.
- * dispatchUs, packed channel message, (next audio block wait : DMA notice wait).
+ * dispatchUs, packed channel message, (next audio slice wait : DMA notice wait).
  * 65535 = unavailable; 65534 = saturated. Times are measured on device. */
 #pragma once
 enum { TRACE_CAP=4096, TRACE_PAGE=8 };
@@ -62,7 +62,7 @@ static void trace_audio(void){
 static unsigned trace_words(unsigned page,uint32_t *w) {
     w[0]=1;w[1]=mt.session;w[2]=page;w[3]=mt.mode;
     if(!page){w[4]=mt.n;w[5]=mt.duration;w[6]=mt.patch;w[7]=mt.ch;w[8]=mt.cc;w[9]=mt.curve;w[10]=mt.raw;
-        w[11]=mt.loss;w[12]=mt.flags;w[13]=mt.glide;w[14]=mt.bend;w[15]=mt.gate;w[16]=mt.patchHash;w[17]=40717;w[18]=mt.glideMode;w[19]=mt.glideMin;w[20]=mt.glideDepth;w[21]=mt.breathMs;w[22]=mt.glideMs;return 23;}
+        w[11]=mt.loss;w[12]=mt.flags;w[13]=mt.glide;w[14]=mt.bend;w[15]=mt.gate;w[16]=mt.patchHash;w[17]=40718;w[18]=mt.glideMode;w[19]=mt.glideMin;w[20]=mt.glideDepth;w[21]=mt.breathMs;w[22]=mt.glideMs;return 23;}
     unsigned first=(page-1)*TRACE_PAGE,end=first+TRACE_PAGE;
     if(mt.mode<2 || first>=mt.n)return 4;
     if(end>mt.n)end=mt.n;

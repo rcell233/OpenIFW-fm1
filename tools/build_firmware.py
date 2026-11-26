@@ -43,7 +43,7 @@ sys.path.insert(0,str(V/'tools'))
 spec=importlib.util.spec_from_file_location('dinghy_build',V/'tools/build.py')
 b=importlib.util.module_from_spec(spec);spec.loader.exec_module(b)
 b.SRC=STAGE;b.FW=STAGE/'firmware';b.OUT=STAGE/'build';b.GEN=b.OUT/'gen';b.LDR=b.OUT/'loader'
-b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc17'
+b.PRODUCT='FM-1_982';b.VERSION='0.4.7-rc18'
 b.CFLAGS.extend(['-DIFW_TARGET','-Werror'])
 baseline_dir=os.environ.get('IFW_DSP_BASELINE_DIR')
 if baseline_dir:
@@ -160,7 +160,8 @@ result=dict(version=b.VERSION,identity=b.PRODUCT,appBytes=len(image),packageByte
     dspPlacement='ram' if ram_audio else 'xip',
     linkerSha256=hashlib.sha256((b.FW/'app.ld').read_bytes()).hexdigest(),
     ramTables={name:sym(name) for name in hot_tables} if ram_audio else {},
-    audioScheduling='foreground-32-frame-slices-with-4-slot-SPSC-queue',
+    audioScheduling='foreground-32-frame-MIDI-and-render-slices-with-4-slot-SPSC-queue',
+    inputRenderFrames=32,
     outputMode="NORMAL",outputDriveGain=2,outputDriveDb=6.020599913,
     outputBypassGain=2,outputBypassExactRc8=True,outputGainIsDynamic=False,
     outputCeilingDbFS=-6.020599913,outputBus=dict(enabled=False,

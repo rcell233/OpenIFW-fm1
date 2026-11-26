@@ -18,6 +18,9 @@ static double now,frame_cost;
 static uint32_t played,rendered,begun,finished,block_frame,captured_param,input_param;
 static uint32_t irqs,tapped,invalid_dma,publications,stalls;
 static uint32_t observed_write,active_render;
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+static uint32_t slices_applied,slices_with_updates,slice_params[8];
+#endif
 static void clock_advance(double until);
 void fm1_alnk0_irq(void);
 static uint32_t fm1_ticks(void) {return (uint32_t)(now*24000000./44100.);}
@@ -38,6 +41,9 @@ static void app_audio_render(int32_t *out,uint32_t n) {
 #ifdef IFW_PRODUCTION_AUDIO_TEST
     assert(in_audio);
 #endif
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+    slice_params[(rendered-block_frame)/32u]=captured_param;
+#endif
     for(uint32_t i=0;i<n;i++) {
         clock_advance(now+frame_cost);
         int32_t v=sample(rendered++,captured_param);out[2*i]=v;out[2*i+1]=-v;
@@ -45,9 +51,25 @@ static void app_audio_render(int32_t *out,uint32_t n) {
 }
 static void app_audio_finish(int32_t *out,uint32_t n) {
     assert(active_render && n==256u && rendered-block_frame==n);
-    for(uint32_t i=0;i<n;i++){assert(out[2*i]==sample(block_frame+i,captured_param));assert(out[2*i+1]==-out[2*i]);}
+    for(uint32_t i=0;i<n;i++){
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+        uint32_t param=slice_params[i/32u];
+#else
+        uint32_t param=captured_param;
+#endif
+        int32_t v=sample(block_frame+i,param);assert(out[2*i]==v && out[2*i+1]==-v);
+    }
     active_render=0;finished++;
 }
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+/* Use a new control value in a partly rendered block, without moving DMA
+ * publication or the start/finish of the full block. */
+static void app_audio_events(void) {
+    assert(active_render && in_audio);slices_applied++;
+    if(captured_param!=input_param)slices_with_updates++;
+    captured_param=input_param;
+}
+#endif
 #include "../firmware/src/audio_perf.h"
 #ifdef IFW_PRODUCTION_AUDIO_TEST
 #include "../firmware/src/output_bus.c"
@@ -84,6 +106,7 @@ static void clock_advance(double until) {
 static void reset(double ratio) {
 #ifdef IFW_PRODUCTION_AUDIO_TEST
     ifw_output_bus_init(&test_bus,IFW_OUTPUT_NORMAL);
+    slices_applied=slices_with_updates=0;
 #endif
     now=0;frame_cost=ratio;played=rendered=begun=finished=block_frame=0;
     captured_param=input_param=irqs=tapped=invalid_dma=publications=stalls=0;
@@ -102,7 +125,7 @@ static void run(double ratio,uint32_t stall_frames) {
 #ifdef IFW_PRODUCTION_AUDIO_TEST
             const int32_t *queued=audio_pcm[observed_write&3u];
             for(uint32_t i=0;i<256u;i++) {
-                int32_t raw=sample(block_frame+i,captured_param);
+                int32_t raw=sample(block_frame+i,slice_params[i/32u]);
                 int64_t product=(int64_t)raw*master_q12*2;
                 int32_t scaled=(int32_t)(product<0?-((-product+4095)/4096):product/4096);
                 int32_t neg=(int32_t)(product>0?-((product+4095)/4096):(-product)/4096);
@@ -118,6 +141,9 @@ static void run(double ratio,uint32_t stall_frames) {
         clock_advance(now+0.1);
     }
     perf_snapshot();assert(!invalid_dma && !perf_view.dma_late);
+#ifdef IFW_PRODUCTION_AUDIO_TEST
+    assert(slices_applied==(rendered/32u)-(begun) && slices_with_updates>0);
+#endif
     assert(tapped==audio_read*256u && publications==finished);
     assert(rendered==finished*256u+audio_offset); /* no skipped render blocks */
     assert(max_gap<2000u && turns>1000u); /* no interrupt monopolization */
